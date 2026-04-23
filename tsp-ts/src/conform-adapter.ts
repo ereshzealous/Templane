@@ -1,5 +1,7 @@
 import * as readline from 'node:readline';
 import { parse as schemaParse } from './schema-parser';
+import { check as typeCheck } from './type-checker';
+import { TypedSchema } from './models';
 
 interface Request {
   fixture_id: string;
@@ -17,7 +19,13 @@ function handle(fixtureId: string, fixture: Record<string, unknown>): Response {
       return { output: schemaParse(fixture.yaml as string, (fixture.id as string) ?? 'unknown') };
     }
 
-    // Categories 2-4 added in later tasks
+    if (fixtureId.startsWith('type-checker')) {
+      const schema = fixture.schema as TypedSchema;
+      const errors = typeCheck(schema, fixture.data as Record<string, unknown>);
+      return { output: { errors } };
+    }
+
+    // Categories 3-4 added in later tasks
     return { output: null, error: `Unhandled fixture: ${fixtureId}` };
   } catch (e) {
     return { output: null, error: (e as Error).message };
