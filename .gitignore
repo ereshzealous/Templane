@@ -8,3 +8,4 @@ target/
 .pytest_cache/
 .gradle/
 build/
+tsp-go/bin/
