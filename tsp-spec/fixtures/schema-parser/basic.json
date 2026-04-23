@@ -1,0 +1,17 @@
+{
+  "fixture_id": "schema-parser/basic",
+  "input": {
+    "id": "basic",
+    "yaml": "name:\n  type: string\n  required: true\nage:\n  type: number\n  required: false\nactive:\n  type: boolean\n  required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "basic",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true},
+        "age":  {"name": "age",  "type": {"kind": "number"}, "required": false},
+        "active": {"name": "active", "type": {"kind": "boolean"}, "required": true}
+      }
+    }
+  }
+}

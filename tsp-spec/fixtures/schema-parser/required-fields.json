@@ -1,0 +1,16 @@
+{
+  "fixture_id": "schema-parser/required-fields",
+  "input": {
+    "id": "required-fields",
+    "yaml": "title:\n  type: string\n  required: true\nsubtitle:\n  type: string\n  required: false\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "required-fields",
+      "fields": {
+        "title":    {"name": "title",    "type": {"kind": "string"}, "required": true},
+        "subtitle": {"name": "subtitle", "type": {"kind": "string"}, "required": false}
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "fixture_id": "schema-parser/deep-nesting",
+  "input": {
+    "id": "deep-nesting",
+    "yaml": "order:\n  type: object\n  required: true\n  fields:\n    customer:\n      type: object\n      required: true\n      fields:\n        address:\n          type: object\n          required: true\n          fields:\n            city:\n              type: string\n              required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "deep-nesting",
+      "fields": {
+        "order": {
+          "name": "order",
+          "type": {
+            "kind": "object",
+            "fields": {
+              "customer": {
+                "name": "customer",
+                "type": {
+                  "kind": "object",
+                  "fields": {
+                    "address": {
+                      "name": "address",
+                      "type": {
+                        "kind": "object",
+                        "fields": {
+                          "city": {"name": "city", "type": {"kind": "string"}, "required": true}
+                        }
+                      },
+                      "required": true
+                    }
+                  }
+                },
+                "required": true
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  }
+}

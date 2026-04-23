@@ -1,0 +1,15 @@
+{
+  "fixture_id": "schema-parser/list-type",
+  "input": {
+    "id": "list-type",
+    "yaml": "tags:\n  type: list\n  items:\n    type: string\n  required: false\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "list-type",
+      "fields": {
+        "tags": {"name": "tags", "type": {"kind": "list", "item_type": {"kind": "string"}}, "required": false}
+      }
+    }
+  }
+}

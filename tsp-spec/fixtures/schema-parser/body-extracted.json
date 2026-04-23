@@ -1,0 +1,16 @@
+{
+  "fixture_id": "schema-parser/body-extracted",
+  "input": {
+    "id": "body-extracted",
+    "yaml": "name:\n  type: string\n  required: true\n---\nHello {{ name }}!\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "body-extracted",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "body": "Hello {{ name }}!\n"
+  }
+}

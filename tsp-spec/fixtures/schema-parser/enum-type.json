@@ -1,0 +1,15 @@
+{
+  "fixture_id": "schema-parser/enum-type",
+  "input": {
+    "id": "enum-type",
+    "yaml": "status:\n  type: enum\n  values: [active, inactive, pending]\n  required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "enum-type",
+      "fields": {
+        "status": {"name": "status", "type": {"kind": "enum", "values": ["active", "inactive", "pending"]}, "required": true}
+      }
+    }
+  }
+}

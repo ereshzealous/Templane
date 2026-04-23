@@ -1,0 +1,10 @@
+{
+  "fixture_id": "schema-parser/invalid-schema",
+  "input": {
+    "id": "invalid-schema",
+    "yaml": "- just\n- a\n- list\n"
+  },
+  "expected_output": {
+    "error": "Schema must be a YAML mapping"
+  }
+}
