@@ -15,7 +15,10 @@ for _sp in (_repo / "tsp-core" / ".venv" / "lib").glob("python*/site-packages"):
 
 from tsp_core.schema_parser import parse as schema_parse  # noqa: E402
 from tsp_core.type_checker import check as type_check  # noqa: E402
-from tsp_core.models import typed_schema_from_dict  # noqa: E402
+from tsp_core.ir_generator import generate as ir_generate  # noqa: E402
+from tsp_core.models import (  # noqa: E402
+    typed_schema_from_dict, ast_node_from_dict, tir_result_to_dict,
+)
 
 
 def handle(fixture_id: str, fixture: dict) -> dict:
@@ -29,7 +32,17 @@ def handle(fixture_id: str, fixture: dict) -> dict:
             errors = type_check(schema, fixture["data"])
             return {"output": {"errors": [e.to_dict() for e in errors]}}
 
-        # Categories 3-4 added in later tasks
+        if fixture_id.startswith("ir-generator"):
+            ast_nodes = [ast_node_from_dict(n) for n in fixture["ast"]]
+            result = ir_generate(
+                ast_nodes,
+                fixture["data"],
+                fixture["schema_id"],
+                fixture["template_id"],
+            )
+            return {"output": tir_result_to_dict(result)}
+
+        # Category 4 added in Task 11
         return {"output": None, "error": f"Unhandled fixture: {fixture_id}"}
 
     except Exception as exc:
