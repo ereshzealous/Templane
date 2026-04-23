@@ -1,0 +1,11 @@
+{
+  "name": "Charlie",
+  "age": "thirty-five",
+  "status": "acive",
+  "tags": ["admin", 42, "tester"],
+  "address": {
+    "street": "5 Oak Ave",
+    "city": "Austin",
+    "kountry": "USA"
+  }
+}

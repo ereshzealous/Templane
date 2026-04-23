@@ -1,0 +1,38 @@
+name:
+  type: string
+  required: true
+age:
+  type: number
+  required: false
+status:
+  type: enum
+  values: [active, inactive, pending, suspended]
+  required: true
+tags:
+  type: list
+  items:
+    type: string
+  required: true
+address:
+  type: object
+  required: true
+  fields:
+    street:
+      type: string
+      required: true
+    city:
+      type: string
+      required: true
+    country:
+      type: string
+      required: true
+    postal_code:
+      type: string
+      required: false
+---
+User: {{ name }}{{#if age}} (age {{ age }}){{/if}}
+Status: {{ status }}
+Tags: {{#each tags}}{{ this }}{{#unless @last}}, {{/unless}}{{/each}}
+Address:
+  {{ address.street }}
+  {{ address.city }}, {{ address.country }}{{#if address.postal_code}} {{ address.postal_code }}{{/if}}

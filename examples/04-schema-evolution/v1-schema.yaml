@@ -1,0 +1,19 @@
+user:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    email:
+      type: string
+      required: false
+    status:
+      type: enum
+      values: [active, inactive, pending, suspended]
+      required: true
+tags:
+  type: list
+  items:
+    type: string
+  required: false

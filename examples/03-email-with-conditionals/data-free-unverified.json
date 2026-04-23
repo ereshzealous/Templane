@@ -1,0 +1,11 @@
+{
+  "user": {
+    "name": "Bob",
+    "email": "bob@example.com",
+    "plan": "free",
+    "is_verified": false
+  },
+  "order_items": [
+    {"sku": "FREE-TRIAL", "quantity": 1, "price": 0}
+  ]
+}

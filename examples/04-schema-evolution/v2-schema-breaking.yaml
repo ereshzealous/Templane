@@ -1,0 +1,25 @@
+user:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    # email: REMOVED (breaking: removed_field)
+    email_address:
+      type: string
+      required: true
+    status:
+      type: enum
+      # "pending" removed (breaking: enum_value_removed)
+      values: [active, inactive, suspended]
+      required: true
+    # new required field (NOT reported as breaking per spec,
+    # but IS breaking for existing callers in practice):
+    tenant_id:
+      type: string
+      required: true
+tags:
+  # changed from list to string (breaking: type_change)
+  type: string
+  required: false

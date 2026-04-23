@@ -1,0 +1,13 @@
+{
+  "user": {
+    "name": "Alice Chen",
+    "email": "alice@bigcorp.com",
+    "plan": "enterprise",
+    "is_verified": true
+  },
+  "order_items": [
+    {"sku": "SEAT-LICENSE-YEAR", "quantity": 50, "price": 240},
+    {"sku": "SSO-ADDON", "quantity": 1, "price": 2400}
+  ],
+  "promo_code": "LAUNCH2026"
+}

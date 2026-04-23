@@ -1,0 +1,62 @@
+user:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    email:
+      type: string
+      required: true
+    plan:
+      type: enum
+      values: [free, pro, enterprise]
+      required: true
+    is_verified:
+      type: boolean
+      required: true
+order_items:
+  type: list
+  items:
+    type: object
+    fields:
+      sku:
+        type: string
+        required: true
+      quantity:
+        type: number
+        required: true
+      price:
+        type: number
+        required: true
+  required: true
+promo_code:
+  type: string
+  required: false
+---
+Subject: Welcome to Acme, {{ user.name }}!
+
+Hi {{ user.name }},
+
+{{#unless user.is_verified}}
+Please verify your email ({{ user.email }}) by clicking the link we sent you.
+{{/unless}}
+
+{{#if (eq user.plan "free")}}
+You're on the Free plan — you'll see our full feature list inside.
+{{else if (eq user.plan "pro")}}
+Thanks for upgrading to Pro! Here's what's new for you this month.
+{{else}}
+Welcome to the Enterprise tier. Your account manager will reach out shortly.
+{{/if}}
+
+Your order:
+{{#each order_items}}
+  - {{ this.quantity }} × {{ this.sku }} @ ${{ this.price }}
+{{/each}}
+
+{{#if promo_code}}
+Use promo code {{ promo_code }} for 10% off your next purchase.
+{{/if}}
+
+— The Acme Team

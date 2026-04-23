@@ -1,0 +1,24 @@
+user:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    email:
+      type: string
+      required: false
+    status:
+      type: enum
+      # new value added — non-breaking
+      values: [active, inactive, pending, suspended, archived]
+      required: true
+    # new optional field — non-breaking
+    display_name:
+      type: string
+      required: false
+tags:
+  type: list
+  items:
+    type: string
+  required: false

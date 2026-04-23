@@ -1,0 +1,12 @@
+{
+  "name": "Alice Johnson",
+  "age": 34,
+  "status": "active",
+  "tags": ["admin", "beta-tester", "founding-member"],
+  "address": {
+    "street": "123 Maple Street",
+    "city": "Portland",
+    "country": "USA",
+    "postal_code": "97201"
+  }
+}
