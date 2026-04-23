@@ -106,6 +106,172 @@ test('xt with unknown command shows usage', () => {
   }
 });
 
+function tempDir(): string {
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'xt-test-dir-'));
+}
+
+function rmDir(d: string): void {
+  fs.rmSync(d, { recursive: true, force: true });
+}
+
+test('xt test — valid templates pass', () => {
+  const dir = tempDir();
+  fs.writeFileSync(
+    path.join(dir, 'greet.hbs'),
+    'name:\n  type: string\n  required: true\n---\nHi {{name}}',
+  );
+  try {
+    const r = runXt(['test', dir]);
+    assert.equal(r.code, 0);
+    assert.ok(r.stdout.includes('✓'));
+    assert.ok(r.stdout.includes('1/1 passed'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt test — invalid schema fails', () => {
+  const dir = tempDir();
+  fs.writeFileSync(path.join(dir, 'bad.hbs'), '- a list\n---\nbody');
+  try {
+    const r = runXt(['test', dir]);
+    assert.notEqual(r.code, 0);
+    assert.ok(r.stdout.includes('✗'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt test — adjacent example.json triggers render', () => {
+  const dir = tempDir();
+  fs.writeFileSync(
+    path.join(dir, 'greet.hbs'),
+    'name:\n  type: string\n  required: true\n---\nHi {{name}}',
+  );
+  fs.writeFileSync(path.join(dir, 'greet.example.json'), '{"name": "World"}');
+  try {
+    const r = runXt(['test', dir]);
+    assert.equal(r.code, 0);
+    assert.ok(r.stdout.includes('rendered example'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt test — example with bad data fails render', () => {
+  const dir = tempDir();
+  fs.writeFileSync(
+    path.join(dir, 'age.hbs'),
+    'age:\n  type: number\n  required: true\n---\n{{age}}',
+  );
+  fs.writeFileSync(path.join(dir, 'age.example.json'), '{"age": "old"}');
+  try {
+    const r = runXt(['test', dir]);
+    assert.notEqual(r.code, 0);
+    assert.ok(r.stdout.includes('✗'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt test — empty dir reports no templates', () => {
+  const dir = tempDir();
+  try {
+    const r = runXt(['test', dir]);
+    assert.equal(r.code, 0);
+    assert.ok(r.stdout.includes('No .hbs templates'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt test — recurses into subdirectories', () => {
+  const dir = tempDir();
+  fs.mkdirSync(path.join(dir, 'sub'));
+  fs.writeFileSync(
+    path.join(dir, 'sub', 'nested.hbs'),
+    'x:\n  type: string\n  required: true\n---\n{{x}}',
+  );
+  try {
+    const r = runXt(['test', dir]);
+    assert.equal(r.code, 0);
+    assert.ok(r.stdout.includes('sub/nested.hbs'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt build — produces compiled CommonJS module', () => {
+  const dir = tempDir();
+  const outFile = path.join(dir, 'dist', 'templates.js');
+  fs.writeFileSync(
+    path.join(dir, 'greet.hbs'),
+    'name:\n  type: string\n  required: true\n---\nHi {{name}}',
+  );
+  try {
+    const r = runXt(['build', dir, '--out', outFile]);
+    assert.equal(r.code, 0);
+    assert.ok(fs.existsSync(outFile));
+    const content = fs.readFileSync(outFile, 'utf-8');
+    assert.ok(content.includes('"greet"'));
+    assert.ok(content.includes('Handlebars.template'));
+    assert.ok(content.includes("handlebars/runtime"));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt build — compiled output is loadable and renders', () => {
+  const dir = tempDir();
+  const outFile = path.join(dir, 'templates.cjs');
+  fs.writeFileSync(
+    path.join(dir, 'greet.hbs'),
+    'name:\n  type: string\n  required: true\n---\nHello {{name}}!',
+  );
+  try {
+    const r = runXt(['build', dir, '--out', outFile]);
+    assert.equal(r.code, 0);
+    // Execute the generated module via `node` with cwd inside tsp-ts so
+    // node_modules resolution finds handlebars/runtime.
+    const script = `const t = require(${JSON.stringify(outFile)}); process.stdout.write(t.greet({name:'Alice'}));`;
+    const exec = spawnSync('node', ['-e', script], {
+      cwd: path.resolve(__dirname, '..'),
+      encoding: 'utf-8',
+      env: {
+        ...process.env,
+        NODE_PATH: path.resolve(__dirname, '..', 'node_modules'),
+      },
+    });
+    assert.equal(exec.status, 0);
+    assert.equal(exec.stdout, 'Hello Alice!');
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt build — requires --out flag', () => {
+  const dir = tempDir();
+  try {
+    const r = runXt(['build', dir]);
+    assert.notEqual(r.code, 0);
+    assert.ok(r.stderr.includes('Usage'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
+test('xt build — fails on empty directory', () => {
+  const dir = tempDir();
+  const outFile = path.join(dir, 'out.js');
+  try {
+    const r = runXt(['build', dir, '--out', outFile]);
+    assert.notEqual(r.code, 0);
+    assert.ok(r.stderr.includes('No .hbs templates'));
+  } finally {
+    rmDir(dir);
+  }
+});
+
 test('xt render handles foreach', () => {
   const tmpl = tempFile(
     [
