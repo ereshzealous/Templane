@@ -1,0 +1,14 @@
+{
+  "fixture_id": "adapters/html-basic",
+  "input": {
+    "tir": {
+      "template_id": "greeting", "schema_id": "user",
+      "nodes": [
+        {"kind": "text", "content": "Hello "},
+        {"kind": "expr", "field": "name", "resolved": "Alice"},
+        {"kind": "text", "content": "!"}
+      ]
+    }
+  },
+  "expected_output": {"output": "<!-- templane template_id=greeting schema_id=user -->\nHello Alice!"}
+}

@@ -1,0 +1,10 @@
+{
+  "fixture_id": "adapters/html-special-chars",
+  "input": {
+    "tir": {
+      "template_id": "escape", "schema_id": "data",
+      "nodes": [{"kind": "expr", "field": "content", "resolved": "<b>Hello & World</b>"}]
+    }
+  },
+  "expected_output": {"output": "<!-- templane template_id=escape schema_id=data -->\n&lt;b&gt;Hello &amp; World&lt;/b&gt;"}
+}

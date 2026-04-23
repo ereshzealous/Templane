@@ -1,0 +1,13 @@
+{
+  "fixture_id": "adapters/yaml-basic",
+  "input": {
+    "tir": {
+      "template_id": "greeting", "schema_id": "user",
+      "nodes": [
+        {"kind": "text", "content": "name: "},
+        {"kind": "expr", "field": "name", "resolved": "Alice"}
+      ]
+    }
+  },
+  "expected_output": {"output": "# templane template_id=greeting schema_id=user\nname: Alice"}
+}

@@ -1,4 +1,4 @@
-# TSP — Template Schema Protocol
+# Templane — Templane Protocol
 
 **Specification version:** 1.0
 **Status:** Stable
@@ -6,7 +6,7 @@
 
 ## Abstract
 
-TSP (Template Schema Protocol) is a language-neutral protocol that adds
+Templane (Templane Protocol) is a language-neutral protocol that adds
 compile-time type safety to templating engines. It defines:
 
 1. A YAML-based **schema document format** describing the shape of template
@@ -15,10 +15,10 @@ compile-time type safety to templating engines. It defines:
    render.
 3. A **type checker** that validates data against schemas and produces
    structured errors.
-4. A **conformance fixture suite** (the `tsp-conform` CLI + 32 fixtures) any
+4. A **conformance fixture suite** (the `templane-conform` CLI + 32 fixtures) any
    compliant implementation must pass.
 
-Any templating engine that adopts TSP gains compile-time type checking,
+Any templating engine that adopts Templane gains compile-time type checking,
 schema validation, schema evolution tracking, and IDE tooling —
 without replacing the engine.
 
@@ -62,8 +62,8 @@ are silent at render time:
 
 ### 1.2 Approach
 
-TSP decouples the schema layer from the templating engine, analogous to how
-LSP decoupled language intelligence from editors. Any engine adopting TSP
+Templane decouples the schema layer from the templating engine, analogous to how
+LSP decoupled language intelligence from editors. Any engine adopting Templane
 inherits compile-time type checking, structured error reporting, and
 schema-evolution detection — regardless of the engine's own template syntax.
 
@@ -81,7 +81,7 @@ This specification defines:
 This specification does NOT define:
 
 - Template syntax — each engine (Jinja2, Handlebars, etc.) retains its
-  native syntax. TSP operates on data going into those engines.
+  native syntax. Templane operates on data going into those engines.
 - How engines parse their own templates into an AST — the AST format is
   defined (§5.4) but the parsing strategy is engine-specific.
 - Language bindings — each implementation is free to use idiomatic types
@@ -103,9 +103,9 @@ normative definitions are the type signatures and the fixture suite.
 
 ## 3. Type system
 
-### 3.1 TSPFieldType
+### 3.1 TemplaneFieldType
 
-Every field in a TSP schema has exactly one of seven types, distinguished by
+Every field in a Templane schema has exactly one of seven types, distinguished by
 the `kind` tag:
 
 | Kind       | Meaning                                | Additional keys               |
@@ -115,18 +115,18 @@ the `kind` tag:
 | `boolean`  | `true` or `false`                      | —                             |
 | `null`     | the JSON null value                    | —                             |
 | `enum`     | one of an explicit string set          | `values: string[]`            |
-| `list`     | homogeneous array                      | `item_type: TSPFieldType`     |
-| `object`   | nested mapping                         | `fields: map<string, TSPField>` |
+| `list`     | homogeneous array                      | `item_type: TemplaneFieldType`     |
+| `object`   | nested mapping                         | `fields: map<string, TemplaneField>` |
 
 Types are recursive: `list<object<...>>` and arbitrarily deep `object` nesting
 are valid.
 
-### 3.2 TSPField
+### 3.2 TemplaneField
 
 A field MUST have three properties:
 
 - `name: string` — the field identifier.
-- `type: TSPFieldType` — the field's declared type.
+- `type: TemplaneFieldType` — the field's declared type.
 - `required: boolean` — whether omission is an error.
 
 ### 3.3 TypedSchema
@@ -134,7 +134,7 @@ A field MUST have three properties:
 A schema MUST have two properties:
 
 - `id: string` — an identifier (used in error paths and provenance).
-- `fields: map<string, TSPField>` — keyed by field name.
+- `fields: map<string, TemplaneField>` — keyed by field name.
 
 Field order in the map SHOULD be preserved when possible (for deterministic
 error ordering) but a conformant implementation MUST NOT rely on a specific
@@ -146,7 +146,7 @@ iteration order for correctness.
 
 ### 4.1 YAML grammar
 
-A TSP schema document is a YAML mapping whose keys are field names:
+A Templane schema document is a YAML mapping whose keys are field names:
 
 ```yaml
 name:
@@ -191,7 +191,7 @@ address:
 
 ### 4.2 Template body separator
 
-A TSP schema document MAY include a template body after the separator
+A Templane schema document MAY include a template body after the separator
 `"\n---\n"`. The schema parser MUST emit both the parsed schema AND the
 verbatim body string (including trailing newline if present):
 
@@ -203,7 +203,7 @@ name:
 Hello {{ name }}!
 ```
 
-The body's template syntax is defined by the consuming engine, not by TSP.
+The body's template syntax is defined by the consuming engine, not by Templane.
 
 ---
 
@@ -229,13 +229,13 @@ The body's template syntax is defined by the consuming engine, not by TSP.
 }
 ```
 
-### 5.2 TSPField
+### 5.2 TemplaneField
 
 ```json
-{"name": "<string>", "type": <TSPFieldType>, "required": <boolean>}
+{"name": "<string>", "type": <TemplaneFieldType>, "required": <boolean>}
 ```
 
-### 5.3 TSPFieldType (discriminated union)
+### 5.3 TemplaneFieldType (discriminated union)
 
 Exactly one `kind` tag per value. Additional keys depend on kind:
 
@@ -246,7 +246,7 @@ Exactly one `kind` tag per value. Additional keys depend on kind:
 {"kind": "null"}
 {"kind": "enum", "values": ["a", "b", "c"]}
 {"kind": "list", "item_type": {"kind": "string"}}
-{"kind": "object", "fields": {"<name>": <TSPField>, ...}}
+{"kind": "object", "fields": {"<name>": <TemplaneField>, ...}}
 ```
 
 ### 5.4 AST (Abstract Syntax Tree)
@@ -316,7 +316,7 @@ Error codes are enumerated in §7.1.
 
 ## 6. Operations
 
-Every conformant TSP implementation MUST expose four operations. Function
+Every conformant Templane implementation MUST expose four operations. Function
 names are illustrative; implementations MAY name them idiomatically (e.g.
 `parse_schema`, `parseSchema`, `ParseSchema`, etc.).
 
@@ -417,19 +417,19 @@ indices:
 - `null` resolves to empty string (NOT the literal "null").
 - Falsy primitives (`0`, `false`, empty string) render as their string form.
 - Output begins with a provenance comment:
-  `<!-- tsp template_id=<id> schema_id=<id> -->\n`
+  `<!-- templane template_id=<id> schema_id=<id> -->\n`
 
 **YAML adapter:**
 
 - No escaping applied.
 - Otherwise identical to HTML adapter.
-- Provenance comment uses `#` syntax: `# tsp template_id=<id> schema_id=<id>\n`
+- Provenance comment uses `#` syntax: `# templane template_id=<id> schema_id=<id>\n`
 
 ---
 
 ## 8. Schema evolution
 
-A TSP implementation MAY provide a `detect(old_schema, new_schema)`
+A Templane implementation MAY provide a `detect(old_schema, new_schema)`
 operation that returns the list of breaking changes between two schemas.
 
 ### 8.1 Breaking change categories
@@ -457,8 +457,8 @@ The following changes MUST NOT be reported as breaking:
 ## 9. Conform adapter protocol
 
 Implementations are validated by passing all 32 fixtures in
-`tsp-spec/fixtures/` through a subprocess shim called a **conform adapter**.
-The adapter is invoked by the `tsp-conform` CLI (Node.js).
+`templane-spec/fixtures/` through a subprocess shim called a **conform adapter**.
+The adapter is invoked by the `templane-conform` CLI (Node.js).
 
 ### 9.1 Transport
 
@@ -516,10 +516,10 @@ There are exactly 32 fixtures: 8 per category × 4 categories.
 
 ### 10.1 Compliance criterion
 
-An implementation is **TSP 1.0 compliant** if and only if:
+An implementation is **Templane 1.0 compliant** if and only if:
 
 1. Its conform adapter reports 32/32 across all fixtures when run via
-   `tsp-conform`.
+   `templane-conform`.
 2. Its type-check error messages match the formats in §7.2 character-for-
    character (verified by fixture-specific expected outputs).
 3. Its JSON serialization of TIR `expr` nodes includes the `resolved` key
@@ -532,24 +532,24 @@ implementations exist and pass 32/32:
 
 | Language   | Package        | Template engine integration |
 |------------|----------------|------------------------------|
-| Python     | `tsp-spec/tsp-core` | — (reference)            |
-| TypeScript | `tsp-ts`       | `handlebars-tsp` (Handlebars) |
-| Python     | `tsp-python`   | `jinja_tsp` (Jinja2)         |
-| Java       | `tsp-java`     | `freemarker-tsp` (FreeMarker) |
-| Go         | `tsp-go`       | — (integrations pending)     |
+| Python     | `templane-spec/templane-core` | — (reference)            |
+| TypeScript | `templane-ts`       | `handlebars-templane` (Handlebars) |
+| Python     | `templane-python`   | `jinja_templane` (Jinja2)         |
+| Java       | `templane-java`     | `freemarker-templane` (FreeMarker) |
+| Go         | `templane-go`       | — (integrations pending)     |
 
 ### 10.3 Conformance testing
 
 Run the full matrix:
 
 ```bash
-node tsp-spec/tsp-conform/dist/cli.js \
+node templane-spec/templane-conform/dist/cli.js \
   --adapters \
-    "spec:python3 tsp-spec/conform-adapter/run.py" \
-    "ts:node tsp-ts/dist/conform-adapter.js" \
-    "py:python3 tsp-python/conform-adapter/run.py" \
-    "java:tsp-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
-    "go:tsp-go/bin/conform-adapter"
+    "spec:python3 templane-spec/conform-adapter/run.py" \
+    "ts:node templane-ts/dist/conform-adapter.js" \
+    "py:python3 templane-python/conform-adapter/run.py" \
+    "java:templane-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
+    "go:templane-go/bin/conform-adapter"
 ```
 
 Expected:
@@ -639,7 +639,7 @@ line_items:
 
 ## Appendix B — Fixture index
 
-The 32 conformance fixtures live in `tsp-spec/fixtures/`, organized by category.
+The 32 conformance fixtures live in `templane-spec/fixtures/`, organized by category.
 
 ### B.1 schema-parser (8)
 

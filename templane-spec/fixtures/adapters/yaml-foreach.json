@@ -1,0 +1,16 @@
+{
+  "fixture_id": "adapters/yaml-foreach",
+  "input": {
+    "tir": {
+      "template_id": "list", "schema_id": "data",
+      "nodes": [{
+        "kind": "foreach", "var": "item",
+        "items": [
+          [{"kind": "text", "content": "- "}, {"kind": "expr", "field": "item", "resolved": "apple"},  {"kind": "text", "content": "\n"}],
+          [{"kind": "text", "content": "- "}, {"kind": "expr", "field": "item", "resolved": "banana"}, {"kind": "text", "content": "\n"}]
+        ]
+      }]
+    }
+  },
+  "expected_output": {"output": "# templane template_id=list schema_id=data\n- apple\n- banana\n"}
+}

@@ -1,11 +1,11 @@
-# Contributing to TSP
+# Contributing to Templane
 
-Thanks for your interest in TSP. There are three main ways to contribute:
+Thanks for your interest in Templane. There are three main ways to contribute:
 
 1. **Extend the protocol specification** (new type, new operation).
 2. **Add a new language binding** (e.g. Rust, Ruby, C#).
 3. **Add a new template-engine integration** within an existing language
-   (e.g. Nunjucks-tsp, Pongo2-tsp, Liquid-tsp).
+   (e.g. Nunjucks-templane, Pongo2-templane, Liquid-templane).
 
 ---
 
@@ -15,9 +15,9 @@ Thanks for your interest in TSP. There are three main ways to contribute:
   conformance suite.
 - New features **MUST** be defined in [SPEC.md](SPEC.md) before they are
   implemented.
-- New features **MUST** include fixtures in `tsp-spec/fixtures/` and be
+- New features **MUST** include fixtures in `templane-spec/fixtures/` and be
   implemented across **all** existing language bindings before merging.
-  (Protocol drift between implementations is the single failure mode TSP is
+  (Protocol drift between implementations is the single failure mode Templane is
   designed to prevent.)
 
 ---
@@ -29,7 +29,7 @@ New types, operations, or breaking-change categories require a spec change.
 1. Open an issue describing the feature and its motivation.
 2. Draft SPEC.md changes in a PR.
 3. Add one or more fixtures demonstrating the feature to
-   `tsp-spec/fixtures/<category>/<name>.json`.
+   `templane-spec/fixtures/<category>/<name>.json`.
 4. Update all five reference implementations to pass the new fixtures.
 5. Bump the specification version (SPEC.md header) if semantically
    breaking; otherwise increment the minor version.
@@ -43,7 +43,7 @@ whether a proposal is breaking.
 
 ## Adding a new language binding
 
-TSP is designed to be implementable in any language with JSON, YAML, and
+Templane is designed to be implementable in any language with JSON, YAML, and
 subprocess I/O. Rough effort: ~3 hours for someone comfortable with the
 target language.
 
@@ -54,15 +54,15 @@ target language.
    protocol).
 2. Set up the package skeleton using your language's idiomatic layout.
 3. Implement the four operations (parse, check, generate, render) against
-   `tsp-spec/fixtures/`. Run `tsp-conform` incrementally:
+   `templane-spec/fixtures/`. Run `templane-conform` incrementally:
    - 8/32 after schema-parser
    - 16/32 after type-checker
    - 24/32 after ir-generator
    - 32/32 after both adapters
 4. Build a conform adapter (subprocess shim). See any of the five existing
-   adapters for reference (`tsp-spec/conform-adapter/run.py`,
-   `tsp-ts/src/conform-adapter.ts`, etc.).
-5. Wire up `tsp-conform.yaml` (root) to register your adapter.
+   adapters for reference (`templane-spec/conform-adapter/run.py`,
+   `templane-ts/src/conform-adapter.ts`, etc.).
+5. Wire up `templane-conform.yaml` (root) to register your adapter.
 6. Add a README.md for your binding following the same structure as the
    existing ones (installation, quick start, API, tests, conformance).
 7. Open a PR linking your binding in the top-level README's implementation
@@ -95,19 +95,19 @@ Pick the idiom closest to your target language.
 
 ## Adding a template-engine integration
 
-TSP's value is multiplied by every engine integration. Within an existing
+Templane's value is multiplied by every engine integration. Within an existing
 language, you can add a new integration without changing the protocol.
 
 Pattern (example: adding Liquid support in Python):
 
 ```python
-# liquid_tsp/environment.py
+# liquid_templane/environment.py
 import liquid
-from tsp_core.schema_parser import parse as parse_schema
-from tsp_core.type_checker import check as type_check
-from tsp_core.models import typed_schema_from_dict
+from templane_core.schema_parser import parse as parse_schema
+from templane_core.type_checker import check as type_check
+from templane_core.models import typed_schema_from_dict
 
-class TSPLiquidEnvironment:
+class TemplaneLiquidEnvironment:
     def __init__(self, search_path):
         self._search_path = search_path
         self._liquid_env = liquid.Environment(loader=...)
@@ -121,13 +121,13 @@ class TSPLiquidEnvironment:
 Key requirements:
 
 - Type checking at **render time** (since data is only known then).
-- Raise a `TSPTemplateError` (or language-equivalent) containing all
+- Raise a `TemplaneTemplateError` (or language-equivalent) containing all
   type-check errors — don't short-circuit.
 - Expose the parsed `TypedSchema` on the returned template object so callers
   can introspect it.
 
-See `tsp-python/src/jinja_tsp/environment.py`, `tsp-ts/src/handlebars-tsp.ts`,
-and `tsp-java/freemarker-tsp/` for reference implementations.
+See `templane-python/src/jinja_templane/environment.py`, `templane-ts/src/handlebars-templane.ts`,
+and `templane-java/freemarker-templane/` for reference implementations.
 
 ---
 
@@ -137,20 +137,20 @@ and `tsp-java/freemarker-tsp/` for reference implementations.
 
 ```bash
 # Build everything
-cd tsp-ts && npm install && npm run build
-cd ../tsp-python && uv sync --extra dev
-cd ../tsp-java && ./gradlew build
-cd ../tsp-go && go build ./...
+cd templane-ts && npm install && npm run build
+cd ../templane-python && uv sync --extra dev
+cd ../templane-java && ./gradlew build
+cd ../templane-go && go build ./...
 cd ..
 
 # Run
-node tsp-spec/tsp-conform/dist/cli.js \
+node templane-spec/templane-conform/dist/cli.js \
   --adapters \
-    "spec:python3 tsp-spec/conform-adapter/run.py" \
-    "ts:node tsp-ts/dist/conform-adapter.js" \
-    "py:python3 tsp-python/conform-adapter/run.py" \
-    "java:tsp-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
-    "go:tsp-go/bin/conform-adapter"
+    "spec:python3 templane-spec/conform-adapter/run.py" \
+    "ts:node templane-ts/dist/conform-adapter.js" \
+    "py:python3 templane-python/conform-adapter/run.py" \
+    "java:templane-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
+    "go:templane-go/bin/conform-adapter"
 ```
 
 All five must report 32/32.
@@ -159,19 +159,19 @@ All five must report 32/32.
 
 ```bash
 # Python (reference)
-cd tsp-spec/tsp-core && .venv/bin/pytest
+cd templane-spec/templane-core && .venv/bin/pytest
 
 # TypeScript
-cd tsp-ts && npm test
+cd templane-ts && npm test
 
 # Python (production)
-cd tsp-python && .venv/bin/pytest
+cd templane-python && .venv/bin/pytest
 
 # Java
-cd tsp-java && ./gradlew test
+cd templane-java && ./gradlew test
 
 # Go
-cd tsp-go && go test ./...
+cd templane-go && go test ./...
 ```
 
 ---

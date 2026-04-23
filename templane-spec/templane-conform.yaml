@@ -1,0 +1,2 @@
+adapters:
+  spec: python3 templane-spec/conform-adapter/run.py

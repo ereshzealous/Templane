@@ -1,0 +1,16 @@
+{
+  "fixture_id": "adapters/html-foreach",
+  "input": {
+    "tir": {
+      "template_id": "list", "schema_id": "data",
+      "nodes": [{
+        "kind": "foreach", "var": "item",
+        "items": [
+          [{"kind": "text", "content": "<li>"}, {"kind": "expr", "field": "item", "resolved": "apple"},  {"kind": "text", "content": "</li>"}],
+          [{"kind": "text", "content": "<li>"}, {"kind": "expr", "field": "item", "resolved": "banana"}, {"kind": "text", "content": "</li>"}]
+        ]
+      }]
+    }
+  },
+  "expected_output": {"output": "<!-- templane template_id=list schema_id=data -->\n<li>apple</li><li>banana</li>"}
+}

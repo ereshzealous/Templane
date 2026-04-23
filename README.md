@@ -1,4 +1,4 @@
-# TSP — Template Schema Protocol
+# Templane — Templane Protocol
 
 **Templates have been untyped for 20 years. This fixes that.**
 
@@ -69,7 +69,7 @@ But if you ask **"what is the type of the context dict I pass to this Jinja2 tem
 
 The last mile — where structured data becomes human-readable output — never got its typing moment. Every engine still accepts a dict and prays.
 
-**TSP is that missing layer.**
+**Templane is that missing layer.**
 
 ---
 
@@ -79,26 +79,26 @@ In 2015, Microsoft published the Language Server Protocol. Before LSP, adding Py
 
 LSP decoupled the intelligence (language server) from the host (editor). Any editor that speaks LSP gets every language. Any language server gets every editor. N + M instead of N × M.
 
-TSP applies the identical insight to templating:
+Templane applies the identical insight to templating:
 
-|                          | Before LSP                    | After LSP              | Before TSP                    | After TSP              |
+|                          | Before LSP                    | After LSP              | Before Templane                    | After Templane              |
 |--------------------------|-------------------------------|------------------------|-------------------------------|------------------------|
 | Host                     | Editor                        | Editor                 | Templating engine             | Templating engine      |
-| Intelligence layer       | One custom plugin per (editor×language) | Language server (one per language) | None — teams write ad-hoc template tests | TSP implementation (one per language) |
+| Intelligence layer       | One custom plugin per (editor×language) | Language server (one per language) | None — teams write ad-hoc template tests | Templane implementation (one per language) |
 | Conformance              | Ad-hoc                        | LSP spec + test harness | Ad-hoc                        | 32-fixture conform suite |
 
-TSP doesn't replace Jinja2, Handlebars, FreeMarker, or Go templates. It sits *above* them and supplies the schema layer they never had. Any engine that adopts TSP gains compile-time type checking, structured error reporting, schema-evolution detection, and IDE tooling — with no change to the engine itself.
+Templane doesn't replace Jinja2, Handlebars, FreeMarker, or Go templates. It sits *above* them and supplies the schema layer they never had. Any engine that adopts Templane gains compile-time type checking, structured error reporting, schema-evolution detection, and IDE tooling — with no change to the engine itself.
 
 ---
 
-## What TSP is
+## What Templane is
 
-TSP is a **protocol**, not a library. The protocol defines:
+Templane is a **protocol**, not a library. The protocol defines:
 
 1. **A schema document format** (YAML) describing the shape of template data — fields, types, optionality, enums, nesting.
 2. **A typed intermediate representation** (TIR) — a resolved AST where every expression has a known value. Output adapters render TIR to HTML, YAML, or any other format.
 3. **Four operations** every conformant implementation provides: `parse`, `check`, `generate`, `render`.
-4. **A 32-fixture conformance suite** (`tsp-conform`). Any implementation that passes 32/32 is TSP 1.0 compliant. Period.
+4. **A 32-fixture conformance suite** (`templane-conform`). Any implementation that passes 32/32 is Templane 1.0 compliant. Period.
 5. **A breaking-change detector** (`removed_field`, `required_change`, `type_change`, `enum_value_removed`) so the next backend field rename is caught before it ships, not four days after.
 
 The [full specification](SPEC.md) is versioned, uses RFC 2119 keywords, and fits in one file.
@@ -107,7 +107,7 @@ The [full specification](SPEC.md) is versioned, uses RFC 2119 keywords, and fits
 
 ## Show, don't tell
 
-**Before TSP** — a Jinja2 template that will silently fail when `status` is misspelled, when `account` is missing a field, or when the backend renames anything:
+**Before Templane** — a Jinja2 template that will silently fail when `status` is misspelled, when `account` is missing a field, or when the backend renames anything:
 
 ```jinja
 Hello {{ user.name }}!
@@ -115,7 +115,7 @@ Hello {{ user.name }}!
 Balance: ${{ account.balance }}
 ```
 
-**After TSP** — declare the schema inline with the template:
+**After Templane** — declare the schema inline with the template:
 
 ```
 user:
@@ -145,15 +145,15 @@ Balance: ${{ account.balance }}
 Now bad data fails loudly, with every error collected — not just the first:
 
 ```python
-from jinja_tsp.environment import TSPEnvironment, TSPTemplateError
+from jinja_templane.environment import TemplaneEnvironment, TemplaneTemplateError
 
-env = TSPEnvironment("./templates")
-template = env.get_template("greeting.tsp")
+env = TemplaneEnvironment("./templates")
+template = env.get_template("greeting.templane")
 
 try:
     template.render(user={"name": "Alice", "status": "actve"},  # typo
                     account={"blance": 100})                    # typo
-except TSPTemplateError as e:
+except TemplaneTemplateError as e:
     for err in e.errors:
         print(f"[{err.code}] {err.message}")
 ```
@@ -174,11 +174,11 @@ Five reference implementations, all **32/32** on the conformance suite, each idi
 
 | Language   | Package        | Engine integration | Conformance | Tests |
 |------------|----------------|--------------------|:-----------:|:-----:|
-| Python     | [`tsp-spec/tsp-core`](tsp-spec/) | — (reference impl) | ✓ 32/32 | 42 |
-| TypeScript | [`tsp-ts`](tsp-ts/) | [`handlebars-tsp`](tsp-ts/src/handlebars-tsp.ts) (Handlebars) | ✓ 32/32 | 64 |
-| Python     | [`tsp-python`](tsp-python/) | [`jinja_tsp`](tsp-python/src/jinja_tsp/) (Jinja2) | ✓ 32/32 | 59 |
-| Java       | [`tsp-java`](tsp-java/) | [`freemarker-tsp`](tsp-java/freemarker-tsp/) (FreeMarker) | ✓ 32/32 | 49 |
-| Go         | [`tsp-go`](tsp-go/) | — (integrations pending) | ✓ 32/32 | 43 |
+| Python     | [`templane-spec/templane-core`](templane-spec/) | — (reference impl) | ✓ 32/32 | 42 |
+| TypeScript | [`templane-ts`](templane-ts/) | [`handlebars-templane`](templane-ts/src/handlebars-templane.ts) (Handlebars) | ✓ 32/32 | 64 |
+| Python     | [`templane-python`](templane-python/) | [`jinja_templane`](templane-python/src/jinja_templane/) (Jinja2) | ✓ 32/32 | 59 |
+| Java       | [`templane-java`](templane-java/) | [`freemarker-templane`](templane-java/freemarker-templane/) (FreeMarker) | ✓ 32/32 | 49 |
+| Go         | [`templane-go`](templane-go/) | — (integrations pending) | ✓ 32/32 | 43 |
 
 **Total: 5 × 32 = 160 fixture passes across 257 unit tests.** Every implementation is proven to behave identically on every edge case the protocol specifies — by running them all through the same test harness.
 
@@ -188,9 +188,9 @@ Five reference implementations, all **32/32** on the conformance suite, each idi
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                tsp-spec (the hub)                        │
+│                templane-spec (the hub)                        │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│  │ 32 fixtures  │  │ tsp-conform  │  │  tsp-core    │   │
+│  │ 32 fixtures  │  │ templane-conform  │  │  templane-core    │   │
 │  │ (JSON)       │  │ CLI (Node)   │  │  (Python ref)│   │
 │  └──────────────┘  └──────────────┘  └──────────────┘   │
 └─────────────────────────────────────────────────────────┘
@@ -201,12 +201,12 @@ Five reference implementations, all **32/32** on the conformance suite, each idi
     ┌────────────┼──────────────┬──────────────┬──────────────┐
     ▼            ▼              ▼              ▼              ▼
 ┌────────┐  ┌────────┐   ┌──────────┐   ┌─────────┐   ┌────────┐
-│ tsp-ts │  │ tsp-py │   │ tsp-java │   │ tsp-go  │   │  ...   │
+│ templane-ts │  │ templane-py │   │ templane-java │   │ templane-go  │   │  ...   │
 │   TS   │  │ Python │   │ Java 21  │   │  Go     │   │ future │
 └────────┘  └────────┘   └──────────┘   └─────────┘   └────────┘
 ```
 
-Every implementation exposes the same four operations. The conform adapter protocol (one JSON line in, one JSON line out) lets `tsp-conform` test every implementation against the same 32 fixtures, proving semantic equivalence across languages.
+Every implementation exposes the same four operations. The conform adapter protocol (one JSON line in, one JSON line out) lets `templane-conform` test every implementation against the same 32 fixtures, proving semantic equivalence across languages.
 
 ---
 
@@ -214,22 +214,22 @@ Every implementation exposes the same four operations. The conform adapter proto
 
 Pick your language:
 
-- **Python + Jinja2** → [`tsp-python/README.md`](tsp-python/README.md)
-- **TypeScript + Handlebars** → [`tsp-ts/README.md`](tsp-ts/README.md) (also ships the `xt` CLI: `render`, `check`, `test`, `dev`, `build`)
-- **Java + FreeMarker** → [`tsp-java/README.md`](tsp-java/README.md) (Gradle build, publishes to `~/.m2/repository`)
-- **Go** → [`tsp-go/README.md`](tsp-go/README.md) (static binary, no runtime deps)
+- **Python + Jinja2** → [`templane-python/README.md`](templane-python/README.md)
+- **TypeScript + Handlebars** → [`templane-ts/README.md`](templane-ts/README.md) (also ships the `xt` CLI: `render`, `check`, `test`, `dev`, `build`)
+- **Java + FreeMarker** → [`templane-java/README.md`](templane-java/README.md) (Gradle build, publishes to `~/.m2/repository`)
+- **Go** → [`templane-go/README.md`](templane-go/README.md) (static binary, no runtime deps)
 - **Adding a new language binding?** → [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 Running the full 5-implementation conformance matrix from the repo root:
 
 ```bash
-node tsp-spec/tsp-conform/dist/cli.js \
+node templane-spec/templane-conform/dist/cli.js \
   --adapters \
-    "spec:python3 tsp-spec/conform-adapter/run.py" \
-    "ts:node tsp-ts/dist/conform-adapter.js" \
-    "py:python3 tsp-python/conform-adapter/run.py" \
-    "java:tsp-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
-    "go:tsp-go/bin/conform-adapter"
+    "spec:python3 templane-spec/conform-adapter/run.py" \
+    "ts:node templane-ts/dist/conform-adapter.js" \
+    "py:python3 templane-python/conform-adapter/run.py" \
+    "java:templane-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
+    "go:templane-go/bin/conform-adapter"
 ```
 
 Expected:
@@ -246,22 +246,22 @@ All implementations conformant.
 
 ---
 
-## What TSP is *not*
+## What Templane is *not*
 
 To be clear about the scope:
 
-- **Not a replacement for Jinja2, Handlebars, or any engine.** TSP sits alongside them. Your templates keep their existing syntax. Your engine keeps its features. TSP just adds the type layer on top.
-- **Not a new templating DSL.** There are enough template languages. TSP doesn't invent another one.
-- **Not a runtime.** Type checking happens at template-load time (or in CI, or in your editor). At render time, TSP is out of the hot path.
+- **Not a replacement for Jinja2, Handlebars, or any engine.** Templane sits alongside them. Your templates keep their existing syntax. Your engine keeps its features. Templane just adds the type layer on top.
+- **Not a new templating DSL.** There are enough template languages. Templane doesn't invent another one.
+- **Not a runtime.** Type checking happens at template-load time (or in CI, or in your editor). At render time, Templane is out of the hot path.
 - **Not opinionated about syntax.** The schema is YAML; the template body is whatever the engine wants (`{{ }}`, `${}`, `<% %>`, doesn't matter).
 - **Not coupled to any ecosystem.** Every major language can host a conformant implementation. The protocol is the contract.
-- **Not a validation library.** Validation libraries check user input at API boundaries. TSP checks template data at template-load time — a different phase with different ergonomics.
+- **Not a validation library.** Validation libraries check user input at API boundaries. Templane checks template data at template-load time — a different phase with different ergonomics.
 
 ---
 
-## How TSP compares to adjacent technologies
+## How Templane compares to adjacent technologies
 
-|                          | TSP         | JSON Schema   | Protobuf      | Avro          | OpenAPI       |
+|                          | Templane         | JSON Schema   | Protobuf      | Avro          | OpenAPI       |
 |--------------------------|-------------|---------------|---------------|---------------|---------------|
 | Domain                   | templates   | data          | wire messages | event data    | REST APIs     |
 | Schema language          | YAML        | JSON          | `.proto` IDL  | JSON          | YAML / JSON   |
@@ -270,7 +270,7 @@ To be clear about the scope:
 | Schema evolution rules   | ✓ (§8)      | partial       | ✓             | ✓             | partial       |
 | Conformance suite        | 32 fixtures | ~1000 tests   | `protos/`     | interop/      | parser tests  |
 
-TSP is not a competitor to any of these. It borrows their playbook — versioned spec, fixture-based conformance, cross-language bindings — and applies it to the templating gap they don't cover.
+Templane is not a competitor to any of these. It borrows their playbook — versioned spec, fixture-based conformance, cross-language bindings — and applies it to the templating gap they don't cover.
 
 ---
 
@@ -278,7 +278,7 @@ TSP is not a competitor to any of these. It borrows their playbook — versioned
 
 - **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned. RFC 2119 keywords throughout.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to extend the protocol, add a language binding, or add a new template-engine integration.
-- Per-language READMEs: [spec](tsp-spec/README.md), [ts](tsp-ts/README.md), [py](tsp-python/README.md), [java](tsp-java/README.md), [go](tsp-go/README.md).
+- Per-language READMEs: [spec](templane-spec/README.md), [ts](templane-ts/README.md), [py](templane-python/README.md), [java](templane-java/README.md), [go](templane-go/README.md).
 
 ---
 
@@ -288,4 +288,4 @@ Apache License 2.0. See [LICENSE](LICENSE).
 
 ---
 
-*TSP is the type layer the templating world should have had in 2008. We're 18 years late. Let's fix it.*
+*Templane is the type layer the templating world should have had in 2008. We're 18 years late. Let's fix it.*

@@ -8,5 +8,5 @@ target/
 .pytest_cache/
 .gradle/
 build/
-tsp-go/bin/
+templane-go/bin/
 .DS_Store
