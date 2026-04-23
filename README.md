@@ -1,55 +1,134 @@
 # TSP — Template Schema Protocol
 
-**Compile-time schema safety for templating engines.**
-
-TSP brings type checking, schema validation, and schema-evolution detection to
-Jinja2, Handlebars, FreeMarker, Go templates, and any other templating engine.
-It is to templates what LSP is to editors: a protocol that decouples the
-intelligence (schema layer) from the host (templating engine).
+**Templates have been untyped for 20 years. This fixes that.**
 
 [![Conformance](https://img.shields.io/badge/conformance-5%20×%2032%2F32-brightgreen)](SPEC.md#10-conformance)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 
 ---
 
-## The problem TSP solves
+## The templating layer runs the world
 
-Every mainstream templating engine shares the same flaw: **templates are
-untyped contracts with zero compile-time enforcement.**
+Take a look at what's rendering right now, this second, on the internet:
 
-```jinja
-{# Jinja2 template — no schema, no type safety #}
-Hello {{ user.naem }}!              {# typo — renders blank #}
-{% if user.status == "actve" %}     {# typo — always false #}
-  Premium member
-{% endif %}
-Your balance: ${{ account.blance }}  {# typo — renders blank #}
-```
+- **Docs**: every Hugo, Jekyll, Sphinx, and Docusaurus site is a template pipeline.
+- **Kubernetes**: every Helm chart is a Go template. Millions of clusters boot from them.
+- **Infrastructure**: Terraform modules, Docker Compose files, Ansible playbooks — all templates.
+- **Email**: transactional email in Ruby apps (ERB), Python apps (Jinja2), PHP apps (Twig), JS apps (Handlebars).
+- **Web SSR**: Rails views, Django templates, Laravel Blade, Spring FreeMarker, Next.js metadata.
+- **E-commerce**: every Shopify theme is Liquid. Every checkout.
+- **SaaS**: invoice PDFs, report generation, PDF statements, compliance documents.
 
-Problems this causes (all silent at runtime):
+Templates are probably the most deployed, least inspected layer in software. And every one of these engines — **Jinja2, Handlebars, FreeMarker, ERB, Liquid, Mustache, Go templates, Pug, EJS, Blade, Smarty, Thymeleaf, Velocity** — shares the same 20-year-old blind spot:
 
-1. Misspelled field names — render blank, no error.
-2. Wrong type passed — cryptic stack trace somewhere downstream.
-3. Missing required field — blank output, nobody notices.
-4. Enum value typo — `status: "actve"` passes through unchallenged.
-5. Nested path error — `user.address.zpi.code` fails at depth.
-6. Breaking schema change — backend renames a field; every template silently breaks.
-7. No IDE support — no autocomplete, no hover docs, no schema awareness.
+**A template is an untyped contract.** It accepts a bag of values, looks up names by string, and substitutes them. No schema, no validation, no compile-time checking. When something is wrong, the output is silently blank or cryptically broken.
 
 ---
 
-## How TSP fixes it
+## A story you've probably lived
 
-Declare the data shape alongside the template:
+It's Tuesday. A backend engineer on a team you barely know renames a field:
+
+```diff
+- user.email
++ user.email_address
+```
+
+The rename ships. CI passes — backend tests don't know your templates exist. Staging looks fine — you didn't think to diff every email body. On Tuesday night your password-reset email template, which contains `{{ user.email }}`, starts rendering with a blank "Your email:" line.
+
+Thursday morning, a customer complains. You grep. You find 14 other templates affected: the welcome email, the monthly invoice, the GDPR data-export notice, three internal Slack digests, and four admin dashboards. All of them have been silently degraded for four days. None of them threw an error. None of them appeared in any dashboard. Nothing alerted.
+
+You've lived some version of this. Every team that ships templates has.
+
+The obvious fix — "just add a test for each template!" — is where the conversation usually ends. In practice, template tests are tedious, shallow, and always out of date. And they don't catch the failure mode that matters most: the template renders *something*, so no assertion ever fails loudly.
+
+The real problem is that **the schema of the data going into the template is nowhere written down**.
+
+---
+
+## The gap nobody filled
+
+Over the last two decades, the type-safety community has methodically closed these gaps, one domain at a time:
+
+| Year     | Domain                         | Solution                         |
+|----------|--------------------------------|----------------------------------|
+| 2008     | Wire formats                   | Protocol Buffers                 |
+| 2009     | Event data                     | Avro                             |
+| 2011     | REST APIs                      | OpenAPI / Swagger                |
+| 2012+    | Code                           | TypeScript, Flow, Sorbet         |
+| 2013+    | Data shapes                    | JSON Schema                      |
+| 2015     | Typed RPC                      | gRPC                             |
+| 2015     | API query-response             | GraphQL                          |
+| 2016     | Rust's borrow checker          | Compile-time memory safety       |
+
+Every one of those technologies is now foundational. Teams write `.proto` files without thinking. Nobody ships public APIs without an OpenAPI spec. TypeScript is the default for new frontend code.
+
+But if you ask **"what is the type of the context dict I pass to this Jinja2 template?"** — the answer in 2026 is the same as it was in 2006:
+
+> *Nothing. You look at the template, read the variable names, guess what types they should be, and hope.*
+
+The last mile — where structured data becomes human-readable output — never got its typing moment. Every engine still accepts a dict and prays.
+
+**TSP is that missing layer.**
+
+---
+
+## The LSP playbook
+
+In 2015, Microsoft published the Language Server Protocol. Before LSP, adding Python support to `<your favorite editor>` required writing a Python-aware plugin for that specific editor. N editors × M languages = N×M integrations. No single maintainer could keep up.
+
+LSP decoupled the intelligence (language server) from the host (editor). Any editor that speaks LSP gets every language. Any language server gets every editor. N + M instead of N × M.
+
+TSP applies the identical insight to templating:
+
+|                          | Before LSP                    | After LSP              | Before TSP                    | After TSP              |
+|--------------------------|-------------------------------|------------------------|-------------------------------|------------------------|
+| Host                     | Editor                        | Editor                 | Templating engine             | Templating engine      |
+| Intelligence layer       | One custom plugin per (editor×language) | Language server (one per language) | None — teams write ad-hoc template tests | TSP implementation (one per language) |
+| Conformance              | Ad-hoc                        | LSP spec + test harness | Ad-hoc                        | 32-fixture conform suite |
+
+TSP doesn't replace Jinja2, Handlebars, FreeMarker, or Go templates. It sits *above* them and supplies the schema layer they never had. Any engine that adopts TSP gains compile-time type checking, structured error reporting, schema-evolution detection, and IDE tooling — with no change to the engine itself.
+
+---
+
+## What TSP is
+
+TSP is a **protocol**, not a library. The protocol defines:
+
+1. **A schema document format** (YAML) describing the shape of template data — fields, types, optionality, enums, nesting.
+2. **A typed intermediate representation** (TIR) — a resolved AST where every expression has a known value. Output adapters render TIR to HTML, YAML, or any other format.
+3. **Four operations** every conformant implementation provides: `parse`, `check`, `generate`, `render`.
+4. **A 32-fixture conformance suite** (`tsp-conform`). Any implementation that passes 32/32 is TSP 1.0 compliant. Period.
+5. **A breaking-change detector** (`removed_field`, `required_change`, `type_change`, `enum_value_removed`) so the next backend field rename is caught before it ships, not four days after.
+
+The [full specification](SPEC.md) is versioned, uses RFC 2119 keywords, and fits in one file.
+
+---
+
+## Show, don't tell
+
+**Before TSP** — a Jinja2 template that will silently fail when `status` is misspelled, when `account` is missing a field, or when the backend renames anything:
+
+```jinja
+Hello {{ user.name }}!
+{% if user.status == "active" %}Premium member.{% endif %}
+Balance: ${{ account.balance }}
+```
+
+**After TSP** — declare the schema inline with the template:
 
 ```
-name:
-  type: string
+user:
+  type: object
   required: true
-status:
-  type: enum
-  values: [active, inactive, pending]
-  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    status:
+      type: enum
+      values: [active, inactive, pending]
+      required: true
 account:
   type: object
   required: true
@@ -58,14 +137,12 @@ account:
       type: number
       required: true
 ---
-Hello {{ name }}!
-{% if status == "active" %}
-  Premium member
-{% endif %}
-Your balance: ${{ account.balance }}
+Hello {{ user.name }}!
+{% if user.status == "active" %}Premium member.{% endif %}
+Balance: ${{ account.balance }}
 ```
 
-Now the TSP type checker catches every error before render time:
+Now bad data fails loudly, with every error collected — not just the first:
 
 ```python
 from jinja_tsp.environment import TSPEnvironment, TSPTemplateError
@@ -74,35 +151,36 @@ env = TSPEnvironment("./templates")
 template = env.get_template("greeting.tsp")
 
 try:
-    template.render(name="Alice", status="actve", account={"blance": 100})
+    template.render(user={"name": "Alice", "status": "actve"},  # typo
+                    account={"blance": 100})                    # typo
 except TSPTemplateError as e:
     for err in e.errors:
         print(f"[{err.code}] {err.message}")
 ```
 
-Output:
-
 ```
-[invalid_enum_value]    Field 'status' value 'actve' not in enum [active, inactive, pending]
-[did_you_mean]          Unknown field 'blance'. Did you mean 'balance'?
+[invalid_enum_value]     Field 'user.status' value 'actve' not in enum [active, inactive, pending]
+[did_you_mean]           Unknown field 'account.blance'. Did you mean 'balance'?
 [missing_required_field] Required field 'account.balance' is missing
 ```
+
+The fix happens at template-load time (in CI, at deploy time, in your editor — wherever you wire it in). Never at 2 AM when a customer complains.
 
 ---
 
 ## Implementations
 
-Five reference implementations, all **32/32** on the conformance suite.
+Five reference implementations, all **32/32** on the conformance suite, each idiomatic to its language:
 
 | Language   | Package        | Engine integration | Conformance | Tests |
 |------------|----------------|--------------------|:-----------:|:-----:|
-| Python     | [`tsp-spec/tsp-core`](tsp-spec/) | — (reference) | ✓ 32/32 | 42 |
+| Python     | [`tsp-spec/tsp-core`](tsp-spec/) | — (reference impl) | ✓ 32/32 | 42 |
 | TypeScript | [`tsp-ts`](tsp-ts/) | [`handlebars-tsp`](tsp-ts/src/handlebars-tsp.ts) (Handlebars) | ✓ 32/32 | 64 |
 | Python     | [`tsp-python`](tsp-python/) | [`jinja_tsp`](tsp-python/src/jinja_tsp/) (Jinja2) | ✓ 32/32 | 59 |
 | Java       | [`tsp-java`](tsp-java/) | [`freemarker-tsp`](tsp-java/freemarker-tsp/) (FreeMarker) | ✓ 32/32 | 49 |
 | Go         | [`tsp-go`](tsp-go/) | — (integrations pending) | ✓ 32/32 | 43 |
 
-**Total:** 5 × 32 = **160 fixture passes**, **257 unit tests**.
+**Total: 5 × 32 = 160 fixture passes across 257 unit tests.** Every implementation is proven to behave identically on every edge case the protocol specifies — by running them all through the same test harness.
 
 ---
 
@@ -128,93 +206,21 @@ Five reference implementations, all **32/32** on the conformance suite.
 └────────┘  └────────┘   └──────────┘   └─────────┘   └────────┘
 ```
 
-Every implementation:
-
-1. Parses YAML schemas into a `TypedSchema`.
-2. Type-checks user data, emitting structured `TypeCheckError`s.
-3. Walks an AST with data to produce a Typed Intermediate Representation.
-4. Renders TIR to HTML/YAML/other formats via adapters.
-
-The conform adapter protocol (line-delimited JSON over stdin/stdout) lets
-`tsp-conform` test every implementation against the same 32 fixtures,
-guaranteeing semantic equivalence across languages.
-
-See [SPEC.md](SPEC.md) for the normative specification.
+Every implementation exposes the same four operations. The conform adapter protocol (one JSON line in, one JSON line out) lets `tsp-conform` test every implementation against the same 32 fixtures, proving semantic equivalence across languages.
 
 ---
 
-## Quick start
+## Get started
 
 Pick your language:
 
-### Python + Jinja2
+- **Python + Jinja2** → [`tsp-python/README.md`](tsp-python/README.md)
+- **TypeScript + Handlebars** → [`tsp-ts/README.md`](tsp-ts/README.md) (also ships the `xt` CLI: `render`, `check`, `test`, `dev`, `build`)
+- **Java + FreeMarker** → [`tsp-java/README.md`](tsp-java/README.md) (Gradle build, publishes to `~/.m2/repository`)
+- **Go** → [`tsp-go/README.md`](tsp-go/README.md) (static binary, no runtime deps)
+- **Adding a new language binding?** → [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
-```bash
-cd tsp-python
-uv sync --extra dev
-```
-
-```python
-from jinja_tsp.environment import TSPEnvironment
-
-env = TSPEnvironment("./templates")
-t = env.get_template("hello.tsp")
-print(t.render(name="World"))
-```
-
-### TypeScript + Handlebars
-
-```bash
-cd tsp-ts
-npm install && npm run build
-```
-
-```typescript
-import { compile } from './src/handlebars-tsp';
-
-const tmpl = compile(templateSource, 'hello');
-console.log(tmpl.render({ name: 'World' }));
-```
-
-Or use the `xt` CLI:
-
-```bash
-node tsp-ts/dist/xt.js render hello.hbs data.json
-```
-
-### Java + FreeMarker
-
-```bash
-cd tsp-java
-./gradlew publishToMavenLocal   # installs to ~/.m2/repository/dev/tsp/
-```
-
-```java
-TSPConfiguration cfg = new TSPConfiguration(Paths.get("./templates"));
-TSPTemplate t = cfg.getTemplate("hello.tsp");
-System.out.println(t.render(Map.of("name", "World")));
-```
-
-### Go
-
-```bash
-cd tsp-go
-go build ./...
-go test ./...
-```
-
-```go
-import "tsp-go/core"
-
-schema := core.ParseSchema(yamlSrc, "my-schema").Schema
-errors := core.Check(schema, data)
-```
-
----
-
-## Running the conformance suite
-
-From the repo root:
+Running the full 5-implementation conformance matrix from the repo root:
 
 ```bash
 node tsp-spec/tsp-conform/dist/cli.js \
@@ -226,7 +232,7 @@ node tsp-spec/tsp-conform/dist/cli.js \
     "go:tsp-go/bin/conform-adapter"
 ```
 
-Expected output:
+Expected:
 
 ```
 Running 32 fixture(s) across 5 implementation(s)...
@@ -240,36 +246,46 @@ All implementations conformant.
 
 ---
 
-## Documentation
+## What TSP is *not*
 
-- **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire
-  format, operations, conformance).
-- **[tsp-spec/](tsp-spec/)** — Conformance fixtures + Python reference impl.
-- **[tsp-ts/](tsp-ts/)** — TypeScript implementation + Handlebars integration + `xt` CLI.
-- **[tsp-python/](tsp-python/)** — Python implementation + Jinja2 integration + breaking-change detector.
-- **[tsp-java/](tsp-java/)** — Java 21 implementation + FreeMarker integration.
-- **[tsp-go/](tsp-go/)** — Go implementation + breaking-change detector.
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to add a new language binding or extend the protocol.
+To be clear about the scope:
+
+- **Not a replacement for Jinja2, Handlebars, or any engine.** TSP sits alongside them. Your templates keep their existing syntax. Your engine keeps its features. TSP just adds the type layer on top.
+- **Not a new templating DSL.** There are enough template languages. TSP doesn't invent another one.
+- **Not a runtime.** Type checking happens at template-load time (or in CI, or in your editor). At render time, TSP is out of the hot path.
+- **Not opinionated about syntax.** The schema is YAML; the template body is whatever the engine wants (`{{ }}`, `${}`, `<% %>`, doesn't matter).
+- **Not coupled to any ecosystem.** Every major language can host a conformant implementation. The protocol is the contract.
+- **Not a validation library.** Validation libraries check user input at API boundaries. TSP checks template data at template-load time — a different phase with different ergonomics.
 
 ---
 
-## Comparison to adjacent technologies
+## How TSP compares to adjacent technologies
 
-|                        | TSP        | JSON Schema | Protobuf    | Avro        |
-|------------------------|------------|-------------|-------------|-------------|
-| Domain                 | templates  | data        | wire messages | data      |
-| Schema language        | YAML       | JSON        | .proto IDL  | JSON        |
-| Template-engine-agnostic | ✓        | n/a         | n/a         | n/a         |
-| Compile-time checking  | ✓          | ✗ (runtime) | ✓           | ✓           |
-| Schema evolution rules | ✓ (§8)     | partial     | ✓           | ✓           |
-| Conformance suite      | 32 fixtures | ~1000 tests | protos/     | interop/    |
+|                          | TSP         | JSON Schema   | Protobuf      | Avro          | OpenAPI       |
+|--------------------------|-------------|---------------|---------------|---------------|---------------|
+| Domain                   | templates   | data          | wire messages | event data    | REST APIs     |
+| Schema language          | YAML        | JSON          | `.proto` IDL  | JSON          | YAML / JSON   |
+| Engine-agnostic          | ✓           | n/a           | n/a           | n/a           | n/a           |
+| Compile-time checking    | ✓           | ✗ (runtime)   | ✓             | ✓             | partial       |
+| Schema evolution rules   | ✓ (§8)      | partial       | ✓             | ✓             | partial       |
+| Conformance suite        | 32 fixtures | ~1000 tests   | `protos/`     | interop/      | parser tests  |
 
-TSP is **not** a competitor to JSON Schema or Protobuf — it solves a different
-problem (type-safe templating). But it borrows their playbook for rigor:
-versioned spec, fixture-based conformance, multiple language bindings.
+TSP is not a competitor to any of these. It borrows their playbook — versioned spec, fixture-based conformance, cross-language bindings — and applies it to the templating gap they don't cover.
+
+---
+
+## Documentation
+
+- **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned. RFC 2119 keywords throughout.
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to extend the protocol, add a language binding, or add a new template-engine integration.
+- Per-language READMEs: [spec](tsp-spec/README.md), [ts](tsp-ts/README.md), [py](tsp-python/README.md), [java](tsp-java/README.md), [go](tsp-go/README.md).
 
 ---
 
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).
+
+---
+
+*TSP is the type layer the templating world should have had in 2008. We're 18 years late. Let's fix it.*
