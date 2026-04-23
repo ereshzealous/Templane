@@ -13,8 +13,11 @@ for _sp in (_repo / ".venv" / "lib").glob("python*/site-packages"):
 from tsp_core.schema_parser import parse as schema_parse  # noqa: E402
 from tsp_core.type_checker import check as type_check  # noqa: E402
 from tsp_core.ir_generator import generate as ir_generate  # noqa: E402
+from tsp_adapter_html.html_adapter import render as html_render  # noqa: E402
+from tsp_adapter_yaml.yaml_adapter import render as yaml_render  # noqa: E402
 from tsp_core.models import (  # noqa: E402
-    typed_schema_from_dict, ast_node_from_dict, tir_result_to_dict,
+    typed_schema_from_dict, ast_node_from_dict,
+    tir_result_from_dict, tir_result_to_dict,
 )
 
 
@@ -38,6 +41,14 @@ def handle(fixture_id: str, fixture: dict) -> dict:
                 fixture["template_id"],
             )
             return {"output": tir_result_to_dict(result)}
+
+        if fixture_id.startswith("adapters/html"):
+            tir = tir_result_from_dict(fixture["tir"])
+            return {"output": {"output": html_render(tir)}}
+
+        if fixture_id.startswith("adapters/yaml"):
+            tir = tir_result_from_dict(fixture["tir"])
+            return {"output": {"output": yaml_render(tir)}}
 
         return {"output": None, "error": f"Unhandled fixture: {fixture_id}"}
     except Exception as exc:
