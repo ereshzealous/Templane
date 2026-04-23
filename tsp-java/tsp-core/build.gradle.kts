@@ -1,0 +1,4 @@
+dependencies {
+    api("com.fasterxml.jackson.core:jackson-databind:2.16.1")
+    implementation("org.yaml:snakeyaml:2.2")
+}

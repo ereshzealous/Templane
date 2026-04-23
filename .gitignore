@@ -6,3 +6,5 @@ dist/
 target/
 *.egg-info/
 .pytest_cache/
+.gradle/
+build/
