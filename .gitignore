@@ -9,3 +9,4 @@ target/
 .gradle/
 build/
 tsp-go/bin/
+.DS_Store
