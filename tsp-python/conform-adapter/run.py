@@ -11,6 +11,8 @@ for _sp in (_repo / ".venv" / "lib").glob("python*/site-packages"):
     site.addsitedir(str(_sp))
 
 from tsp_core.schema_parser import parse as schema_parse  # noqa: E402
+from tsp_core.type_checker import check as type_check  # noqa: E402
+from tsp_core.models import typed_schema_from_dict  # noqa: E402
 
 
 def handle(fixture_id: str, fixture: dict) -> dict:
@@ -18,6 +20,12 @@ def handle(fixture_id: str, fixture: dict) -> dict:
         if fixture_id.startswith("schema-parser"):
             result = schema_parse(fixture["yaml"], fixture.get("id", "unknown"))
             return {"output": result}
+
+        if fixture_id.startswith("type-checker"):
+            schema = typed_schema_from_dict(fixture["schema"])
+            errors = type_check(schema, fixture["data"])
+            return {"output": {"errors": [e.to_dict() for e in errors]}}
+
         return {"output": None, "error": f"Unhandled fixture: {fixture_id}"}
     except Exception as exc:
         return {"output": None, "error": str(exc)}
