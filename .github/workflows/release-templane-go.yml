@@ -1,0 +1,87 @@
+name: Release templane-go (manual)
+
+# Go modules don't "publish" — they're fetched by module proxies from git tags.
+# This workflow:
+#   1. Runs tests
+#   2. Creates an annotated git tag `templane-go/v<version>`
+#      (monorepo subpath convention that `go get` understands)
+#   3. Creates a GitHub release with the static binary attached
+#   4. Triggers pkg.go.dev indexing via `GOPROXY=proxy.golang.org`
+#
+# Consumers will then do:
+#   go get github.com/<owner>/<repo>/templane-go@v<version>
+#
+# No external secrets required (uses GITHUB_TOKEN).
+# Manual trigger only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 0.1.0 — no "v" prefix)'
+        required: true
+        type: string
+      trigger_goproxy:
+        description: 'Warm up proxy.golang.org cache after tag push?'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    name: Tag + release templane-go
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: templane-go/go.sum
+
+      - name: Run tests
+        working-directory: templane-go
+        run: go test -v ./...
+
+      - name: Build static binaries (linux-amd64, linux-arm64, darwin-arm64, darwin-amd64)
+        working-directory: templane-go
+        run: |
+          mkdir -p bin
+          for target in "linux amd64" "linux arm64" "darwin amd64" "darwin arm64"; do
+            os=$(echo $target | cut -d' ' -f1)
+            arch=$(echo $target | cut -d' ' -f2)
+            out="bin/conform-adapter-${os}-${arch}"
+            GOOS=$os GOARCH=$arch go build -o "$out" ./cmd/conform-adapter/
+            echo "built $out"
+          done
+          ls -la bin/
+
+      - name: Create git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "templane-go/v${{ inputs.version }}" -m "Release templane-go ${{ inputs.version }}"
+          git push origin "templane-go/v${{ inputs.version }}"
+
+      - name: Create GitHub release with binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: templane-go/v${{ inputs.version }}
+          name: templane-go ${{ inputs.version }}
+          generate_release_notes: true
+          files: templane-go/bin/conform-adapter-*
+
+      - name: Trigger pkg.go.dev indexing
+        if: ${{ inputs.trigger_goproxy }}
+        run: |
+          # The Go module proxy lazily indexes tags. Warming the cache ensures
+          # `go get` finds the new version immediately.
+          REPO="${{ github.repository }}"
+          VERSION="v${{ inputs.version }}"
+          echo "Fetching https://proxy.golang.org/github.com/${REPO}/templane-go/@v/${VERSION}.info"
+          curl -fsSL --retry 5 --retry-delay 10 \
+            "https://proxy.golang.org/github.com/${REPO}/templane-go/@v/${VERSION}.info" || true

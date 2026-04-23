@@ -1,0 +1,112 @@
+name: Release templane-java (manual)
+
+# Builds all 4 publishable Java modules (tsp-core, tsp-adapter-html,
+# tsp-adapter-yaml, freemarker-templane) plus the conform-adapter fat JAR.
+#
+# Publishing strategy (three options, controlled by inputs):
+#   1. "artifacts-only" — build JARs, attach to GitHub release, no registry publish
+#      (safe default; suitable for v0.1.0 and when Maven Central isn't set up).
+#   2. "github-packages" — publish to GitHub Packages (uses GITHUB_TOKEN; no extra setup).
+#   3. "maven-central" — publish to Maven Central via OSSRH staging
+#      (requires: OSSRH_USERNAME, OSSRH_PASSWORD, SIGNING_KEY, SIGNING_PASSWORD).
+#
+# Manual trigger only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 0.1.0 — no "v" prefix)'
+        required: true
+        type: string
+      publish_target:
+        description: 'Where to publish'
+        required: true
+        default: 'artifacts-only'
+        type: choice
+        options:
+          - artifacts-only
+          - github-packages
+          - maven-central
+
+jobs:
+  release:
+    name: Build + publish templane-java
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write   # for GitHub Packages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Bump version
+        working-directory: templane-java
+        run: |
+          sed -i 's|^version=.*|version=${{ inputs.version }}|' gradle.properties
+          cat gradle.properties
+
+      - name: Run tests
+        working-directory: templane-java
+        run: ./gradlew test
+
+      - name: Build all JARs (including fat conform-adapter)
+        working-directory: templane-java
+        run: |
+          ./gradlew build :conform-adapter:shadowJar
+          # Copy all publishable JARs to a staging dir
+          mkdir -p ../dist-java
+          find . -path '*/build/libs/*.jar' -not -name '*-plain.jar' -exec cp {} ../dist-java/ \;
+          ls -la ../dist-java/
+
+      - name: Create git tag + GitHub release with JARs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "templane-java/v${{ inputs.version }}"
+          git push origin "templane-java/v${{ inputs.version }}"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: templane-java/v${{ inputs.version }}
+          name: templane-java ${{ inputs.version }}
+          generate_release_notes: true
+          files: dist-java/*.jar
+
+      # ---------------------------------------------------------------
+      # Option 2: GitHub Packages
+      # ---------------------------------------------------------------
+      - name: Publish to GitHub Packages
+        if: ${{ inputs.publish_target == 'github-packages' }}
+        working-directory: templane-java
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Requires adding maven { url = uri("https://maven.pkg.github.com/<owner>/<repo>") }
+          # to build.gradle.kts publishing.repositories block before this works.
+          ./gradlew publish
+
+      # ---------------------------------------------------------------
+      # Option 3: Maven Central (via OSSRH)
+      # Requires build.gradle.kts configured with OSSRH + signing.
+      # Store these secrets:
+      #   OSSRH_USERNAME, OSSRH_PASSWORD, SIGNING_KEY (armored GPG), SIGNING_PASSWORD
+      # ---------------------------------------------------------------
+      - name: Publish to Maven Central
+        if: ${{ inputs.publish_target == 'maven-central' }}
+        working-directory: templane-java
+        env:
+          ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSSRH_USERNAME }}
+          ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSSRH_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository

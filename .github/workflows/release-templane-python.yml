@@ -1,0 +1,100 @@
+name: Release templane-python (manual)
+
+# Publishes templane-python to PyPI via Trusted Publishing (OIDC, no tokens needed)
+# OR falls back to API token if PYPI_TOKEN secret is set.
+#
+# Trusted Publishing setup (preferred):
+#   1. Go to https://pypi.org/manage/account/publishing/ (after first manual upload
+#      OR via "pending publisher" for a fresh project).
+#   2. Add publisher: GitHub org, this repo, this workflow file, environment = `pypi`.
+#   3. No secrets needed — OIDC handles auth.
+#
+# Alternative (API token):
+#   1. Create PyPI API token scoped to `templane-python`.
+#   2. Add as repository secret PYPI_TOKEN.
+#   3. This workflow will use it if the id-token path fails.
+#
+# Manual trigger only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 0.1.0 — no "v" prefix)'
+        required: true
+        type: string
+      publish_to_pypi:
+        description: 'Actually publish to PyPI? (uncheck for dry-run)'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    name: Build + publish templane-python
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/templane-python/
+    permissions:
+      contents: write
+      id-token: write   # for PyPI trusted publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install deps
+        working-directory: templane-python
+        run: uv sync --extra dev
+
+      - name: Run tests
+        working-directory: templane-python
+        run: .venv/bin/pytest
+
+      - name: Bump version in pyproject.toml
+        working-directory: templane-python
+        run: |
+          python - <<EOF
+          import re, pathlib
+          p = pathlib.Path("pyproject.toml")
+          txt = p.read_text()
+          txt = re.sub(r'^version\s*=\s*"[^"]*"', 'version = "${{ inputs.version }}"', txt, count=1, flags=re.M)
+          p.write_text(txt)
+          EOF
+          head -10 pyproject.toml
+
+      - name: Build sdist + wheel
+        working-directory: templane-python
+        run: uv build
+
+      - name: Create git tag + GitHub release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "templane-python/v${{ inputs.version }}"
+          git push origin "templane-python/v${{ inputs.version }}"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: templane-python/v${{ inputs.version }}
+          name: templane-python ${{ inputs.version }}
+          generate_release_notes: true
+          files: |
+            templane-python/dist/*.tar.gz
+            templane-python/dist/*.whl
+
+      - name: Publish to PyPI (trusted publishing)
+        if: ${{ inputs.publish_to_pypi }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: templane-python/dist/
+          # If PYPI_TOKEN is set, use token auth instead of OIDC:
+          password: ${{ secrets.PYPI_TOKEN }}

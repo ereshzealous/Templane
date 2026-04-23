@@ -1,0 +1,200 @@
+name: CI
+
+# Runs on every push to main and every PR.
+# Tests each of the 5 implementations in parallel, then runs the
+# 5-way cross-implementation conformance matrix as the final gate.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}  # allow manual re-run
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # -----------------------------------------------------------------
+  # Per-implementation unit tests (parallel)
+  # -----------------------------------------------------------------
+  test-spec:
+    name: templane-spec (Python reference)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Install deps
+        working-directory: templane-spec/templane-core
+        run: uv sync --extra dev
+      - name: Run tests
+        working-directory: templane-spec/templane-core
+        run: .venv/bin/pytest -v
+
+  build-conform-cli:
+    name: templane-conform CLI build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install + build
+        working-directory: templane-spec/templane-conform
+        run: |
+          npm ci
+          npm run build
+      - name: Upload dist/ artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: templane-conform-dist
+          path: templane-spec/templane-conform/dist/
+          retention-days: 7
+
+  test-ts:
+    name: templane-ts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: templane-ts/package-lock.json
+      - name: Install
+        working-directory: templane-ts
+        run: npm ci
+      - name: Build
+        working-directory: templane-ts
+        run: npm run build
+      - name: Test
+        working-directory: templane-ts
+        run: npm test
+
+  test-python:
+    name: templane-python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Install deps
+        working-directory: templane-python
+        run: uv sync --extra dev
+      - name: Run tests
+        working-directory: templane-python
+        run: .venv/bin/pytest -v
+
+  test-java:
+    name: templane-java
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build + test
+        working-directory: templane-java
+        run: ./gradlew build
+
+  test-go:
+    name: templane-go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: templane-go/go.sum
+      - name: Build
+        working-directory: templane-go
+        run: go build ./...
+      - name: Test
+        working-directory: templane-go
+        run: go test -v ./...
+
+  # -----------------------------------------------------------------
+  # Cross-implementation conformance (needs all unit tests green).
+  # Builds all 5 conform adapters in one job and runs them together
+  # through the templane-conform CLI.
+  # -----------------------------------------------------------------
+  conformance:
+    name: Cross-impl conformance (5 × 32/32)
+    needs:
+      - test-spec
+      - build-conform-cli
+      - test-ts
+      - test-python
+      - test-java
+      - test-go
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Tool setup
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      # Build the conform CLI
+      - name: Build templane-conform CLI
+        working-directory: templane-spec/templane-conform
+        run: |
+          npm ci
+          npm run build
+
+      # Build every implementation's conform adapter
+      - name: Set up templane-spec (Python reference)
+        working-directory: templane-spec/templane-core
+        run: uv sync --extra dev
+
+      - name: Set up templane-python
+        working-directory: templane-python
+        run: uv sync --extra dev
+
+      - name: Build templane-ts conform adapter
+        working-directory: templane-ts
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build templane-java conform adapter (fat JAR)
+        working-directory: templane-java
+        run: ./gradlew :conform-adapter:shadowJar
+
+      - name: Build templane-go conform adapter (static binary)
+        working-directory: templane-go
+        run: go build -o bin/conform-adapter ./cmd/conform-adapter/
+
+      # Run the 5-way matrix
+      - name: Run conformance suite (5 × 32/32)
+        run: |
+          node templane-spec/templane-conform/dist/cli.js \
+            --adapters \
+              "spec:python3 templane-spec/conform-adapter/run.py" \
+              "ts:node templane-ts/dist/conform-adapter.js" \
+              "py:python3 templane-python/conform-adapter/run.py" \
+              "java:templane-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar" \
+              "go:templane-go/bin/conform-adapter"

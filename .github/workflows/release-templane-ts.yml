@@ -1,0 +1,91 @@
+name: Release templane-ts (manual)
+
+# Manual trigger ONLY. This workflow:
+#   1. Runs tests
+#   2. Sets the version in package.json
+#   3. Creates a git tag "templane-ts/v<version>"
+#   4. Creates a GitHub release with the build artifacts attached
+#   5. Publishes to npm (requires NPM_TOKEN secret)
+#
+# Required secret:
+#   NPM_TOKEN — npm automation token with publish rights on `templane-ts`.
+#
+# Does NOT run on push, tag, or schedule. Always manual.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.1.0 — no "v" prefix)'
+        required: true
+        type: string
+      dist_tag:
+        description: 'npm dist-tag'
+        required: true
+        default: 'latest'
+        type: choice
+        options: [latest, beta, next, alpha]
+      publish_to_npm:
+        description: 'Actually publish to npm registry? (uncheck for dry run)'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    name: Build + publish templane-ts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # to create tag + release
+      id-token: write   # for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+          cache-dependency-path: templane-ts/package-lock.json
+
+      - name: Install + build
+        working-directory: templane-ts
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run tests
+        working-directory: templane-ts
+        run: npm test
+
+      - name: Set version
+        working-directory: templane-ts
+        run: npm version ${{ inputs.version }} --no-git-tag-version --allow-same-version
+
+      - name: Pack (tarball as release asset)
+        working-directory: templane-ts
+        run: npm pack
+
+      - name: Create git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "templane-ts/v${{ inputs.version }}"
+          git push origin "templane-ts/v${{ inputs.version }}"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: templane-ts/v${{ inputs.version }}
+          name: templane-ts ${{ inputs.version }}
+          generate_release_notes: true
+          files: templane-ts/templane-ts-${{ inputs.version }}.tgz
+
+      - name: Publish to npm
+        if: ${{ inputs.publish_to_npm }}
+        working-directory: templane-ts
+        run: npm publish --access public --tag ${{ inputs.dist_tag }} --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
