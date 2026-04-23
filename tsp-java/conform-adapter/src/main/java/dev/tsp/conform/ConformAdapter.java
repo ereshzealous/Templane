@@ -12,6 +12,8 @@ import dev.tsp.core.model.ASTNode;
 import dev.tsp.core.model.TIRResult;
 import dev.tsp.core.model.TypeCheckError;
 import dev.tsp.core.model.TypedSchema;
+import dev.tsp.html.HtmlAdapter;
+import dev.tsp.yaml.YamlAdapter;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -77,6 +79,20 @@ public class ConformAdapter {
             String templateId = fixture.get("template_id").asText();
             TIRResult result = IRGenerator.generate(ast, data, schemaId, templateId);
             return M.valueToTree(result);
+        }
+
+        if (fixtureId.startsWith("adapters/html")) {
+            TIRResult tir = M.treeToValue(fixture.get("tir"), TIRResult.class);
+            ObjectNode out = M.createObjectNode();
+            out.put("output", HtmlAdapter.render(tir));
+            return out;
+        }
+
+        if (fixtureId.startsWith("adapters/yaml")) {
+            TIRResult tir = M.treeToValue(fixture.get("tir"), TIRResult.class);
+            ObjectNode out = M.createObjectNode();
+            out.put("output", YamlAdapter.render(tir));
+            return out;
         }
 
         ObjectNode unhandled = M.createObjectNode();
