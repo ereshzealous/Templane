@@ -1,0 +1,10 @@
+{
+  "fixture_id": "adapters/yaml-provenance",
+  "input": {
+    "tir": {
+      "template_id": "my-template", "schema_id": "my-schema",
+      "nodes": [{"kind": "text", "content": "Hello"}]
+    }
+  },
+  "expected_output": {"output": "# tsp template_id=my-template schema_id=my-schema\nHello"}
+}
