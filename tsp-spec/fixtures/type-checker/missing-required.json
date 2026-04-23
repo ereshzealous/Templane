@@ -1,0 +1,18 @@
+{
+  "fixture_id": "type-checker/missing-required",
+  "input": {
+    "schema": {
+      "id": "missing-required",
+      "fields": {
+        "name":  {"name": "name",  "type": {"kind": "string"}, "required": true},
+        "email": {"name": "email", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "data": {"name": "Alice"}
+  },
+  "expected_output": {
+    "errors": [
+      {"code": "missing_required_field", "field": "email", "message": "Required field 'email' is missing"}
+    ]
+  }
+}

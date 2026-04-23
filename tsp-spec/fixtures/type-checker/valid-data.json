@@ -1,0 +1,14 @@
+{
+  "fixture_id": "type-checker/valid-data",
+  "input": {
+    "schema": {
+      "id": "valid-data",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true},
+        "age":  {"name": "age",  "type": {"kind": "number"}, "required": false}
+      }
+    },
+    "data": {"name": "Alice", "age": 30}
+  },
+  "expected_output": {"errors": []}
+}

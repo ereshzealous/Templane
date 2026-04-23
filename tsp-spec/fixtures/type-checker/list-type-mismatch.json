@@ -1,0 +1,17 @@
+{
+  "fixture_id": "type-checker/list-type-mismatch",
+  "input": {
+    "schema": {
+      "id": "list-type-mismatch",
+      "fields": {
+        "tags": {"name": "tags", "type": {"kind": "list", "item_type": {"kind": "string"}}, "required": true}
+      }
+    },
+    "data": {"tags": ["hello", 42, "world"]}
+  },
+  "expected_output": {
+    "errors": [
+      {"code": "type_mismatch", "field": "tags[1]", "message": "Field 'tags[1]' expected string, got number"}
+    ]
+  }
+}

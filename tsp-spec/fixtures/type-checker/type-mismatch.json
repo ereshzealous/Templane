@@ -1,0 +1,17 @@
+{
+  "fixture_id": "type-checker/type-mismatch",
+  "input": {
+    "schema": {
+      "id": "type-mismatch",
+      "fields": {
+        "age": {"name": "age", "type": {"kind": "number"}, "required": true}
+      }
+    },
+    "data": {"age": "thirty"}
+  },
+  "expected_output": {
+    "errors": [
+      {"code": "type_mismatch", "field": "age", "message": "Field 'age' expected number, got string"}
+    ]
+  }
+}

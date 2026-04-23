@@ -1,0 +1,17 @@
+{
+  "fixture_id": "type-checker/invalid-enum",
+  "input": {
+    "schema": {
+      "id": "invalid-enum",
+      "fields": {
+        "status": {"name": "status", "type": {"kind": "enum", "values": ["active", "inactive"]}, "required": true}
+      }
+    },
+    "data": {"status": "unknown"}
+  },
+  "expected_output": {
+    "errors": [
+      {"code": "invalid_enum_value", "field": "status", "message": "Field 'status' value 'unknown' not in enum [active, inactive]"}
+    ]
+  }
+}

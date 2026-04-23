@@ -1,0 +1,18 @@
+{
+  "fixture_id": "type-checker/did-you-mean",
+  "input": {
+    "schema": {
+      "id": "did-you-mean",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "data": {"naem": "Alice"}
+  },
+  "expected_output": {
+    "errors": [
+      {"code": "missing_required_field", "field": "name",  "message": "Required field 'name' is missing"},
+      {"code": "did_you_mean",           "field": "naem",  "message": "Unknown field 'naem'. Did you mean 'name'?"}
+    ]
+  }
+}

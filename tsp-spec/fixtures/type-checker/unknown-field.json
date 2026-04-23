@@ -1,0 +1,17 @@
+{
+  "fixture_id": "type-checker/unknown-field",
+  "input": {
+    "schema": {
+      "id": "unknown-field",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "data": {"name": "Alice", "extra": "value"}
+  },
+  "expected_output": {
+    "errors": [
+      {"code": "unknown_field", "field": "extra", "message": "Field 'extra' is not defined in schema"}
+    ]
+  }
+}
