@@ -1,14 +1,20 @@
 package dev.tsp.conform;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.tsp.core.JsonMapper;
 import dev.tsp.core.SchemaParser;
+import dev.tsp.core.TypeChecker;
+import dev.tsp.core.model.TypeCheckError;
+import dev.tsp.core.model.TypedSchema;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 public class ConformAdapter {
 
@@ -51,6 +57,16 @@ public class ConformAdapter {
             }
             return out;
         }
+
+        if (fixtureId.startsWith("type-checker")) {
+            TypedSchema schema = M.treeToValue(fixture.get("schema"), TypedSchema.class);
+            Map<String, Object> data = M.convertValue(fixture.get("data"), new TypeReference<>() {});
+            List<TypeCheckError> errors = TypeChecker.check(schema, data);
+            ObjectNode out = M.createObjectNode();
+            out.set("errors", M.valueToTree(errors));
+            return out;
+        }
+
         ObjectNode unhandled = M.createObjectNode();
         unhandled.putNull("output");
         unhandled.put("error", "Unhandled fixture: " + fixtureId);
