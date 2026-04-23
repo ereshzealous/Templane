@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dev.tsp.core.IRGenerator;
 import dev.tsp.core.JsonMapper;
 import dev.tsp.core.SchemaParser;
 import dev.tsp.core.TypeChecker;
+import dev.tsp.core.model.ASTNode;
+import dev.tsp.core.model.TIRResult;
 import dev.tsp.core.model.TypeCheckError;
 import dev.tsp.core.model.TypedSchema;
 
@@ -65,6 +68,15 @@ public class ConformAdapter {
             ObjectNode out = M.createObjectNode();
             out.set("errors", M.valueToTree(errors));
             return out;
+        }
+
+        if (fixtureId.startsWith("ir-generator")) {
+            List<ASTNode> ast = M.convertValue(fixture.get("ast"), new TypeReference<>() {});
+            Map<String, Object> data = M.convertValue(fixture.get("data"), new TypeReference<>() {});
+            String schemaId = fixture.get("schema_id").asText();
+            String templateId = fixture.get("template_id").asText();
+            TIRResult result = IRGenerator.generate(ast, data, schemaId, templateId);
+            return M.valueToTree(result);
         }
 
         ObjectNode unhandled = M.createObjectNode();
