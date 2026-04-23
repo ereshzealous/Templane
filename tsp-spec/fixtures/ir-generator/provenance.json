@@ -1,0 +1,12 @@
+{
+  "fixture_id": "ir-generator/provenance",
+  "input": {
+    "template_id": "my-template", "schema_id": "my-schema",
+    "ast": [{"kind": "text", "content": "Hello"}],
+    "data": {}
+  },
+  "expected_output": {
+    "template_id": "my-template", "schema_id": "my-schema",
+    "nodes": [{"kind": "text", "content": "Hello"}]
+  }
+}

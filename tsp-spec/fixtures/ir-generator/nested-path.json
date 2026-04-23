@@ -1,0 +1,12 @@
+{
+  "fixture_id": "ir-generator/nested-path",
+  "input": {
+    "template_id": "nested-path", "schema_id": "order",
+    "ast": [{"kind": "expr", "field": "user.address.city"}],
+    "data": {"user": {"address": {"city": "London"}}}
+  },
+  "expected_output": {
+    "template_id": "nested-path", "schema_id": "order",
+    "nodes": [{"kind": "expr", "field": "user.address.city", "resolved": "London"}]
+  }
+}

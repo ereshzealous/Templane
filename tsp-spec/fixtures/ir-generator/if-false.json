@@ -1,0 +1,17 @@
+{
+  "fixture_id": "ir-generator/if-false",
+  "input": {
+    "template_id": "if-false", "schema_id": "user",
+    "ast": [{
+      "kind": "if",
+      "condition": {"op": "==", "left": "status", "right": "active"},
+      "then_branch": [{"kind": "text", "content": "Active"}],
+      "else_branch": []
+    }],
+    "data": {"status": "inactive"}
+  },
+  "expected_output": {
+    "template_id": "if-false", "schema_id": "user",
+    "nodes": [{"kind": "if", "condition": false, "branch": []}]
+  }
+}

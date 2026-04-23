@@ -1,0 +1,20 @@
+{
+  "fixture_id": "ir-generator/basic-expr",
+  "input": {
+    "template_id": "basic-expr", "schema_id": "user",
+    "ast": [
+      {"kind": "text",  "content": "Hello "},
+      {"kind": "expr",  "field": "name"},
+      {"kind": "text",  "content": "!"}
+    ],
+    "data": {"name": "Alice"}
+  },
+  "expected_output": {
+    "template_id": "basic-expr", "schema_id": "user",
+    "nodes": [
+      {"kind": "text", "content": "Hello "},
+      {"kind": "expr", "field": "name", "resolved": "Alice"},
+      {"kind": "text", "content": "!"}
+    ]
+  }
+}

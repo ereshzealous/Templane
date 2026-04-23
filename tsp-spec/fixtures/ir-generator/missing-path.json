@@ -1,0 +1,12 @@
+{
+  "fixture_id": "ir-generator/missing-path",
+  "input": {
+    "template_id": "missing-path", "schema_id": "user",
+    "ast": [{"kind": "expr", "field": "missing"}],
+    "data": {}
+  },
+  "expected_output": {
+    "template_id": "missing-path", "schema_id": "user",
+    "nodes": [{"kind": "expr", "field": "missing", "resolved": null}]
+  }
+}

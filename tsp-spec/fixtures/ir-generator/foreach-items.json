@@ -1,0 +1,22 @@
+{
+  "fixture_id": "ir-generator/foreach-items",
+  "input": {
+    "template_id": "foreach-items", "schema_id": "post",
+    "ast": [{
+      "kind": "foreach", "var": "tag", "iterable": "tags",
+      "body": [{"kind": "text", "content": "- "}, {"kind": "expr", "field": "tag"}]
+    }],
+    "data": {"tags": ["python", "typescript", "java"]}
+  },
+  "expected_output": {
+    "template_id": "foreach-items", "schema_id": "post",
+    "nodes": [{
+      "kind": "foreach", "var": "tag",
+      "items": [
+        [{"kind": "text", "content": "- "}, {"kind": "expr", "field": "tag", "resolved": "python"}],
+        [{"kind": "text", "content": "- "}, {"kind": "expr", "field": "tag", "resolved": "typescript"}],
+        [{"kind": "text", "content": "- "}, {"kind": "expr", "field": "tag", "resolved": "java"}]
+      ]
+    }]
+  }
+}

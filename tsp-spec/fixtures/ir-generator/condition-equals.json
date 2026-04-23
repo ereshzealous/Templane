@@ -1,0 +1,17 @@
+{
+  "fixture_id": "ir-generator/condition-equals",
+  "input": {
+    "template_id": "condition-equals", "schema_id": "report",
+    "ast": [{
+      "kind": "if",
+      "condition": {"op": "==", "left": "score", "right": "100"},
+      "then_branch": [{"kind": "text", "content": "Perfect"}],
+      "else_branch": []
+    }],
+    "data": {"score": "100"}
+  },
+  "expected_output": {
+    "template_id": "condition-equals", "schema_id": "report",
+    "nodes": [{"kind": "if", "condition": true, "branch": [{"kind": "text", "content": "Perfect"}]}]
+  }
+}
