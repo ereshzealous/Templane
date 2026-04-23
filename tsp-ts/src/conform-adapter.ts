@@ -2,7 +2,9 @@ import * as readline from 'node:readline';
 import { parse as schemaParse } from './schema-parser';
 import { check as typeCheck } from './type-checker';
 import { generate as irGenerate } from './ir-generator';
-import { ASTNode, TypedSchema } from './models';
+import { render as htmlRender } from './html-adapter';
+import { render as yamlRender } from './yaml-adapter';
+import { ASTNode, TIRResult, TypedSchema } from './models';
 
 interface Request {
   fixture_id: string;
@@ -36,7 +38,14 @@ function handle(fixtureId: string, fixture: Record<string, unknown>): Response {
       return { output: result };
     }
 
-    // Category 4 added in the final task
+    if (fixtureId.startsWith('adapters/html')) {
+      return { output: { output: htmlRender(fixture.tir as TIRResult) } };
+    }
+
+    if (fixtureId.startsWith('adapters/yaml')) {
+      return { output: { output: yamlRender(fixture.tir as TIRResult) } };
+    }
+
     return { output: null, error: `Unhandled fixture: ${fixtureId}` };
   } catch (e) {
     return { output: null, error: (e as Error).message };
