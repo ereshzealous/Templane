@@ -1,7 +1,8 @@
 import * as readline from 'node:readline';
 import { parse as schemaParse } from './schema-parser';
 import { check as typeCheck } from './type-checker';
-import { TypedSchema } from './models';
+import { generate as irGenerate } from './ir-generator';
+import { ASTNode, TypedSchema } from './models';
 
 interface Request {
   fixture_id: string;
@@ -25,7 +26,17 @@ function handle(fixtureId: string, fixture: Record<string, unknown>): Response {
       return { output: { errors } };
     }
 
-    // Categories 3-4 added in later tasks
+    if (fixtureId.startsWith('ir-generator')) {
+      const result = irGenerate(
+        fixture.ast as ASTNode[],
+        fixture.data as Record<string, unknown>,
+        fixture.schema_id as string,
+        fixture.template_id as string,
+      );
+      return { output: result };
+    }
+
+    // Category 4 added in the final task
     return { output: null, error: `Unhandled fixture: ${fixtureId}` };
   } catch (e) {
     return { output: null, error: (e as Error).message };
