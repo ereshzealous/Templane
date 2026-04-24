@@ -36,11 +36,10 @@ templates/
 
 That's the whole adoption story. Keep reading for per-engine examples.
 
-> **Legacy note**: SPEC 1.0 supported an "inline body" form — schema +
-> `---` + body in a single `.templane` file. As of 1.2 this is legacy.
-> Parsers still accept it, but no new docs, examples, or tooling emit
-> it. If you have existing `.templane` files they keep working; new
-> files should be `.schema.yaml`.
+> **Legacy note**: the repo still supports an inline-body form — schema +
+> `---` + body in a single `.templane` file. New work should use
+> `.schema.yaml` sidecar files. Treat inline-body support as compatibility
+> behavior, not the recommended authoring format.
 
 ---
 
@@ -231,7 +230,7 @@ charts/web/
 ```
 
 The schema file references one of the chart templates as its body and
-validates every `values-*.yaml` against it:
+can be used to validate each values payload against it:
 
 ```yaml
 # charts/web/values.schema.yaml
@@ -269,16 +268,20 @@ resources:
         memory: { type: string, required: true }
 ```
 
-In CI:
+In CI, with the current `xt` implementation, use JSON data files:
 
 ```yaml
 - name: Validate Helm values
   run: |
-    for f in charts/web/values-*.yaml; do
+    for f in charts/web/values-*.json; do
       xt check charts/web/values.schema.yaml "$f" \
         || { echo "❌ $f fails schema"; exit 1; }
     done
 ```
+
+> **Current repo note**: `xt` currently reads data files as JSON objects.
+> If your real-world inputs are YAML, convert them before calling `xt`, or
+> validate through a language binding instead of the current CLI.
 
 Working example: [`examples/06-helm-chart-validation/`](../examples/06-helm-chart-validation/).
 
@@ -301,7 +304,7 @@ envs.schema.yaml           ← ONE schema, validates all 4 files
 ```
 
 ```bash
-for f in envs/*.values.yaml; do
+for f in envs/*.values.json; do
   xt check envs.schema.yaml "$f"
 done
 ```

@@ -13,7 +13,7 @@ If `templane-conform` reports `<name> 40/40`, the implementation is compliant.
 ```
 templane-spec/
 ├── fixtures/              ← 40 JSON fixture files (input + expected output)
-│   ├── schema-parser/     (8)
+│   ├── schema-parser/     (16)
 │   ├── type-checker/      (8)
 │   ├── ir-generator/      (8)
 │   └── adapters/          (8)
@@ -100,7 +100,7 @@ uv sync --extra dev
 .venv/bin/pytest -v
 ```
 
-Expected: **42 tests passing**.
+Expected: **55 tests passing**.
 
 Module layout:
 

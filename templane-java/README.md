@@ -14,12 +14,83 @@ Templane adds compile-time schema validation to your templates. Define what data
 
 ## Install
 
+Current repo-tested path is local source build:
+
+```bash
+git clone https://github.com/ereshzealous/Templane.git
+cd Templane/templane-java
+./gradlew build
+```
+
+If you want local Maven coordinates from this checkout:
+
+```bash
+./gradlew publishToMavenLocal
+```
+
+Then consume the locally published artifacts.
+
+> **Current repo state**: this README keeps the dependency coordinates for
+> reference, but the conservative tested workflow in this repository is source
+> build and optional `publishToMavenLocal`, not an asserted public Maven Central
+> release flow.
+
+### Remote publish goal: Maven Central
+
+The intended remote publication coordinates are:
+
+- `io.github.ereshzealous:templane-core`
+- `io.github.ereshzealous:templane-adapter-html`
+- `io.github.ereshzealous:templane-adapter-yaml`
+- `io.github.ereshzealous:freemarker-templane`
+
+The repository is wired for Maven Central publication through the Sonatype
+Central Portal release workflow:
+
+- Workflow: [`.github/workflows/release-templane-java.yml`](../.github/workflows/release-templane-java.yml)
+- Publish task used by CI: `./gradlew publishAggregationToCentralPortal`
+
+Before that workflow can succeed, the following must be true:
+
+1. The namespace `io.github.ereshzealous` must be verified in Sonatype Central.
+2. The repository must have these GitHub Actions secrets configured:
+   - `MAVEN_CENTRAL_USERNAME`
+   - `MAVEN_CENTRAL_PASSWORD`
+   - `SIGNING_KEY`
+   - `SIGNING_PASSWORD`
+
+Expected secret meanings:
+
+- `MAVEN_CENTRAL_USERNAME`
+  Sonatype Central Portal username/token identity.
+- `MAVEN_CENTRAL_PASSWORD`
+  Sonatype Central Portal password/token secret.
+- `SIGNING_KEY`
+  ASCII-armored OpenPGP private key used to sign published artifacts.
+- `SIGNING_PASSWORD`
+  Password for that signing key.
+
+Manual release path from GitHub Actions:
+
+1. Open the `Release templane-java (manual)` workflow.
+2. Supply the target version, for example `0.1.0`.
+3. Choose `maven-central` as `publish_target`.
+4. Run the workflow.
+
+The workflow will:
+
+1. bump `templane-java/gradle.properties`
+2. run Java tests
+3. build all publishable JARs
+4. create a GitHub release/tag
+5. publish signed artifacts to Maven Central
+
 ### Gradle (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("dev.templane:templane-core:0.1.0")
-    implementation("dev.templane:freemarker-templane:0.1.0")
+    implementation("io.github.ereshzealous:templane-core:0.1.0")
+    implementation("io.github.ereshzealous:freemarker-templane:0.1.0")
 }
 ```
 
@@ -27,12 +98,12 @@ dependencies {
 
 ```xml
 <dependency>
-  <groupId>dev.templane</groupId>
+  <groupId>io.github.ereshzealous</groupId>
   <artifactId>templane-core</artifactId>
   <version>0.1.0</version>
 </dependency>
 <dependency>
-  <groupId>dev.templane</groupId>
+  <groupId>io.github.ereshzealous</groupId>
   <artifactId>freemarker-templane</artifactId>
   <version>0.1.0</version>
 </dependency>
@@ -224,10 +295,10 @@ The Maven artifacts map to independent Gradle subprojects:
 
 | Artifact | Purpose |
 |---|---|
-| `dev.templane:templane-core` | Schema parser, type checker, IR generator, breaking-change detector |
-| `dev.templane:templane-adapter-html` | HTML adapter (entity escaping + provenance markers) |
-| `dev.templane:templane-adapter-yaml` | YAML adapter |
-| `dev.templane:freemarker-templane` | FreeMarker binding |
+| `io.github.ereshzealous:templane-core` | Schema parser, type checker, IR generator, breaking-change detector |
+| `io.github.ereshzealous:templane-adapter-html` | HTML adapter (entity escaping + provenance markers) |
+| `io.github.ereshzealous:templane-adapter-yaml` | YAML adapter |
+| `io.github.ereshzealous:freemarker-templane` | FreeMarker binding |
 
 Depend on `freemarker-templane` for the user-facing API; transitively brings `templane-core`.
 

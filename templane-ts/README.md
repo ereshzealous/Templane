@@ -14,13 +14,22 @@ Templane adds compile-time schema validation to your templates. Define what data
 
 ## Install
 
+Current repo-tested path:
+
 ```bash
-npm install templane-ts
+git clone https://github.com/ereshzealous/Templane.git
+cd Templane/templane-ts
+npm install
+npm run build
 ```
 
-This installs:
-- The **library** (import from `handlebars-templane` submodule)
-- The **`xt` CLI** (available in `./node_modules/.bin/xt` or via `npx xt`)
+This produces:
+- `dist/handlebars-templane.js` and related compiled modules
+- `dist/xt.js`
+
+> **Current repo state**: `templane-ts` is still marked `private` in this
+> repository, so the conservative documented workflow is source-build usage
+> rather than public npm-package installation.
 
 ---
 
@@ -51,10 +60,10 @@ amount:
   required: true
 ```
 
-Use from TypeScript:
+Use from this repository checkout:
 
 ```typescript
-import { compileFromPath, TemplaneHandlebarsError } from 'handlebars-templane';
+import { compileFromPath, TemplaneHandlebarsError } from './dist/handlebars-templane';
 
 const tmpl = await compileFromPath('templates/email.schema.yaml');
 
@@ -103,31 +112,36 @@ All errors are collected — never short-circuits at the first.
 
 ## The `xt` CLI
 
-Installed alongside the library. Five subcommands:
+Current repo-tested CLI usage:
 
 ```bash
 xt render <schema.yaml> <data.json>   # render to stdout
 xt check  <schema.yaml> <data.json>   # validate only; exit 1 on error
-xt test   <templates-dir>             # smoke-test all schemas in a dir
-xt dev    <schema.yaml> <data.json>   # watch + re-render on save
-xt build  <templates-dir> --out bundle.js   # precompile bodies for production
+xt test   <templates-dir>             # current implementation scans .hbs files
+xt dev    <template> <data.json>      # current implementation recompiles inline-body source
+xt build  <templates-dir> --out bundle.js   # current implementation expects inline-body .hbs files
 ```
 
 Example CI gate:
 
 ```yaml
 # .github/workflows/validate.yml
-- run: npx xt check templates/welcome.schema.yaml templates/welcome.example.json
+- run: node templane-ts/dist/xt.js check templates/welcome.schema.yaml templates/welcome.example.json
 ```
 
-One-line block of a bad-data PR.
+> **Current repo notes**
+>
+> - `xt render` and `xt check` are the sidecar-schema-friendly commands.
+> - `xt` currently reads data files as JSON objects.
+> - `xt test`, `xt dev`, and `xt build` still reflect earlier inline-body /
+>   `.hbs`-oriented behavior and should be treated as such until updated.
 
 ---
 
 ## API
 
 ```typescript
-import { compile, compileFromPath, TemplaneHandlebarsError, TemplaneTemplate } from 'handlebars-templane';
+import { compile, compileFromPath, TemplaneHandlebarsError, TemplaneTemplate } from './dist/handlebars-templane';
 
 // Compile from a string (for schemas already in memory, or legacy inline-body form)
 compile(source: string, schemaId?: string): TemplaneTemplate
@@ -145,13 +159,7 @@ interface TemplaneTemplate {
 
 Lower-level core functions are also available:
 
-```typescript
-import { parse, loadFromPath, check, generate } from 'templane-ts';
-// parse(yamlStr, id) → ParseResult
-// loadFromPath(path) → Promise<ParseResult>
-// check(schema, data) → TypeCheckError[]
-// generate(ast, data, schemaId, templateId) → TIRResult
-```
+For lower-level source imports inside the repo, see files under `src/`.
 
 ---
 

@@ -1,7 +1,7 @@
 # 06 — Helm chart validation (sidecar adoption demo) ⭐⭐⭐⭐⭐
 
 **This is the pitch.** Drop one schema file next to your existing Helm
-chart — nothing else changes — and every `values-*.yaml` gets
+chart — nothing else changes — and your values payloads can be
 type-checked in CI before `helm install` ever runs.
 
 > **Sidecar mode** : the template body lives in its native
@@ -32,7 +32,7 @@ catches it at CI time instead.
 
 | File                                | Role |
 |-------------------------------------|------|
-| `values.schema.yaml`            | Sidecar schema. References the template body + validates every `values-*.yaml`. |
+| `values.schema.yaml`            | Sidecar schema. References the template body and validates values payloads. |
 | `deployment.yaml.tmpl`              | Plain Go template — the chart's deployment body. Untouched by Templane. |
 | `values-prod.json`                  | Production values — passes validation |
 | `values-misconfigured.json`         | Real-world-ish broken values — fails validation with 5 errors |
@@ -124,17 +124,21 @@ charts/
 +   values.schema.yaml     ← the only new file; validates all 3 values files
 ```
 
-No one rewrites `deployment.yaml`. No one moves files. The CI gate is one
-line:
+No one rewrites `deployment.yaml`. No one moves files. With the current
+`xt` implementation, the CI gate is one line if your checked inputs are JSON:
 
 ```yaml
 - name: Validate Helm values
   run: |
-    for f in charts/web/values-*.yaml; do
+    for f in charts/web/values-*.json; do
       xt check charts/web/values.schema.yaml "$f" \
         || { echo "❌ $f fails schema"; exit 1; }
     done
 ```
+
+> **Current repo note**: the `xt` CLI currently expects JSON object data files,
+> not YAML files. The example uses Helm-shaped data, but the checked inputs in
+> this repository are JSON.
 
 That's the whole adoption path. Not a migration — an addition.
 
@@ -148,7 +152,7 @@ IS the chart contract; the detector IS the contract diff.
 ## What to take away
 
 - Sidecar mode maps cleanly to real Helm-chart shape — one schema
-  validates an arbitrary number of `values-*.yaml` files.
+  validates an arbitrary number of values payloads.
 - **Zero migration cost.** The `.tmpl` is a normal Go/Helm template.
   Any Helm tooling still works on it.
 - CI integration is ~5 lines of shell.

@@ -74,44 +74,53 @@ Setup:
 
 **Fallback: API token** — set repo secret `PYPI_TOKEN`. The workflow uses it if OIDC isn't configured.
 
-### `release-templane-java.yml` → one of three targets
+### `release-templane-java.yml` → artifacts or Maven Central
 
 | Input            | Purpose                                                               |
 |------------------|-----------------------------------------------------------------------|
 | `version`        | e.g. `0.1.0`                                                          |
-| `publish_target` | `artifacts-only` (default, safe), `github-packages`, or `maven-central` |
+| `publish_target` | `artifacts-only` (default, safe) or `maven-central`                   |
 
 **`artifacts-only`** (default) — builds all JARs, attaches them to the GitHub release. No registry upload. No secrets needed.
 
-**`github-packages`** — publishes to GitHub Packages Maven registry. Uses the auto-provisioned `GITHUB_TOKEN`. Requires adding the GitHub Packages repo to `templane-java/build.gradle.kts` publishing config:
+**`maven-central`** — publishes to Maven Central via the Sonatype Central Portal.
 
-```kotlin
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/OWNER/REPO")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-}
+The intended public coordinates are:
+
+- `io.github.ereshzealous:templane-core`
+- `io.github.ereshzealous:templane-adapter-html`
+- `io.github.ereshzealous:templane-adapter-yaml`
+- `io.github.ereshzealous:freemarker-templane`
+
+The workflow uses the Gradle task:
+
+```bash
+./gradlew publishAggregationToCentralPortal
 ```
 
-**`maven-central`** — publishes to Maven Central via Sonatype OSSRH. Requires significant pre-setup (the first time):
+Required one-time setup:
 
-1. Create a Sonatype JIRA account and stage the `dev.tsp` coordinate group.
-2. Generate a GPG signing key, publish the public key to a keyserver.
-3. Configure `templane-java/build.gradle.kts` with the `maven-publish`, `signing`, and ideally `io.github.gradle-nexus.publish-plugin` plugins.
-4. Set repository secrets:
-   - `OSSRH_USERNAME` — Sonatype account
-   - `OSSRH_PASSWORD` — Sonatype token
-   - `SIGNING_KEY` — armored GPG private key
-   - `SIGNING_PASSWORD` — passphrase for the GPG key
+1. Verify the namespace `io.github.ereshzealous` in Sonatype Central.
+2. Generate an OpenPGP signing key for artifact signing.
+3. Add repository secrets:
+   - `MAVEN_CENTRAL_USERNAME`
+   - `MAVEN_CENTRAL_PASSWORD`
+   - `SIGNING_KEY`
+   - `SIGNING_PASSWORD`
 
-Until the Gradle build is wired up for Maven Central, stick with `artifacts-only` and manually upload via Sonatype's web UI for v0.1.0.
+Secret meanings:
+
+- `MAVEN_CENTRAL_USERNAME` — Central Portal username/token identity
+- `MAVEN_CENTRAL_PASSWORD` — Central Portal password/token secret
+- `SIGNING_KEY` — ASCII-armored OpenPGP private key
+- `SIGNING_PASSWORD` — password for that signing key
+
+The workflow will:
+
+1. run tests
+2. build the JARs
+3. create the git tag and GitHub release
+4. publish signed Maven artifacts to Central when `publish_target == maven-central`
 
 ### `release-templane-go.yml` → pkg.go.dev
 

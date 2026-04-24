@@ -49,7 +49,7 @@ Templane/
 
 **Two CLIs** (covered in §7):
 - `templane-conform` — tests that any implementation agrees with the 40 fixtures. Only needed when you're building a Templane implementation.
-- `xt` — user-facing developer tool (render/check/test/dev/build). Shipped with `templane-ts`.
+- `xt` — TypeScript-side developer CLI. Today, `render` and `check` are the clearest sidecar-schema workflows; other subcommands still reflect earlier inline-body behavior.
 
 ---
 
@@ -420,37 +420,41 @@ You can run it against a subset of adapters; the matrix in §4 is the full 5-imp
 
 **Who needs it**: anyone rendering Templane schemas day-to-day.
 
-**Where**: installed by `templane-ts` — run via `node templane-ts/dist/xt.js` or, once published to npm, just `xt`.
+**Where**: in the current repo, run via `node templane-ts/dist/xt.js`.
 
-**What it does**: one-shot operations on `.templane` schemas — render, check, run a whole test suite, watch-and-re-render, or precompile a bundle for production.
+**What it does**: one-shot operations on template/schema inputs. In the current
+repo, `render` and `check` are the clearest schema-driven commands; `test`,
+`dev`, and `build` still reflect earlier `.hbs` / inline-body workflows.
 
 Full usage:
 
 ```
-xt render <template.templane> <data.json>
+xt render <schema-or-inline-template> <data.json>
   Render template with data; write output to stdout.
   Exits 1 with validation errors if data doesn't match schema.
+  Current implementation expects the data file to be a JSON object.
 
-xt check <template.templane> <data.json>
+xt check <schema-or-inline-template> <data.json>
   Validate data against template schema. Exit 0 if ok, 1 on error.
   Use in CI / pre-commit hooks.
 
 xt test <templates-dir>
-  Compile every *.schema.yaml under the dir. If there's an adjacent
-  <name>.example.json, also render it as a smoke test. Reports ✓/✗.
+  Current implementation scans `.hbs` files and optionally renders adjacent
+  `.example.json` files.
 
-xt dev <template.templane> <data.json>
-  Watch both files with chokidar. Re-render on save. Good for iterating
-  on an email or invoice layout.
+xt dev <template> <data.json>
+  Current implementation recompiles inline-body source on change.
 
 xt build <templates-dir> --out <file>
-  Precompile every *.schema.yaml into a single CommonJS module
-  exporting {name: renderFn}. For production deployments.
+  Current implementation precompiles inline-body `.hbs` files with `---`
+  separators into a CommonJS module.
 ```
 
-Both CLIs support the recommended `.schema.yaml` form with a `body:`
-reference, and still parse legacy `.templane` files that inline the
-body after `---`.
+`templane-conform` is protocol infrastructure.
+
+For `xt`, treat `render` and `check` as the verified sidecar-schema path in the
+current repo. Treat `test`, `dev`, and `build` as more legacy/inline-oriented
+until they are brought into alignment.
 
 ---
 
@@ -491,7 +495,7 @@ existing implementations. The checklist:
 
 - **Use it in an existing codebase** → [`docs/ADOPTION.md`](ADOPTION.md)
 - **Understand how it's wired internally** → [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) (12 Mermaid diagrams)
-- **The normative spec** → [`SPEC.md`](../SPEC.md) (RFC 2119, versioned at 1.1)
+- **The normative spec** → [`SPEC.md`](../SPEC.md) (RFC 2119, currently versioned at 1.0 in-repo)
 - **Per-language deep-dives**:
   - [Python reference](../templane-spec/README.md)
   - [Python production](../templane-python/README.md)
@@ -504,6 +508,8 @@ existing implementations. The checklist:
   - [Java](../templane-java/examples/)
   - [Go](../templane-go/examples/)
 - **Cross-cutting examples** (root) → [`examples/`](../examples/) — 6 progressive tiers from hello-world to Helm chart validation.
+- **Release and publishing workflows** → [`.github/workflows/README.md`](../.github/workflows/README.md)
+- **Java remote publish path** → [`.github/workflows/release-templane-java.yml`](../.github/workflows/release-templane-java.yml) and [Java README](../templane-java/README.md)
 
 If anything in this document is wrong or stale, open an issue or a PR.
 The walkthrough commands are tested against the HEAD of `main`.

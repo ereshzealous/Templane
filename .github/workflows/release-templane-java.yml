@@ -1,14 +1,16 @@
 name: Release templane-java (manual)
 
-# Builds all 4 publishable Java modules (tsp-core, tsp-adapter-html,
-# tsp-adapter-yaml, freemarker-templane) plus the conform-adapter fat JAR.
+# Builds all 4 publishable Java modules (templane-core, templane-adapter-html,
+# templane-adapter-yaml, freemarker-templane) plus the conform-adapter fat JAR.
 #
-# Publishing strategy (three options, controlled by inputs):
+# Publishing strategy (two options, controlled by inputs):
 #   1. "artifacts-only" — build JARs, attach to GitHub release, no registry publish
 #      (safe default; suitable for v0.1.0 and when Maven Central isn't set up).
-#   2. "github-packages" — publish to GitHub Packages (uses GITHUB_TOKEN; no extra setup).
-#   3. "maven-central" — publish to Maven Central via OSSRH staging
-#      (requires: OSSRH_USERNAME, OSSRH_PASSWORD, SIGNING_KEY, SIGNING_PASSWORD).
+#   2. "maven-central" — publish to Maven Central via the Central Portal
+#      (requires: MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_PASSWORD, SIGNING_KEY,
+#      SIGNING_PASSWORD).
+#      Also requires that the namespace for `io.github.ereshzealous` is verified in
+#      Sonatype Central.
 #
 # Manual trigger only.
 
@@ -26,7 +28,6 @@ on:
         type: choice
         options:
           - artifacts-only
-          - github-packages
           - maven-central
 
 jobs:
@@ -35,7 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write   # for GitHub Packages
     steps:
       - uses: actions/checkout@v4
         with:
@@ -82,31 +82,16 @@ jobs:
           files: dist-java/*.jar
 
       # ---------------------------------------------------------------
-      # Option 2: GitHub Packages
-      # ---------------------------------------------------------------
-      - name: Publish to GitHub Packages
-        if: ${{ inputs.publish_target == 'github-packages' }}
-        working-directory: templane-java
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Requires adding maven { url = uri("https://maven.pkg.github.com/<owner>/<repo>") }
-          # to build.gradle.kts publishing.repositories block before this works.
-          ./gradlew publish
-
-      # ---------------------------------------------------------------
-      # Option 3: Maven Central (via OSSRH)
-      # Requires build.gradle.kts configured with OSSRH + signing.
-      # Store these secrets:
-      #   OSSRH_USERNAME, OSSRH_PASSWORD, SIGNING_KEY (armored GPG), SIGNING_PASSWORD
+      # Option 2: Maven Central via Central Portal
       # ---------------------------------------------------------------
       - name: Publish to Maven Central
         if: ${{ inputs.publish_target == 'maven-central' }}
         working-directory: templane-java
         env:
-          ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSSRH_USERNAME }}
-          ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSSRH_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          MAVEN_CENTRAL_AUTOMATIC_RELEASE: "true"
+        run: |
+          ./gradlew publishAggregationToCentralPortal
