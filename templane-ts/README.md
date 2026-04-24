@@ -4,7 +4,7 @@ TypeScript implementation of [Templane](../SPEC.md). Ships a full **Handlebars
 integration** (`handlebars-templane`) and the `xt` CLI (`render`, `check`, `test`,
 `dev`, `build`).
 
-**Conformance:** `ts 32/32` ✓ — **64 unit tests passing**.
+**Conformance:** `ts 40/40` ✓ — **81 unit tests passing**.
 
 ---
 

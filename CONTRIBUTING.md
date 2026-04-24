@@ -11,7 +11,7 @@ Thanks for your interest in Templane. There are three main ways to contribute:
 
 ## Ground rules
 
-- Every change **MUST** keep all existing implementations at 32/32 on the
+- Every change **MUST** keep all existing implementations at 40/40 on the
   conformance suite.
 - New features **MUST** be defined in [SPEC.md](SPEC.md) before they are
   implemented.
@@ -58,7 +58,7 @@ target language.
    - 8/32 after schema-parser
    - 16/32 after type-checker
    - 24/32 after ir-generator
-   - 32/32 after both adapters
+   - 40/40 after both adapters
 4. Build a conform adapter (subprocess shim). See any of the five existing
    adapters for reference (`templane-spec/conform-adapter/run.py`,
    `templane-ts/src/conform-adapter.ts`, etc.).
@@ -153,7 +153,7 @@ node templane-spec/templane-conform/dist/cli.js \
     "go:templane-go/bin/conform-adapter"
 ```
 
-All five must report 32/32.
+All five must report 40/40.
 
 ### Running language-specific tests
 

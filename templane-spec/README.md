@@ -4,7 +4,7 @@ The Templane protocol specification hub: **32 conformance fixtures**, the
 `templane-conform` CLI (Node.js), and a Python reference implementation (`templane-core`).
 
 All Templane implementations derive correctness from the fixtures in this package.
-If `templane-conform` reports `<name> 32/32`, the implementation is compliant.
+If `templane-conform` reports `<name> 40/40`, the implementation is compliant.
 
 ---
 
@@ -42,8 +42,8 @@ node dist/cli.js --adapters "spec:python3 ../conform-adapter/run.py"
 Expected:
 
 ```
-Running 32 fixture(s) across 1 implementation(s)...
-  ✓ spec:   32/32
+Running 40 fixture(s) across 1 implementation(s)...
+  ✓ spec:   40/40
 All implementations conformant.
 ```
 
@@ -119,7 +119,7 @@ Module layout:
 3. Write a conform adapter that reads fixtures from stdin, invokes your
    implementation, and writes results to stdout.
 4. Run `templane-conform` with `--adapters "<lang>:<command>"` and iterate
-   until 32/32.
+   until 40/40.
 5. Submit a PR linking your implementation in the top-level README.
 
 The five existing implementations (Python, TypeScript, Java, Go) are

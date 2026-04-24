@@ -639,7 +639,7 @@ node templane-spec/templane-conform/dist/cli.js \
 Expected:
 
 ```
-Running 32 fixture(s) across 5 implementation(s)...
+Running 40 fixture(s) across 5 implementation(s)...
   ✓ spec:   40/40
   ✓ ts:     40/40
   ✓ py:     40/40

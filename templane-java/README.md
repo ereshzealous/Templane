@@ -7,7 +7,7 @@ consumption by Maven, Gradle, sbt, Ivy, or any other JVM build tool.
 Ships a **FreeMarker integration** (`freemarker-templane`) and a **schema
 evolution detector** (`BreakingChangeDetector`).
 
-**Conformance:** `java 32/32` ✓ — **49 unit tests passing**.
+**Conformance:** `java 40/40` ✓ — **65 unit tests passing**.
 
 ---
 
@@ -223,7 +223,7 @@ This is what `templane-conform` invokes via `java -jar`.
 
 ```bash
 ./gradlew test
-# 49 tests passing
+# 65 tests passing
 ```
 
 Breakdown: SchemaParser (7), TypeChecker (9), IRGenerator (9),
@@ -238,7 +238,7 @@ node templane-spec/templane-conform/dist/cli.js \
   --adapters "java:templane-java/conform-adapter/build/libs/conform-adapter-0.1.0.jar"
 ```
 
-Expected: `java: 32/32`.
+Expected: `java: 40/40`.
 
 ---
 

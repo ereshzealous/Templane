@@ -4,7 +4,7 @@ Go implementation of [Templane](../SPEC.md). Ships a **schema evolution detector
 (`BreakingChangeDetector`) and a **static-binary conform adapter** (no JVM
 or interpreter runtime needed).
 
-**Conformance:** `go 32/32` ✓ — **43 unit tests passing**.
+**Conformance:** `go 40/40` ✓ — **56 unit tests passing**.
 
 ---
 
@@ -181,7 +181,7 @@ go test ./...
 # ok templane-go/core
 # ok templane-go/htmladapter
 # ok templane-go/yamladapter
-# 43 tests passing
+# 56 tests passing
 ```
 
 Breakdown: core schema_parser (7), type_checker (9), ir_generator (9),
@@ -197,7 +197,7 @@ node templane-spec/templane-conform/dist/cli.js \
   --adapters "go:templane-go/bin/conform-adapter"
 ```
 
-Expected: `go: 32/32`.
+Expected: `go: 40/40`.
 
 ---
 

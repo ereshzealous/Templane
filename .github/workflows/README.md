@@ -19,7 +19,7 @@ This project uses **GitHub Actions** for continuous integration (automatic on ev
    - `templane-java` — `./gradlew build`
    - `templane-go` — `go test ./...`
 2. Builds the `templane-conform` CLI (Node.js) and uploads it as an artifact.
-3. After all five unit-test jobs pass, runs the **5-way cross-implementation conformance matrix** — all 5 conform adapters × 32 fixtures = **160 expected passes**.
+3. After all five unit-test jobs pass, runs the **5-way cross-implementation conformance matrix** — all 5 conform adapters × 40 fixtures = **200 expected passes**.
 
 A PR cannot merge unless every job is green, including the conformance gate.
 

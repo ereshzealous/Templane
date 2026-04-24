@@ -166,17 +166,17 @@ fixture inputs and returns results in a single canonical JSON shape.
 ## 4. Cross-implementation conformance
 
 This is how we prove the 5 implementations behave identically. 32
-fixtures × 5 adapters = **160 checks** on every CI run.
+fixtures × 5 adapters = **200 checks** on every CI run.
 
 ```mermaid
 sequenceDiagram
     participant CI as GitHub Actions
     participant Conf as templane-conform CLI<br/>(Node)
-    participant Specs as 32 fixtures<br/>(inputs + expected outputs)
+    participant Specs as 40 fixtures<br/>(inputs + expected outputs)
     participant Ad as Adapter<br/>(one per impl)
 
     CI->>Conf: run --adapters spec,ts,py,java,go
-    Conf->>Specs: load fixture 1/32
+    Conf->>Specs: load fixture 1/40
     loop for each fixture
         loop for each adapter
             Conf->>Ad: spawn subprocess
@@ -186,7 +186,7 @@ sequenceDiagram
             Conf->>Conf: diff against fixture.expected
         end
     end
-    Conf-->>CI: "5 × 32/32 ✅" or exit non-zero
+    Conf-->>CI: "5 × 40/40 ✅" or exit non-zero
 
     Note over Conf,Ad: All comms are line-delimited JSON.<br/>Any language can ship an adapter.
 ```
@@ -195,7 +195,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    F[32 fixtures] --> P[parse]
+    F[40 fixtures] --> P[parse]
     F --> C[check]
     F --> I[ir]
     F --> R[render]

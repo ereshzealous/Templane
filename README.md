@@ -219,7 +219,7 @@ flowchart TB
     style CLI fill:#D9A441,color:#2B2A28,stroke:#2B2A28
 ```
 
-Every implementation exposes the same four operations. The conform adapter protocol (one JSON line in, one JSON line out) lets `templane-conform` test every implementation against the same 32 fixtures, proving semantic equivalence across languages.
+Every implementation exposes the same four operations. The conform adapter protocol (one JSON line in, one JSON line out) lets `templane-conform` test every implementation against the same 40 fixtures, proving semantic equivalence across languages.
 
 📐 **Deep dive**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) has the full pipeline, IR model, conformance sequence, engine-binding pattern, CLI dataflow, and publishing topology — all Mermaid, renders on GitHub.
 
@@ -250,7 +250,7 @@ node templane-spec/templane-conform/dist/cli.js \
 Expected:
 
 ```
-Running 32 fixture(s) across 5 implementation(s)...
+Running 40 fixture(s) across 5 implementation(s)...
   ✓ spec:   40/40
   ✓ ts:     40/40
   ✓ py:     40/40
@@ -283,7 +283,7 @@ To be clear about the scope:
 | Engine-agnostic          | ✓           | n/a           | n/a           | n/a           | n/a           |
 | Compile-time checking    | ✓           | ✗ (runtime)   | ✓             | ✓             | partial       |
 | Schema evolution rules   | ✓ (§8)      | partial       | ✓             | ✓             | partial       |
-| Conformance suite        | 32 fixtures | ~1000 tests   | `protos/`     | interop/      | parser tests  |
+| Conformance suite        | 40 fixtures | ~1000 tests   | `protos/`     | interop/      | parser tests  |
 
 Templane is not a competitor to any of these. It borrows their playbook — versioned spec, fixture-based conformance, cross-language bindings — and applies it to the templating gap they don't cover.
 
@@ -291,6 +291,7 @@ Templane is not a competitor to any of these. It borrows their playbook — vers
 
 ## Documentation
 
+- 🚀 **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** — **Start here**. Zero-to-running walkthrough: prerequisites, bootstrap, tests, conformance matrix, and a tour of Core / CLI / Python / Java / TypeScript / Go.
 - **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned (currently 1.1). RFC 2119 keywords throughout.
 - **[docs/ADOPTION.md](docs/ADOPTION.md)** — Adding Templane to an existing Jinja / Handlebars / FreeMarker / Go-template / Helm codebase. Sidecar-mode walkthrough per engine.
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Full pipeline, IR model, conformance sequence, publishing topology. 12 Mermaid diagrams.

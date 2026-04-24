@@ -4,7 +4,7 @@ Python implementation of [Templane](../SPEC.md). Ships a **Jinja2 integration**
 (`jinja_templane`), a **schema evolution detector** (`breaking_change`), and a
 **content hash** utility (`hash`).
 
-**Conformance:** `py 32/32` ✓ — **59 unit tests passing**.
+**Conformance:** `py 40/40` ✓ — **75 unit tests passing**.
 
 ---
 
@@ -193,7 +193,7 @@ node templane-spec/templane-conform/dist/cli.js \
   --adapters "py:python3 templane-python/conform-adapter/run.py"
 ```
 
-Expected: `py: 32/32`.
+Expected: `py: 40/40`.
 
 ---
 

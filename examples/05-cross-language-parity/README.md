@@ -35,16 +35,16 @@ node templane-spec/templane-conform/dist/cli.js \
 Expected output:
 
 ```
-Running 32 fixture(s) across 5 implementation(s)...
-  ✓ spec:   32/32
-  ✓ ts:     32/32
-  ✓ py:     32/32
-  ✓ java:   32/32
-  ✓ go:     32/32
+Running 40 fixture(s) across 5 implementation(s)...
+  ✓ spec:   40/40
+  ✓ ts:     40/40
+  ✓ py:     40/40
+  ✓ java:   40/40
+  ✓ go:     40/40
 All implementations conformant.
 ```
 
-**32 × 5 = 160 fixture comparisons. All pass.**
+**40 × 5 = 200 fixture comparisons. All pass.**
 
 ## What "byte-identical" means here
 
@@ -129,7 +129,7 @@ semantic, not string-level) but every key/value is identical.
 
 ## What to take away
 
-- The protocol has **32 fixtures** × **5 languages** = **160 enforced
+- The protocol has **40 fixtures** × **5 languages** = **200 enforced
   equality checks**.
 - Cross-language parity isn't a promise — it's a build-time constraint.
 - If you add a 6th language, you run the same suite and get the same
