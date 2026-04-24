@@ -22,7 +22,6 @@ allprojects {
 
 subprojects {
     apply(plugin = "java-library")
-    apply(plugin = "maven-publish")
 
     project.group = "io.github.ereshzealous"
     project.version = "0.1.0"
@@ -45,54 +44,55 @@ subprojects {
         }
     }
 
-    extensions.configure<PublishingExtension> {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-                artifactId = project.name
+    if (project.name in publishableModules) {
+        apply(plugin = "maven-publish")
+        apply(plugin = "signing")
 
-                pom {
-                    name.set("templane ${project.name}")
-                    description.set(
-                        when (project.name) {
-                            "templane-core" -> "Core Java implementation of the Templane protocol."
-                            "templane-adapter-html" -> "HTML adapter for the Java implementation of Templane."
-                            "templane-adapter-yaml" -> "YAML adapter for the Java implementation of Templane."
-                            "freemarker-templane" -> "FreeMarker binding for the Java implementation of Templane."
-                            else -> "Java module for Templane."
-                        }
-                    )
-                    url.set("https://github.com/ereshzealous/Templane")
-                    inceptionYear.set("2026")
+        extensions.configure<PublishingExtension> {
+            publications {
+                create<MavenPublication>("mavenJava") {
+                    from(components["java"])
+                    artifactId = project.name
 
-                    licenses {
-                        license {
-                            name.set("Apache License, Version 2.0")
-                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                            distribution.set("repo")
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id.set("ereshzealous")
-                            name.set("Eresh Gorantla")
-                            url.set("https://github.com/ereshzealous")
-                        }
-                    }
-
-                    scm {
+                    pom {
+                        name.set("templane ${project.name}")
+                        description.set(
+                            when (project.name) {
+                                "templane-core" -> "Core Java implementation of the Templane protocol."
+                                "templane-adapter-html" -> "HTML adapter for the Java implementation of Templane."
+                                "templane-adapter-yaml" -> "YAML adapter for the Java implementation of Templane."
+                                "freemarker-templane" -> "FreeMarker binding for the Java implementation of Templane."
+                                else -> "Java module for Templane."
+                            }
+                        )
                         url.set("https://github.com/ereshzealous/Templane")
-                        connection.set("scm:git:git://github.com/ereshzealous/Templane.git")
-                        developerConnection.set("scm:git:ssh://git@github.com/ereshzealous/Templane.git")
+                        inceptionYear.set("2026")
+
+                        licenses {
+                            license {
+                                name.set("Apache License, Version 2.0")
+                                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                                distribution.set("repo")
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id.set("ereshzealous")
+                                name.set("Eresh Gorantla")
+                                url.set("https://github.com/ereshzealous")
+                            }
+                        }
+
+                        scm {
+                            url.set("https://github.com/ereshzealous/Templane")
+                            connection.set("scm:git:git://github.com/ereshzealous/Templane.git")
+                            developerConnection.set("scm:git:ssh://git@github.com/ereshzealous/Templane.git")
+                        }
                     }
                 }
             }
         }
-    }
-
-    if (project.name in publishableModules) {
-        apply(plugin = "signing")
 
         val signingKey = providers.gradleProperty("signingInMemoryKey").orNull
             ?: System.getenv("SIGNING_KEY")
