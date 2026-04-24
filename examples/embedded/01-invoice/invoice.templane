@@ -1,0 +1,122 @@
+invoice_number:
+  type: string
+  required: true
+issued_at:
+  type: string
+  required: true
+due_at:
+  type: string
+  required: true
+currency:
+  type: enum
+  values: [USD, EUR, GBP, INR, JPY]
+  required: true
+
+seller:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    address:
+      type: object
+      required: true
+      fields:
+        line1:   { type: string, required: true }
+        line2:   { type: string, required: false }
+        city:    { type: string, required: true }
+        region:  { type: string, required: true }
+        postal:  { type: string, required: true }
+        country: { type: string, required: true }
+    tax_id:
+      type: string
+      required: true
+
+buyer:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    email:
+      type: string
+      required: true
+    billing_address:
+      type: object
+      required: true
+      fields:
+        line1:   { type: string, required: true }
+        city:    { type: string, required: true }
+        region:  { type: string, required: true }
+        postal:  { type: string, required: true }
+        country: { type: string, required: true }
+
+line_items:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      sku:           { type: string,  required: true }
+      description:   { type: string,  required: true }
+      quantity:      { type: number,  required: true }
+      unit_price:    { type: number,  required: true }
+      tax_rate_pct:  { type: number,  required: true }
+      line_subtotal: { type: number,  required: true }
+      line_tax:      { type: number,  required: true }
+      line_total:    { type: number,  required: true }
+
+discount:
+  type: object
+  required: false
+  fields:
+    code:        { type: string, required: true }
+    description: { type: string, required: true }
+    amount:      { type: number, required: true }
+
+subtotal: { type: number, required: true }
+tax_total: { type: number, required: true }
+grand_total: { type: number, required: true }
+
+payment_terms:
+  type: enum
+  values: [net_15, net_30, net_60, due_on_receipt]
+  required: true
+
+notes:
+  type: string
+  required: false
+---
+INVOICE {{invoice_number}}
+Issued: {{issued_at}}    Due: {{due_at}}    Terms: {{payment_terms}}
+
+FROM:
+  {{seller.name}}
+  {{seller.address.line1}}{{#if seller.address.line2}}, {{seller.address.line2}}{{/if}}
+  {{seller.address.city}}, {{seller.address.region}} {{seller.address.postal}}
+  {{seller.address.country}}
+  Tax ID: {{seller.tax_id}}
+
+BILL TO:
+  {{buyer.name}} <{{buyer.email}}>
+  {{buyer.billing_address.line1}}
+  {{buyer.billing_address.city}}, {{buyer.billing_address.region}} {{buyer.billing_address.postal}}
+  {{buyer.billing_address.country}}
+
+───────────────────────────────────────────────────────────────────
+SKU           DESCRIPTION                     QTY   RATE   TAX%   SUBTOTAL   TAX       TOTAL
+───────────────────────────────────────────────────────────────────
+{{#each line_items}}{{sku}}   {{description}}  {{quantity}}   {{unit_price}}   {{tax_rate_pct}}%   {{line_subtotal}}   {{line_tax}}   {{line_total}}
+{{/each}}───────────────────────────────────────────────────────────────────
+
+                                             Subtotal:  {{currency}} {{subtotal}}
+                                             Tax total: {{currency}} {{tax_total}}
+{{#if discount}}                                             Discount ({{discount.code}}): -{{currency}} {{discount.amount}}
+{{/if}}                                             ───────────────
+                                             TOTAL:     {{currency}} {{grand_total}}
+
+{{#if notes}}Notes:
+{{notes}}
+{{/if}}

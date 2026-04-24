@@ -1,0 +1,24 @@
+{
+  "environment": "dev",
+  "namespace": "templane-dev",
+  "replicas": 1,
+  "image": {
+    "repository": "acme/templane",
+    "tag": "dev-latest",
+    "pull_policy": "Always"
+  },
+  "service": { "tier": "backend", "port": 8080 },
+  "rollout": { "strategy": "RollingUpdate", "max_surge": "100%", "max_unavailable": "0" },
+  "resources": {
+    "requests": { "cpu": "100m", "memory": "128Mi" },
+    "limits":   { "cpu": "500m", "memory": "512Mi" }
+  },
+  "env_vars": [
+    { "name": "LOG_LEVEL", "value": "debug" },
+    { "name": "FEATURE_FLAGS", "value": "all_on" }
+  ],
+  "probes": {
+    "liveness":  { "path": "/healthz", "initial_delay_seconds": 10, "period_seconds": 5 },
+    "readiness": { "path": "/ready",   "initial_delay_seconds": 5,  "period_seconds": 5 }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "service_name": "templane-web",
+  "environment":  "production",
+  "last_updated": "2026-04-24T14:32:00Z",
+  "schema_version": "v1.4",
+  "flags": [
+    {
+      "key": "new_onboarding_flow",
+      "description": "Redesigned signup + first-render flow",
+      "enabled": "yes",
+      "rollout": { "type": "gradual", "percentage": 20 }
+    },
+    {
+      "key": "enterprise_sso_beta",
+      "description": "SAML SSO for enterprise tenants",
+      "enabled": true,
+      "targeting": [
+        { "attribute": "subscription_tier", "operator": "=", "value": "enterprise", "serve": "yes" }
+      ]
+    }
+  ]
+}

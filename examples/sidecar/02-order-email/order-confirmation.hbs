@@ -1,0 +1,37 @@
+Subject: Your {{store.name}} order #{{order.number}} is confirmed
+
+Hi {{customer.first_name}},
+
+Thank you for your order! We've received your payment and are preparing
+your items.
+
+ORDER {{order.number}} — placed {{order.placed_at}}
+
+{{#each order.items}}  {{quantity}} × {{name}} — {{currency_symbol}}{{unit_price}}
+{{#if variant}}      ({{variant.color}}{{#if variant.size}}, size {{variant.size}}{{/if}})
+{{/if}}{{/each}}
+Subtotal:  {{currency_symbol}}{{order.subtotal}}
+Shipping:  {{currency_symbol}}{{order.shipping_cost}} ({{order.shipping_method}})
+Tax:       {{currency_symbol}}{{order.tax}}
+{{#if order.discount_amount}}Discount:  -{{currency_symbol}}{{order.discount_amount}} ({{order.discount_code}})
+{{/if}}────────────────────
+TOTAL:     {{currency_symbol}}{{order.total}}
+
+SHIPPING TO:
+  {{customer.first_name}} {{customer.last_name}}
+  {{shipping_address.line1}}
+  {{shipping_address.city}}, {{shipping_address.region}} {{shipping_address.postal}}
+  {{shipping_address.country}}
+
+Estimated delivery: {{order.estimated_delivery}}
+{{#if tracking_url}}Track your shipment: {{tracking_url}}
+{{/if}}
+{{#if upsell.show}}
+ALSO POPULAR WITH THIS ORDER:
+{{#each upsell.items}}  • {{name}} — {{currency_symbol}}{{unit_price}}
+    {{url}}
+{{/each}}{{/if}}
+
+Questions? Reply to this email or visit {{store.support_url}}.
+
+— The {{store.name}} team

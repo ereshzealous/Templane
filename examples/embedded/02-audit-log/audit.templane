@@ -1,0 +1,101 @@
+report_id:
+  type: string
+  required: true
+report_window:
+  type: object
+  required: true
+  fields:
+    start_at: { type: string, required: true }
+    end_at:   { type: string, required: true }
+    timezone: { type: string, required: true }
+
+organization:
+  type: object
+  required: true
+  fields:
+    id:   { type: string, required: true }
+    name: { type: string, required: true }
+    tier:
+      type: enum
+      values: [free, team, business, enterprise]
+      required: true
+
+total_events:  { type: number, required: true }
+redacted_count: { type: number, required: true }
+
+events:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      event_id:   { type: string, required: true }
+      timestamp:  { type: string, required: true }
+      severity:
+        type: enum
+        values: [info, notice, warning, critical]
+        required: true
+      category:
+        type: enum
+        values: [auth, data_access, config_change, billing, admin]
+        required: true
+      action:     { type: string, required: true }
+      actor:
+        type: object
+        required: true
+        fields:
+          user_id: { type: string, required: true }
+          email:   { type: string, required: true }
+          role:
+            type: enum
+            values: [owner, admin, member, guest, system]
+            required: true
+          ip:        { type: string, required: false }
+          is_redacted: { type: boolean, required: true }
+      target:
+        type: object
+        required: true
+        fields:
+          kind:
+            type: enum
+            values: [user, project, document, api_key, setting, billing_record]
+            required: true
+          id:   { type: string, required: true }
+          name: { type: string, required: false }
+      outcome:
+        type: enum
+        values: [success, denied, failure, partial]
+        required: true
+
+attestation:
+  type: object
+  required: true
+  fields:
+    signed_by:     { type: string, required: true }
+    signed_at:     { type: string, required: true }
+    signature_alg: { type: string, required: true }
+---
+# Audit report — {{report_id}}
+
+**Organization:** {{organization.name}} ({{organization.tier}} tier, id={{organization.id}})
+**Window:** {{report_window.start_at}} → {{report_window.end_at}} ({{report_window.timezone}})
+**Events:** {{total_events}} ({{redacted_count}} redacted)
+
+---
+
+## Events
+
+{{#each events}}### {{event_id}} · {{timestamp}}
+
+- **Severity:** `{{severity}}` | **Category:** `{{category}}` | **Outcome:** `{{outcome}}`
+- **Action:** {{action}}
+- **Actor:** {{#if actor.is_redacted}}*(redacted for privacy){{else}}{{actor.email}} · role={{actor.role}}{{#if actor.ip}} · ip={{actor.ip}}{{/if}}{{/if}}
+- **Target:** {{target.kind}}:{{target.id}}{{#if target.name}} ({{target.name}}){{/if}}
+
+{{/each}}
+---
+
+## Attestation
+
+Signed by **{{attestation.signed_by}}** at {{attestation.signed_at}}
+using `{{attestation.signature_alg}}`.

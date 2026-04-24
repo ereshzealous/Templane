@@ -1,0 +1,24 @@
+# Plain text body — rendered by whatever engine you wire in.
+# In practice a feature-flag service would consume the validated data
+# structure directly (no templating needed). This example shows rendering
+# the config as a commented YAML for human review before push.
+
+# Feature flags for {{ service_name }} ({{ environment }})
+# Last updated: {{ last_updated }}
+# Schema version: {{ schema_version }}
+
+flags:
+{{ range flags }}  {{ .key }}:
+    description: {{ .description }}
+    enabled: {{ .enabled }}
+    {{ if .rollout }}rollout:
+      type: {{ .rollout.type }}
+      percentage: {{ .rollout.percentage }}
+    {{ end }}{{ if .targeting }}targeting:
+      {{ range .targeting }}- when: {{ .attribute }} {{ .operator }} {{ .value }}
+        serve: {{ .serve }}
+      {{ end }}{{ end }}{{ if .variants }}variants:
+      {{ range .variants }}- key: {{ .key }}
+        weight: {{ .weight }}
+      {{ end }}{{ end }}
+{{ end }}

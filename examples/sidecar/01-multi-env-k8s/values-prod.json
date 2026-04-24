@@ -1,0 +1,24 @@
+{
+  "environment": "prod",
+  "namespace": "templane",
+  "replicas": 6,
+  "image": {
+    "repository": "acme/templane",
+    "tag": "v0.1.0",
+    "pull_policy": "IfNotPresent"
+  },
+  "service": { "tier": "backend", "port": 8080 },
+  "rollout": { "strategy": "RollingUpdate", "max_surge": "1", "max_unavailable": "0" },
+  "resources": {
+    "requests": { "cpu": "500m",  "memory": "512Mi" },
+    "limits":   { "cpu": "2000m", "memory": "2Gi" }
+  },
+  "env_vars": [
+    { "name": "LOG_LEVEL", "value": "warn" },
+    { "name": "FEATURE_FLAGS", "value": "stable" }
+  ],
+  "probes": {
+    "liveness":  { "path": "/healthz", "initial_delay_seconds": 30, "period_seconds": 15 },
+    "readiness": { "path": "/ready",   "initial_delay_seconds": 15, "period_seconds": 10 }
+  }
+}

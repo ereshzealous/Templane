@@ -1,0 +1,66 @@
+{
+  "store": {
+    "name": "Northwind Outdoors",
+    "support_url": "https://support.northwind.example"
+  },
+  "customer": {
+    "first_name": "Jamie",
+    "last_name":  "Park",
+    "email":      "jamie@example.com"
+  },
+  "currency_symbol": "$",
+  "order": {
+    "number":    "NW-2026-00017",
+    "placed_at": "2026-04-24 14:32 PDT",
+    "items": [
+      {
+        "name": "Summit Backpack 45L",
+        "quantity": 1,
+        "unit_price": 189.00,
+        "variant": { "color": "Forest Green" }
+      },
+      {
+        "name": "Titanium Trekking Poles (pair)",
+        "quantity": 1,
+        "unit_price": 129.00
+      },
+      {
+        "name": "Merino Base Layer Tee",
+        "quantity": 2,
+        "unit_price": 59.00,
+        "variant": { "color": "Heather Gray", "size": "M" }
+      }
+    ],
+    "subtotal":          436.00,
+    "shipping_cost":     12.50,
+    "shipping_method":   "express",
+    "tax":               37.06,
+    "discount_amount":   25.00,
+    "discount_code":     "SPRING25",
+    "total":             460.56,
+    "estimated_delivery": "Monday, Apr 28"
+  },
+  "shipping_address": {
+    "line1":   "742 Evergreen Terrace",
+    "city":    "Portland",
+    "region":  "OR",
+    "postal":  "97201",
+    "country": "USA"
+  },
+  "tracking_url": "https://track.carrier.example/NW17-TRKID",
+  "upsell": {
+    "show": true,
+    "items": [
+      {
+        "name": "Waterproof Stuff Sack (set of 3)",
+        "unit_price": 24.00,
+        "url": "https://northwind.example/p/stuff-sacks"
+      },
+      {
+        "name": "Pack Rain Cover",
+        "unit_price": 19.00,
+        "url": "https://northwind.example/p/rain-cover"
+      }
+    ]
+  }
+}

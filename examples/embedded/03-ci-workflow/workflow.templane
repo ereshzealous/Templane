@@ -1,0 +1,123 @@
+name: { type: string, required: true }
+description: { type: string, required: false }
+
+trigger:
+  type: object
+  required: true
+  fields:
+    on_push:
+      type: object
+      required: false
+      fields:
+        branches: { type: list, required: true, items: { type: string } }
+    on_pull_request:
+      type: object
+      required: false
+      fields:
+        branches: { type: list, required: true, items: { type: string } }
+    on_schedule:
+      type: string
+      required: false
+    on_workflow_dispatch:
+      type: boolean
+      required: false
+
+permissions:
+  type: object
+  required: true
+  fields:
+    contents:  { type: enum, values: [none, read, write], required: true }
+    packages:  { type: enum, values: [none, read, write], required: true }
+    id_token:  { type: enum, values: [none, read, write], required: true }
+
+concurrency:
+  type: object
+  required: false
+  fields:
+    group: { type: string, required: true }
+    cancel_in_progress: { type: boolean, required: true }
+
+jobs:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      id:        { type: string, required: true }
+      name:      { type: string, required: true }
+      runs_on:
+        type: enum
+        values: [ubuntu-latest, ubuntu-24.04, macos-latest, macos-14, windows-latest]
+        required: true
+      needs:
+        type: list
+        required: false
+        items: { type: string }
+      timeout_minutes: { type: number, required: false }
+
+      steps:
+        type: list
+        required: true
+        items:
+          type: object
+          fields:
+            name: { type: string, required: true }
+            kind:
+              type: enum
+              values: [checkout, setup_node, setup_python, setup_go, setup_java, run_shell, upload_artifact]
+              required: true
+            with_version:   { type: string, required: false }
+            shell_command:  { type: string, required: false }
+            working_dir:    { type: string, required: false }
+---
+name: {{name}}
+{{#if description}}# {{description}}
+{{/if}}
+on:
+{{#if trigger.on_push}}  push:
+    branches: [{{#each trigger.on_push.branches}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}]
+{{/if}}{{#if trigger.on_pull_request}}  pull_request:
+    branches: [{{#each trigger.on_pull_request.branches}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}]
+{{/if}}{{#if trigger.on_schedule}}  schedule:
+    - cron: "{{trigger.on_schedule}}"
+{{/if}}{{#if trigger.on_workflow_dispatch}}  workflow_dispatch: {}
+{{/if}}
+permissions:
+  contents: {{permissions.contents}}
+  packages: {{permissions.packages}}
+  id-token: {{permissions.id_token}}
+
+{{#if concurrency}}concurrency:
+  group: {{concurrency.group}}
+  cancel-in-progress: {{concurrency.cancel_in_progress}}
+
+{{/if}}jobs:
+{{#each jobs}}  {{id}}:
+    name: {{name}}
+    runs-on: {{runs_on}}
+{{#if needs}}    needs: [{{#each needs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}]
+{{/if}}{{#if timeout_minutes}}    timeout-minutes: {{timeout_minutes}}
+{{/if}}    steps:
+{{#each steps}}      - name: {{name}}
+{{#if (eq kind "checkout")}}        uses: actions/checkout@v4
+{{/if}}{{#if (eq kind "setup_node")}}        uses: actions/setup-node@v4
+        with:
+          node-version: "{{with_version}}"
+{{/if}}{{#if (eq kind "setup_python")}}        uses: actions/setup-python@v5
+        with:
+          python-version: "{{with_version}}"
+{{/if}}{{#if (eq kind "setup_go")}}        uses: actions/setup-go@v5
+        with:
+          go-version: "{{with_version}}"
+{{/if}}{{#if (eq kind "setup_java")}}        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "{{with_version}}"
+{{/if}}{{#if (eq kind "run_shell")}}        run: |
+{{#if working_dir}}          cd {{working_dir}}
+{{/if}}          {{shell_command}}
+{{/if}}{{#if (eq kind "upload_artifact")}}        uses: actions/upload-artifact@v4
+        with:
+          name: {{name}}
+{{/if}}{{/each}}
+{{/each}}

@@ -1,0 +1,57 @@
+# Plain Go template / Helm body — not rewritten by Templane.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ namespace }}
+  labels:
+    env: {{ environment }}
+    tier: {{ service.tier }}
+spec:
+  replicas: {{ replicas }}
+  strategy:
+    type: {{ rollout.strategy }}
+    {{ if eq rollout.strategy "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ rollout.max_surge }}
+      maxUnavailable: {{ rollout.max_unavailable }}
+    {{ end }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        env: {{ environment }}
+    spec:
+      containers:
+      - name: main
+        image: "{{ image.repository }}:{{ image.tag }}"
+        imagePullPolicy: {{ image.pull_policy }}
+        ports:
+        - containerPort: {{ service.port }}
+        resources:
+          requests:
+            cpu: {{ resources.requests.cpu }}
+            memory: {{ resources.requests.memory }}
+          limits:
+            cpu: {{ resources.limits.cpu }}
+            memory: {{ resources.limits.memory }}
+        env:
+        {{ range env_vars }}
+        - name: {{ .name }}
+          value: {{ .value }}
+        {{ end }}
+        livenessProbe:
+          httpGet:
+            path: {{ probes.liveness.path }}
+            port: {{ service.port }}
+          initialDelaySeconds: {{ probes.liveness.initial_delay_seconds }}
+          periodSeconds: {{ probes.liveness.period_seconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ probes.readiness.path }}
+            port: {{ service.port }}
+          initialDelaySeconds: {{ probes.readiness.initial_delay_seconds }}
+          periodSeconds: {{ probes.readiness.period_seconds }}

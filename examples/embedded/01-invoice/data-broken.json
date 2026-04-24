@@ -1,0 +1,43 @@
+{
+  "invoice_number": "INV-BAD",
+  "issued_at": "2026-04-24",
+  "due_at": "2026-05-24",
+  "currency": "BITCOIN",
+  "seller": {
+    "name": "Acme",
+    "address": {
+      "line1": "500 Market",
+      "city": "SF",
+      "region": "CA",
+      "country": "USA"
+    },
+    "tax_id": "US-EIN-84-1234567"
+  },
+  "buyer": {
+    "name": "Example Corp",
+    "email": "ap@example.com",
+    "billing_address": {
+      "line1": "1 Commerce Way",
+      "city": "Austin",
+      "region": "TX",
+      "postal": "78701",
+      "country": "USA"
+    }
+  },
+  "line_items": [
+    {
+      "sku": "SAAS-PRO",
+      "description": "Subscription",
+      "quantity": "one",
+      "unit_price": 1999.00,
+      "tax_rate_pct": 8.25,
+      "line_subtotal": 1999.00,
+      "line_tax": 164.92,
+      "line_total": 2163.92
+    }
+  ],
+  "subtotal": 3499.00,
+  "tax_total": 288.67,
+  "grand_total": 3437.67,
+  "payment_terms": "immediately"
+}

@@ -1,0 +1,71 @@
+{
+  "invoice_number": "INV-2026-00421",
+  "issued_at": "2026-04-24",
+  "due_at": "2026-05-24",
+  "currency": "USD",
+  "seller": {
+    "name": "Acme Software Inc.",
+    "address": {
+      "line1": "500 Market Street",
+      "line2": "Suite 4000",
+      "city": "San Francisco",
+      "region": "CA",
+      "postal": "94105",
+      "country": "USA"
+    },
+    "tax_id": "US-EIN-84-1234567"
+  },
+  "buyer": {
+    "name": "Example Corp",
+    "email": "ap@example.com",
+    "billing_address": {
+      "line1": "1 Commerce Way",
+      "city": "Austin",
+      "region": "TX",
+      "postal": "78701",
+      "country": "USA"
+    }
+  },
+  "line_items": [
+    {
+      "sku": "SAAS-PRO",
+      "description": "Templane Pro annual subscription",
+      "quantity": 1,
+      "unit_price": 1999.00,
+      "tax_rate_pct": 8.25,
+      "line_subtotal": 1999.00,
+      "line_tax": 164.92,
+      "line_total": 2163.92
+    },
+    {
+      "sku": "CONSULT",
+      "description": "Onboarding consultation (hourly)",
+      "quantity": 4,
+      "unit_price": 250.00,
+      "tax_rate_pct": 8.25,
+      "line_subtotal": 1000.00,
+      "line_tax": 82.50,
+      "line_total": 1082.50
+    },
+    {
+      "sku": "TRAINING",
+      "description": "Team training session",
+      "quantity": 1,
+      "unit_price": 500.00,
+      "tax_rate_pct": 8.25,
+      "line_subtotal": 500.00,
+      "line_tax": 41.25,
+      "line_total": 541.25
+    }
+  ],
+  "discount": {
+    "code": "EARLYBIRD2026",
+    "description": "Early renewal discount — 10%",
+    "amount": 350.00
+  },
+  "subtotal": 3499.00,
+  "tax_total": 288.67,
+  "grand_total": 3437.67,
+  "payment_terms": "net_30",
+  "notes": "Thank you for your renewal. Wire transfer details on page 2."
+}

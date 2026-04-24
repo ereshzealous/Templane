@@ -1,0 +1,94 @@
+# Sidecar schema for the chart's deployment template.
+# Validates every values-*.json file that feeds into it.
+body: ./deployment.yaml.tmpl
+engine: gotemplate
+
+environment:
+  type: enum
+  values: [dev, staging, prod, canary]
+  required: true
+
+namespace:
+  type: string
+  required: true
+
+replicas:
+  type: number
+  required: true
+
+image:
+  type: object
+  required: true
+  fields:
+    repository: { type: string, required: true }
+    tag:        { type: string, required: true }
+    pull_policy:
+      type: enum
+      values: [Always, IfNotPresent, Never]
+      required: true
+
+service:
+  type: object
+  required: true
+  fields:
+    tier:
+      type: enum
+      values: [frontend, backend, worker, batch]
+      required: true
+    port:     { type: number, required: true }
+
+rollout:
+  type: object
+  required: true
+  fields:
+    strategy:
+      type: enum
+      values: [RollingUpdate, Recreate]
+      required: true
+    max_surge:       { type: string, required: false }
+    max_unavailable: { type: string, required: false }
+
+resources:
+  type: object
+  required: true
+  fields:
+    requests:
+      type: object
+      required: true
+      fields:
+        cpu:    { type: string, required: true }
+        memory: { type: string, required: true }
+    limits:
+      type: object
+      required: true
+      fields:
+        cpu:    { type: string, required: true }
+        memory: { type: string, required: true }
+
+env_vars:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      name:  { type: string, required: true }
+      value: { type: string, required: true }
+
+probes:
+  type: object
+  required: true
+  fields:
+    liveness:
+      type: object
+      required: true
+      fields:
+        path:                   { type: string, required: true }
+        initial_delay_seconds:  { type: number, required: true }
+        period_seconds:         { type: number, required: true }
+    readiness:
+      type: object
+      required: true
+      fields:
+        path:                   { type: string, required: true }
+        initial_delay_seconds:  { type: number, required: true }
+        period_seconds:         { type: number, required: true }

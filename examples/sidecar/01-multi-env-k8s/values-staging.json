@@ -1,0 +1,24 @@
+{
+  "environment": "staging",
+  "namespace": "templane-staging",
+  "replicas": 2,
+  "image": {
+    "repository": "acme/templane",
+    "tag": "staging-v0.1.0",
+    "pull_policy": "IfNotPresent"
+  },
+  "service": { "tier": "backend", "port": 8080 },
+  "rollout": { "strategy": "RollingUpdate", "max_surge": "25%", "max_unavailable": "25%" },
+  "resources": {
+    "requests": { "cpu": "250m", "memory": "256Mi" },
+    "limits":   { "cpu": "1000m", "memory": "1Gi" }
+  },
+  "env_vars": [
+    { "name": "LOG_LEVEL", "value": "info" },
+    { "name": "FEATURE_FLAGS", "value": "staging_rollout" }
+  ],
+  "probes": {
+    "liveness":  { "path": "/healthz", "initial_delay_seconds": 15, "period_seconds": 10 },
+    "readiness": { "path": "/ready",   "initial_delay_seconds": 10, "period_seconds": 10 }
+  }
+}

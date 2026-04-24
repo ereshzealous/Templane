@@ -1,0 +1,61 @@
+# Sidecar schema for a feature-flag service's configuration.
+# Validates the data before the feature-flag service deploys the config.
+body: ./flags.yaml.tmpl
+engine: gotemplate
+
+service_name: { type: string, required: true }
+environment:
+  type: enum
+  values: [dev, staging, prod]
+  required: true
+last_updated: { type: string, required: true }
+schema_version: { type: string, required: true }
+
+flags:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      key:         { type: string,  required: true }
+      description: { type: string,  required: true }
+      enabled:     { type: boolean, required: true }
+
+      rollout:
+        type: object
+        required: false
+        fields:
+          type:
+            type: enum
+            values: [percentage, ring, userlist]
+            required: true
+          percentage: { type: number, required: true }
+
+      targeting:
+        type: list
+        required: false
+        items:
+          type: object
+          fields:
+            attribute:
+              type: enum
+              values: [user_id, email, tier, country, org_id]
+              required: true
+            operator:
+              type: enum
+              values: ["==", "!=", "in", "not_in", "matches"]
+              required: true
+            value: { type: string, required: true }
+            serve:
+              type: enum
+              values: [on, off, variant]
+              required: true
+
+      variants:
+        type: list
+        required: false
+        items:
+          type: object
+          fields:
+            key:    { type: string, required: true }
+            weight: { type: number, required: true }

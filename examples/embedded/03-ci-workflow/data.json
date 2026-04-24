@@ -1,0 +1,46 @@
+{
+  "name": "CI — build and test",
+  "description": "Runs unit tests + linter on every PR and push to main.",
+  "trigger": {
+    "on_push":         { "branches": ["main"] },
+    "on_pull_request": { "branches": ["main"] },
+    "on_workflow_dispatch": true
+  },
+  "permissions": {
+    "contents": "read",
+    "packages": "read",
+    "id_token": "none"
+  },
+  "concurrency": {
+    "group": "ci-${{ github.ref }}",
+    "cancel_in_progress": true
+  },
+  "jobs": [
+    {
+      "id": "lint",
+      "name": "Lint",
+      "runs_on": "ubuntu-latest",
+      "timeout_minutes": 5,
+      "steps": [
+        { "name": "Checkout", "kind": "checkout" },
+        { "name": "Setup Node", "kind": "setup_node", "with_version": "20" },
+        { "name": "Install", "kind": "run_shell", "shell_command": "npm ci" },
+        { "name": "Lint", "kind": "run_shell", "shell_command": "npm run lint" }
+      ]
+    },
+    {
+      "id": "test",
+      "name": "Unit tests",
+      "runs_on": "ubuntu-latest",
+      "needs": ["lint"],
+      "timeout_minutes": 10,
+      "steps": [
+        { "name": "Checkout", "kind": "checkout" },
+        { "name": "Setup Node", "kind": "setup_node", "with_version": "20" },
+        { "name": "Install", "kind": "run_shell", "shell_command": "npm ci" },
+        { "name": "Test", "kind": "run_shell", "shell_command": "npm test" },
+        { "name": "coverage", "kind": "upload_artifact" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "service_name": "templane-web",
+  "environment":  "prod",
+  "last_updated": "2026-04-24T14:32:00Z",
+  "schema_version": "v1.4",
+  "flags": [
+    {
+      "key": "new_onboarding_flow",
+      "description": "Redesigned signup + first-render flow",
+      "enabled": true,
+      "rollout": { "type": "percentage", "percentage": 20 },
+      "variants": [
+        { "key": "control",  "weight": 50 },
+        { "key": "treatment","weight": 50 }
+      ]
+    },
+    {
+      "key": "kill_switch_payments",
+      "description": "Emergency kill switch for the payments module",
+      "enabled": false
+    },
+    {
+      "key": "enterprise_sso_beta",
+      "description": "SAML SSO for enterprise tenants only",
+      "enabled": true,
+      "targeting": [
+        { "attribute": "tier",   "operator": "==", "value": "enterprise", "serve": "on" },
+        { "attribute": "org_id", "operator": "in", "value": "org_9f2a,org_c133,org_f501", "serve": "on" }
+      ]
+    },
+    {
+      "key": "ai_autocomplete",
+      "description": "AI-powered field autocomplete in the schema editor",
+      "enabled": true,
+      "rollout": { "type": "ring", "percentage": 5 },
+      "targeting": [
+        { "attribute": "email", "operator": "matches", "value": ".*@acme.example$", "serve": "on" }
+      ]
+    }
+  ]
+}

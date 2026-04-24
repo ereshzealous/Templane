@@ -1,0 +1,85 @@
+# Sidecar schema for order-confirmation.hbs.
+# The .hbs file is plain Handlebars — editable in any Handlebars tool,
+# syntax-highlighted by default in most editors. This schema sits beside
+# it and guards the data the email will receive.
+body: ./order-confirmation.hbs
+engine: handlebars
+
+store:
+  type: object
+  required: true
+  fields:
+    name:        { type: string, required: true }
+    support_url: { type: string, required: true }
+
+customer:
+  type: object
+  required: true
+  fields:
+    first_name: { type: string, required: true }
+    last_name:  { type: string, required: true }
+    email:      { type: string, required: true }
+
+currency_symbol: { type: string, required: true }
+
+order:
+  type: object
+  required: true
+  fields:
+    number:           { type: string, required: true }
+    placed_at:        { type: string, required: true }
+    subtotal:         { type: number, required: true }
+    shipping_cost:    { type: number, required: true }
+    shipping_method:
+      type: enum
+      values: [standard, express, overnight, international]
+      required: true
+    tax:              { type: number, required: true }
+    discount_amount:  { type: number, required: false }
+    discount_code:    { type: string, required: false }
+    total:            { type: number, required: true }
+    estimated_delivery: { type: string, required: true }
+    items:
+      type: list
+      required: true
+      items:
+        type: object
+        fields:
+          name:       { type: string, required: true }
+          quantity:   { type: number, required: true }
+          unit_price: { type: number, required: true }
+          variant:
+            type: object
+            required: false
+            fields:
+              color: { type: string, required: true }
+              size:  { type: string, required: false }
+
+shipping_address:
+  type: object
+  required: true
+  fields:
+    line1:   { type: string, required: true }
+    city:    { type: string, required: true }
+    region:  { type: string, required: true }
+    postal:  { type: string, required: true }
+    country: { type: string, required: true }
+
+tracking_url:
+  type: string
+  required: false
+
+upsell:
+  type: object
+  required: true
+  fields:
+    show: { type: boolean, required: true }
+    items:
+      type: list
+      required: true
+      items:
+        type: object
+        fields:
+          name:       { type: string, required: true }
+          unit_price: { type: number, required: true }
+          url:        { type: string, required: true }
