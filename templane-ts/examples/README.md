@@ -76,7 +76,7 @@ template will accept.
 
 ## 05 — External-body schema
 
-The adoption pattern (SPEC 1.1 §4.3). `release-notes.hbs` is a plain
+The adoption pattern (SPEC §4.3). `release-notes.hbs` is a plain
 Handlebars template — Vim/VSCode/Sublime all syntax-highlight it today,
 no extension needed. `release-notes.schema.yaml` sits beside it and
 references the body via `body: ./release-notes.hbs`.

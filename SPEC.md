@@ -1,28 +1,8 @@
 # Templane — Templane Protocol
 
-**Specification version:** 1.2
-**Status:** Stable
+**Specification version:** 1.0
+**Status:** Stable (initial release)
 **Last updated:** 2026-04-24
-
-**Changes in 1.2:**
-- Adds §4.4 File extensions — **`.schema.yaml`** is the RECOMMENDED
-  extension for all new Templane schemas. A Templane schema is pure
-  YAML; no custom extension is required. `.templane` is accepted for
-  legacy files (including inline-body files; see below).
-- §4.2 (inline body via `---` separator, formerly "embedded mode") is
-  now **legacy**. New work SHOULD NOT use it. The parser MUST continue
-  to support it. Files using inline-body SHOULD keep the `.templane`
-  extension because the content is not valid-as-YAML.
-- Drops "sidecar mode" as a first-class named concept. The `body:`
-  key — introduced in 1.1 — is now the default, unnamed way a schema
-  references a template body. Documents refer to it simply as "a
-  Templane schema."
-
-**Changes in 1.1 (historical):** added §4.3 defining the `body:` and
-`engine:` reserved top-level keys.
-
-Every 1.0 and 1.1 schema is a valid 1.2 schema. No code changes
-required of existing implementations.
 
 ## Abstract
 
@@ -209,10 +189,10 @@ address:
 - Any YAML parse error MUST be returned as a result error, never as an
   exception.
 
-### 4.2 Inline template body (legacy, §1.0-era)
+### 4.2 Inline template body (legacy form)
 
-> **Status:** legacy as of 1.2. New work SHOULD NOT use this form. The
-> parser MUST continue to accept it.
+> **Status:** legacy. New work SHOULD NOT use this form. The parser
+> MUST continue to accept it.
 
 A Templane schema document MAY include a template body after the separator
 `"\n---\n"`. The schema parser MUST emit both the parsed schema AND the
@@ -248,7 +228,7 @@ user:
     name: { type: string, required: true }
 ```
 
-**Reserved top-level keys** (1.1):
+**Reserved top-level keys**:
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
@@ -306,7 +286,7 @@ engine, if known). The conform adapter protocol continues to ship
 `{schema, body}` with `body` already resolved to its string contents —
 implementations are not expected to do file I/O across the wire.
 
-### 4.4 File extensions (normative, 1.2)
+### 4.4 File extensions (normative)
 
 | Extension | Use | Rationale |
 |---|---|---|
@@ -626,7 +606,7 @@ The CLI compares `output` to the fixture's `expected_output` using
 ```
 
 There are exactly 40 fixtures across 4 operational categories:
-- `schema-parser/` — 16 fixtures (8 core + 8 sidecar, SPEC 1.1)
+- `schema-parser/` — 16 fixtures (8 basic parsing + 8 external-body)
 - `type-checker/` — 8 fixtures
 - `ir-generator/` — 8 fixtures
 - `adapters/` — 8 fixtures (4 html + 4 yaml)
@@ -637,7 +617,7 @@ There are exactly 40 fixtures across 4 operational categories:
 
 ### 10.1 Compliance criterion
 
-An implementation is **Templane 1.2 compliant** if and only if:
+An implementation is **Templane 1.0 compliant** if and only if:
 
 1. Its conform adapter reports 40/40 across all fixtures when run via
    `templane-conform`.

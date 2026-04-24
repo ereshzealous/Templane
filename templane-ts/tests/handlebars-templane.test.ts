@@ -129,7 +129,7 @@ test('schema is exposed on the template object', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Sidecar mode (SPEC 1.1 §4.3) — schema references external body file
+// External-body schema (SPEC §4.3) — body: key references native template file
 // ---------------------------------------------------------------------------
 
 test('compileFromPath loads sidecar body and renders', async () => {

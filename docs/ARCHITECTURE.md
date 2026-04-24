@@ -104,10 +104,8 @@ adapter, the adapter can assume every field access is valid. Adapters
 never need to handle missing-field errors.
 
 **Default vs legacy**: both paths converge at the "Template body"
-node. Everything downstream is identical. This is why introducing
-external-body references in SPEC 1.1 didn't touch the type checker,
-IR generator, or any adapter — the body reaches the checker the same
-way in both forms.
+node. Everything downstream is identical — the type checker, IR
+generator, and adapters don't care which form the body came from.
 
 ---
 
@@ -167,7 +165,7 @@ fixture inputs and returns results in a single canonical JSON shape.
 
 ## 4. Cross-implementation conformance
 
-This is how we prove the 5 implementations behave identically. 32
+This is how we prove the 5 implementations behave identically. 40
 fixtures × 5 adapters = **200 checks** on every CI run.
 
 ```mermaid

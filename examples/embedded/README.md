@@ -1,6 +1,6 @@
 # Legacy inline-body examples
 
-> **Status (SPEC 1.2)**: the inline-body form — schema + `---` + body
+> **Status **: the inline-body form — schema + `---` + body
 > in a single `.templane` file — is **legacy**. Parsers still accept
 > it but new work should use a `.schema.yaml` file with a `body:`
 > reference. See [`../sidecar/`](../sidecar/) for the default form.

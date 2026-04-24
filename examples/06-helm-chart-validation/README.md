@@ -4,7 +4,7 @@
 chart — nothing else changes — and every `values-*.yaml` gets
 type-checked in CI before `helm install` ever runs.
 
-> **Sidecar mode** (SPEC 1.1): the template body lives in its native
+> **Sidecar mode** : the template body lives in its native
 > format (`deployment.yaml.tmpl` here — a plain Go template), and the
 > schema references it via `body: ./deployment.yaml.tmpl`. Helm tools
 > see the `.tmpl` file exactly as they did before. Templane reads the

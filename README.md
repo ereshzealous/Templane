@@ -109,7 +109,7 @@ Templane is a **protocol**, not a library. The protocol defines:
 1. **A schema document format** (YAML) describing the shape of template data — fields, types, optionality, enums, nesting.
 2. **A typed intermediate representation** (TIR) — a resolved AST where every expression has a known value. Output adapters render TIR to HTML, YAML, or any other format.
 3. **Four operations** every conformant implementation provides: `parse`, `check`, `generate`, `render`.
-4. **A 40-fixture conformance suite** (`templane-conform`). Any implementation that passes 40/40 is Templane 1.1 compliant. Period.
+4. **A 40-fixture conformance suite** (`templane-conform`). Any implementation that passes 40/40 is Templane 1.0 compliant. Period.
 5. **A breaking-change detector** (`removed_field`, `required_change`, `type_change`, `enum_value_removed`) so the next backend field rename is caught before it ships, not four days after.
 
 The [full specification](SPEC.md) is versioned, uses RFC 2119 keywords, and fits in one file.
@@ -292,7 +292,7 @@ Templane is not a competitor to any of these. It borrows their playbook — vers
 ## Documentation
 
 - 🚀 **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** — **Start here**. Zero-to-running walkthrough: prerequisites, bootstrap, tests, conformance matrix, and a tour of Core / CLI / Python / Java / TypeScript / Go.
-- **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned (currently 1.1). RFC 2119 keywords throughout.
+- **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned (1.0). RFC 2119 keywords throughout.
 - **[docs/ADOPTION.md](docs/ADOPTION.md)** — Adding Templane to an existing Jinja / Handlebars / FreeMarker / Go-template / Helm codebase. Per-engine walkthroughs; `.schema.yaml` examples throughout.
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Full pipeline, IR model, conformance sequence, publishing topology. 12 Mermaid diagrams.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to extend the protocol, add a language binding, or add a new template-engine integration.

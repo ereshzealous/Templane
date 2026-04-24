@@ -69,7 +69,7 @@ def test_missing_body_raises_on_load(tmp_templates):
 
 
 # ---------------------------------------------------------------------------
-# Sidecar mode (SPEC 1.1 §4.3) — schema references external body file
+# External-body schema (SPEC §4.3) — body: key references native template file
 # ---------------------------------------------------------------------------
 
 def test_sidecar_loads_external_body(tmp_templates):

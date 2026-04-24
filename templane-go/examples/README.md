@@ -88,7 +88,7 @@ are not reported.
 
 ## 05 — External-body schema
 
-The adoption pattern (SPEC 1.1 §4.3). `service.tmpl` is a plain Go
+The adoption pattern (SPEC §4.3). `service.tmpl` is a plain Go
 `text/template` — in this case a systemd unit file generator. Editable
 in any Go-aware editor with stdlib syntax highlighting. The schema next
 to it (`service.schema.yaml`) declares the data contract and

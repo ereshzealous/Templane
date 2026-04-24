@@ -82,7 +82,7 @@ the category (`removed_field`, `required_change`, `type_change`,
 
 ## 06 — External-body schema
 
-The adoption pattern (SPEC 1.1 §4.3). `password_reset.jinja` is a plain
+The adoption pattern (SPEC §4.3). `password_reset.jinja` is a plain
 Jinja2 template — no Templane-specific syntax, editable in any Jinja
 tool. `password_reset.schema.yaml` sits beside it and references the
 body via `body: ./password_reset.jinja`.

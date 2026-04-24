@@ -72,7 +72,7 @@ class TemplaneConfigurationTest {
     }
 
     // -----------------------------------------------------------------------
-    // Sidecar mode (SPEC 1.1 §4.3) — schema references external body file
+    // External-body schema (SPEC §4.3) — body: key references native template file
     // -----------------------------------------------------------------------
 
     @Test

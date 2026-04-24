@@ -21,7 +21,7 @@ async function main() {
     repo_url: 'https://github.com/ereshzealous/Templane',
     breaking_changes: false,
     highlights: [
-      'Sidecar mode (SPEC 1.1): schemas can reference external bodies',
+      'Sidecar mode : schemas can reference external bodies',
       'Cross-impl conformance: 5 × 40/40 fixtures green',
       'Engine bindings for Jinja, Handlebars, FreeMarker',
     ],

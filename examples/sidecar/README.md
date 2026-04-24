@@ -1,6 +1,6 @@
 # Complex examples — default form
 
-> **The default form** as of SPEC 1.2: a `.schema.yaml` schema file
+> **The default form** as of SPEC 1.0: a `.schema.yaml` schema file
 > plus a native template body (`.jinja`, `.hbs`, `.ftl`, `.tmpl`)
 > beside it, connected via the schema's `body:` key. (The term
 > "sidecar" was used in earlier 1.1 docs; it's retained here only as

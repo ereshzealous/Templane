@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 06 — Sidecar mode (SPEC 1.1 §4.3).
+ * 06 — Sidecar mode (SPEC §4.3).
  *
  * The template body lives in invoice.ftl — plain FreeMarker, nothing
  * Templane-specific. The schema lives beside it in

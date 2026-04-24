@@ -80,7 +80,7 @@ category (`removed_field`, `required_change`, `type_change`,
 
 ## 06 — External-body schema
 
-Demonstrates SPEC 1.1 sidecar: the template body is a plain
+Demonstrates external-body form: the template body is a plain
 FreeMarker file (`invoice.ftl`) that can be edited in any FreeMarker
 tool. Next to it sits `invoice.schema.yaml`, which declares the
 data contract and references the body via `body: ./invoice.ftl`.
