@@ -1,0 +1,15 @@
+[Unit]
+Description={{.description}}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{.run_as}}
+WorkingDirectory={{.working_dir}}
+ExecStart={{.exec_start}}
+Restart={{.restart_policy}}
+{{range .env}}Environment="{{.name}}={{.value}}"
+{{end}}
+[Install]
+WantedBy=multi-user.target

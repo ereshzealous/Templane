@@ -1,7 +1,7 @@
 # templane-ts — examples
 
-Four runnable TypeScript examples showing the `handlebars-templane`
-binding. Each is self-contained: a `.templane` file plus `run.ts`.
+Five runnable TypeScript examples showing the `handlebars-templane`
+binding. Each is self-contained: a schema file plus `run.ts`.
 
 ## Setup
 
@@ -22,7 +22,7 @@ done
 
 (`tsx` is already a devDep — no global install needed.)
 
-## The four examples
+## The five examples
 
 | # | Path | What it shows |
 |---|------|---------------|
@@ -30,6 +30,7 @@ done
 | 02 | [`02-validation-errors/`](02-validation-errors/) | All 4 error codes + `did_you_mean` |
 | 03 | [`03-nested-and-lists/`](03-nested-and-lists/) | Nested object, enum, list-of-objects |
 | 04 | [`04-handlebars-binding/`](04-handlebars-binding/) | Handlebars helpers (`eq`) over validated data |
+| 05 | [`05-sidecar/`](05-sidecar/) | **Sidecar mode**: keep your `.hbs` files, add a schema beside them |
 
 ## 01 — Hello
 
@@ -72,6 +73,21 @@ Registers a custom Handlebars helper (`eq` for enum dispatch), then
 renders a notification email. Shows that Handlebars' full helper system
 is available — the type check only governs what data shape the
 template will accept.
+
+## 05 — Sidecar mode
+
+The adoption pattern (SPEC 1.1 §4.3). `release-notes.hbs` is a plain
+Handlebars template — Vim/VSCode/Sublime all syntax-highlight it today,
+no extension needed. `release-notes.schema.templane` sits beside it and
+references the body via `body: ./release-notes.hbs`.
+
+Uses the new `compileFromPath()` async API. Run the example to see a
+release notes markdown render cleanly, then three type errors
+(`type_mismatch`, `missing_required_field`, nested list-of-objects
+mismatch) surface from bad data.
+
+This is how you adopt Templane on an existing Handlebars codebase: keep
+your `.hbs` files, drop a schema next to each one.
 
 ## What's not included
 

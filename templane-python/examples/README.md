@@ -1,7 +1,7 @@
 # templane-python — examples
 
-Five runnable Python examples. Each is self-contained: a `.templane`
-file (or YAML schema) plus a `run.py` that executes against it.
+Six runnable Python examples. Each is self-contained: a schema file
+plus a `run.py` that executes against it.
 
 ## Setup
 
@@ -19,7 +19,7 @@ for d in examples/*/; do
 done
 ```
 
-## The five examples
+## The six examples
 
 | # | Path | What it shows |
 |---|------|---------------|
@@ -28,6 +28,7 @@ done
 | 03 | [`03-nested-and-lists/`](03-nested-and-lists/) | Nested objects, enums, lists, Jinja filters |
 | 04 | [`04-jinja-binding/`](04-jinja-binding/) | Real Jinja features (if/for, filters) on validated data |
 | 05 | [`05-breaking-change/`](05-breaking-change/) | Detect schema v1 → v2 breaking changes |
+| 06 | [`06-sidecar/`](06-sidecar/) | **Sidecar mode**: keep your `.jinja` files, add a schema beside them |
 
 ## 01 — Hello
 
@@ -78,3 +79,17 @@ passes — conditionals, loops, filters. The check only refuses bad
 Parse two schema versions, diff them, print the breaking changes with
 the category (`removed_field`, `required_change`, `type_change`,
 `enum_value_removed`).
+
+## 06 — Sidecar mode
+
+The adoption pattern (SPEC 1.1 §4.3). `password_reset.jinja` is a plain
+Jinja2 template — no Templane-specific syntax, editable in any Jinja
+tool. `password_reset.schema.templane` sits beside it and references the
+body via `body: ./password_reset.jinja`.
+
+`TemplaneEnvironment.get_template()` handles sidecar transparently — no
+new API. Run the example to see it render cleanly, then refuse bad data
+with `missing_required_field` + `type_mismatch` before Jinja ever runs.
+
+This is how you adopt Templane on an existing Jinja codebase: keep your
+`.jinja` files, drop a schema next to each one.

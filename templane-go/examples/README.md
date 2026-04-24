@@ -1,7 +1,7 @@
 # templane-go — examples
 
-Four runnable Go examples. Each is its own Go main package with a
-`.templane` (or `.yaml`) file next to it.
+Five runnable Go examples. Each is its own Go main package with a
+schema file (and sometimes a body file) next to it.
 
 ## Prereqs
 
@@ -21,7 +21,7 @@ for d in examples/*/; do
 done
 ```
 
-## The four examples
+## The five examples
 
 | # | Path | What it shows |
 |---|------|---------------|
@@ -29,6 +29,7 @@ done
 | 02 | [`02-validation-errors/`](02-validation-errors/) | All 4 error codes in one pass |
 | 03 | [`03-nested-and-lists/`](03-nested-and-lists/) | Nested object, enum, list-of-objects |
 | 04 | [`04-breaking-change/`](04-breaking-change/) | Diff two schema versions |
+| 05 | [`05-sidecar/`](05-sidecar/) | **Sidecar mode**: keep your `.tmpl` files, add a schema beside them |
 
 ## Rendering approach in Go
 
@@ -84,3 +85,20 @@ Parse v1 and v2 schema files, compare them, print the breaking changes.
 Categories: `removed_field`, `required_change`, `type_change`,
 `enum_value_removed`. Safe changes (new optional fields, enum additions)
 are not reported.
+
+## 05 — Sidecar mode
+
+The adoption pattern (SPEC 1.1 §4.3). `service.tmpl` is a plain Go
+`text/template` — in this case a systemd unit file generator. Editable
+in any Go-aware editor with stdlib syntax highlighting. The schema next
+to it (`service.schema.templane`) declares the data contract and
+references the body via `body: ./service.tmpl`.
+
+Uses `core.LoadSchemaFromPath()`, which reads the schema file and
+resolves the sidecar body file automatically. Renders a realistic unit
+file with good data; on bad data trips three errors including a nested
+`env[0].value` missing field and an `invalid_enum_value` on the
+`restart_policy` enum.
+
+This is how you add Templane to an existing Go-template codebase:
+keep your `.tmpl` files, drop a schema next to each one.

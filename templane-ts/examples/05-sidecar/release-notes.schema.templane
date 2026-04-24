@@ -1,0 +1,48 @@
+# Sidecar schema for release-notes.hbs.
+# The .hbs file is plain Handlebars — Vim/VSCode/Sublime all syntax-highlight
+# it today. This schema validates the data you'd pass to it.
+body: ./release-notes.hbs
+engine: handlebars
+
+product:
+  type: string
+  required: true
+version:
+  type: string
+  required: true
+release_date:
+  type: string
+  required: true
+commit_sha:
+  type: string
+  required: true
+repo_url:
+  type: string
+  required: true
+breaking_changes:
+  type: boolean
+  required: true
+highlights:
+  type: list
+  required: true
+  items:
+    type: string
+changes:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      category:
+        type: string
+        required: true
+      items:
+        type: list
+        required: true
+        items:
+          type: string
+contributors:
+  type: list
+  required: true
+  items:
+    type: string

@@ -2,7 +2,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import Handlebars from 'handlebars';
-import { compile, TemplaneHandlebarsError } from './handlebars-templane';
+import { compile, compileFromPath, TemplaneHandlebarsError } from './handlebars-templane';
 
 const USAGE = `Usage:
   xt render <template> <data.json>              Render template with data
@@ -38,10 +38,9 @@ function findHbsFiles(dir: string): string[] {
   return out.sort();
 }
 
-function cmdRender(templatePath: string, dataPath: string): void {
-  const source = fs.readFileSync(templatePath, 'utf-8');
+async function cmdRender(templatePath: string, dataPath: string): Promise<void> {
   const data = readJson(dataPath);
-  const tmpl = compile(source, path.basename(templatePath));
+  const tmpl = await compileFromPath(templatePath);
   try {
     process.stdout.write(tmpl.render(data));
   } catch (e) {
@@ -50,10 +49,9 @@ function cmdRender(templatePath: string, dataPath: string): void {
   }
 }
 
-function cmdCheck(templatePath: string, dataPath: string): void {
-  const source = fs.readFileSync(templatePath, 'utf-8');
+async function cmdCheck(templatePath: string, dataPath: string): Promise<void> {
   const data = readJson(dataPath);
-  const tmpl = compile(source, path.basename(templatePath));
+  const tmpl = await compileFromPath(templatePath);
   const errors = tmpl.check(data);
   if (errors.length === 0) {
     process.stdout.write('✓ data matches schema\n');
@@ -164,7 +162,8 @@ function main(argv: string[]): void {
 
   if (cmd === 'render' || cmd === 'check') {
     if (!argv[1] || !argv[2]) die(USAGE);
-    (cmd === 'render' ? cmdRender : cmdCheck)(argv[1], argv[2]);
+    const fn = cmd === 'render' ? cmdRender : cmdCheck;
+    fn(argv[1], argv[2]).catch((err) => die(err instanceof Error ? err.message : String(err)));
     return;
   }
 

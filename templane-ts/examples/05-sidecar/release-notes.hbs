@@ -1,0 +1,27 @@
+# {{product}} {{version}}
+
+**Released {{release_date}}** · [{{commit_sha}}]({{repo_url}}/commit/{{commit_sha}})
+
+{{#if breaking_changes}}
+> ⚠️ **Breaking changes** — read the migration section before upgrading.
+{{/if}}
+
+## Highlights
+
+{{#each highlights}}
+- {{this}}
+{{/each}}
+
+## Changes
+
+{{#each changes}}
+### {{category}}
+
+{{#each items}}
+- {{this}}
+{{/each}}
+
+{{/each}}
+
+Thanks to **{{contributors.length}}** contributor(s) this release:
+{{#each contributors}}@{{this}}{{#unless @last}}, {{/unless}}{{/each}}.
