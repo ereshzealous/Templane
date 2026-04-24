@@ -14,6 +14,9 @@ natively on GitHub.
 - [7. xt CLI pipeline](#7-xt-cli-pipeline)
 - [8. Schema evolution & breaking-change detection](#8-schema-evolution--breaking-change-detection)
 - [9. Publishing topology](#9-publishing-topology)
+- [10. Schema DSL anatomy](#10-schema-dsl-anatomy)
+- [11. Error model](#11-error-model)
+- [12. Monorepo layout](#12-monorepo-layout)
 
 ---
 
@@ -418,6 +421,149 @@ flowchart LR
 
 **Trigger model**: every release workflow is `workflow_dispatch` only —
 no auto-publish on push or tag. Each workflow has a dry-run flag.
+
+---
+
+## 10. Schema DSL anatomy
+
+What goes inside a `.templane` file: a YAML schema block, a `---`
+separator, and a template body.
+
+```mermaid
+flowchart TB
+    FILE[.templane file] --> SEP{--- separator}
+    SEP --> SCHEMA[Schema block<br/>YAML]
+    SEP --> BODY[Template body<br/>engine-specific]
+
+    SCHEMA --> F1[Top-level field map]
+    F1 --> FIELD[field:<br/>type<br/>required<br/>values<br/>fields<br/>items<br/>default]
+
+    FIELD --> T1[scalar:<br/>string / number /<br/>boolean]
+    FIELD --> T2[enum:<br/>values: [A,B,C]]
+    FIELD --> T3[object:<br/>fields: &#123;...&#125;]
+    FIELD --> T4[list:<br/>items: &#123;type: ...&#125;]
+
+    T3 -.recursive.-> FIELD
+    T4 -.recursive.-> FIELD
+
+    BODY --> EXP[expression<br/>path.to.field]
+    BODY --> IF[if block<br/>then / else]
+    BODY --> EACH[each block<br/>iteration body]
+    BODY --> UN[unless block<br/>negated conditional]
+
+    style SCHEMA fill:#FBF6EB,stroke:#2B2A28,color:#2B2A28
+    style BODY fill:#FBF6EB,stroke:#2B2A28,color:#2B2A28
+    style FIELD fill:#D9A441,color:#2B2A28,stroke:#2B2A28
+```
+
+**Field attributes** (SPEC.md §4):
+
+| Attribute | Applies to | Purpose |
+|---|---|---|
+| `type` | all | `string` / `number` / `boolean` / `enum` / `object` / `list` |
+| `required` | all | `true` (default) or `false` |
+| `values` | enum | allowed string values |
+| `fields` | object | nested field map (recursive) |
+| `items` | list | element schema (recursive) |
+| `default` | scalars | fallback when absent (makes field optional) |
+
+---
+
+## 11. Error model
+
+Every type-check failure produces a structured error. This diagram
+shows the taxonomy; fixtures under `templane-spec/fixtures/check/`
+exercise each one.
+
+```mermaid
+flowchart LR
+    ROOT[check error] --> C1[unknown_field]
+    ROOT --> C2[missing_required_field]
+    ROOT --> C3[type_mismatch]
+    ROOT --> C4[invalid_enum_value]
+    ROOT --> C5[schema_syntax_error]
+
+    C1 -.Levenshtein ≤ 3.-> DYM[did_you_mean<br/>suggestion]
+
+    C1 --> EX1[data has &quot;enviornment&quot;<br/>schema has no such field]
+    C2 --> EX2[schema requires &quot;email&quot;<br/>data has no &quot;email&quot;]
+    C3 --> EX3[schema: cpu is string<br/>data: cpu is number]
+    C4 --> EX4[schema: enum [A,B,C]<br/>data: &quot;D&quot;]
+    C5 --> EX5[malformed YAML<br/>unclosed bracket]
+
+    style ROOT fill:#C75B3C,color:#F4EDE0,stroke:#2B2A28
+    style DYM fill:#D9A441,color:#2B2A28,stroke:#2B2A28
+```
+
+**Error shape** (every impl emits this):
+
+```json
+{
+  "code": "type_mismatch",
+  "path": "resources.requests.cpu",
+  "message": "Field 'resources.requests.cpu' expected string, got number",
+  "did_you_mean": null
+}
+```
+
+Errors are accumulated — one `check` call reports all failures, not
+just the first. See SPEC.md §7.
+
+---
+
+## 12. Monorepo layout
+
+Where every piece of Templane lives. Top level first, then key subtrees.
+
+```mermaid
+flowchart TB
+    ROOT[Templane/] --> SPEC[templane-spec/]
+    ROOT --> TS[templane-ts/]
+    ROOT --> PY[templane-python/]
+    ROOT --> JAVA[templane-java/]
+    ROOT --> GO[templane-go/]
+    ROOT --> EX[examples/]
+    ROOT --> DOC[docs/]
+    ROOT --> BR[brand/]
+    ROOT --> CI[.github/workflows/]
+
+    SPEC --> SP1[templane-core/<br/>Python reference]
+    SPEC --> SP2[templane-conform/<br/>Node CLI]
+    SPEC --> SP3[fixtures/<br/>32 JSON fixtures]
+    SPEC --> SP4[conform-adapter/<br/>Python stdio bridge]
+
+    TS --> TS1[src/<br/>parser · checker · ir · adapters]
+    TS --> TS2[xt CLI]
+    TS --> TS3[handlebars-templane/]
+    TS --> TS4[conform-adapter.ts]
+
+    PY --> PY1[templane_python/<br/>parser · checker · ir]
+    PY --> PY2[jinja_templane/]
+    PY --> PY3[breaking_change/]
+    PY --> PY4[conform-adapter/]
+
+    JAVA --> JA1[templane-core/<br/>sealed interfaces · records]
+    JAVA --> JA2[templane-adapter-html/]
+    JAVA --> JA3[templane-adapter-yaml/]
+    JAVA --> JA4[freemarker-templane/]
+    JAVA --> JA5[conform-adapter/<br/>shadowJar]
+
+    GO --> GO1[core/<br/>parser · checker · ir]
+    GO --> GO2[htmladapter/]
+    GO --> GO3[yamladapter/]
+    GO --> GO4[cmd/conform-adapter/]
+
+    CI --> W1[ci.yml<br/>manual trigger]
+    CI --> W2[release-templane-ts.yml]
+    CI --> W3[release-templane-python.yml]
+    CI --> W4[release-templane-java.yml]
+    CI --> W5[release-templane-go.yml]
+    CI --> W6[release-templane-conform.yml]
+
+    style SPEC fill:#FBF6EB,stroke:#2B2A28,color:#2B2A28
+    style CI fill:#D9A441,color:#2B2A28,stroke:#2B2A28
+    style EX fill:#FBF6EB,stroke:#2B2A28,color:#2B2A28
+```
 
 ---
 
