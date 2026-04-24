@@ -1,15 +1,12 @@
 name: CI
 
-# Runs on every push to main and every PR.
-# Tests each of the 5 implementations in parallel, then runs the
-# 5-way cross-implementation conformance matrix as the final gate.
+# Manual-trigger only — run from the Actions tab when you want a full
+# cross-implementation conformance check. Tests each of the 5
+# implementations in parallel, then runs the 5-way cross-impl
+# conformance matrix as the final gate.
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch: {}  # allow manual re-run
+  workflow_dispatch: {}
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -49,12 +46,6 @@ jobs:
         run: |
           npm ci
           npm run build
-      - name: Upload dist/ artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: templane-conform-dist
-          path: templane-spec/templane-conform/dist/
-          retention-days: 7
 
   test-ts:
     name: templane-ts
