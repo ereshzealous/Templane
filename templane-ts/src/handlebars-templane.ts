@@ -1,5 +1,5 @@
 import Handlebars from 'handlebars';
-import { parse as parseSchema } from './schema-parser';
+import { parse as parseSchema, loadFromPath as loadSchemaFromPath } from './schema-parser';
 import { check as typeCheck } from './type-checker';
 import { TypeCheckError, TypedSchema } from './models';
 
@@ -24,13 +24,35 @@ export function compile(source: string, schemaId: string = 'template'): Templane
     throw new Error(`Schema parse error: ${parseResult.error}`);
   }
   if (parseResult.body === undefined) {
-    throw new Error('Template must include a body after "\\n---\\n" separator');
+    throw new Error(
+      'Template must include a body — either a "\\n---\\n" separator or a "body:" key ' +
+      'pointing to an external file (use compileFromPath for sidecar schemas).',
+    );
   }
+  return buildTemplate(parseResult.schema, parseResult.body);
+}
 
-  const schema = parseResult.schema;
-  const body = parseResult.body;
+/**
+ * Compile a Templane schema from a filesystem path. Handles both embedded
+ * (`---` separator) and sidecar (`body: ./path.ext`) modes — sidecar bodies
+ * are resolved relative to the schema file's directory.
+ */
+export async function compileFromPath(schemaPath: string): Promise<TemplaneTemplate> {
+  const result = await loadSchemaFromPath(schemaPath);
+  if ('error' in result) {
+    throw new Error(`Schema load error: ${result.error}`);
+  }
+  if (result.body === undefined) {
+    throw new Error(
+      `Template at ${schemaPath} has no renderable body — ` +
+      'add a "---" separator or a "body:" key pointing to an external file.',
+    );
+  }
+  return buildTemplate(result.schema, result.body);
+}
+
+function buildTemplate(schema: TypedSchema, body: string): TemplaneTemplate {
   const hbsTemplate = Handlebars.compile(body, { noEscape: false });
-
   return {
     schema,
     body,

@@ -70,4 +70,39 @@ class TemplaneConfigurationTest {
         assertThatThrownBy(() -> cfg.getTemplate("nobody.templane"))
             .isInstanceOf(IllegalArgumentException.class);
     }
+
+    // -----------------------------------------------------------------------
+    // Sidecar mode (SPEC 1.1 §4.3) — schema references external body file
+    // -----------------------------------------------------------------------
+
+    @Test
+    void sidecarLoadsExternalBody(@TempDir Path tmp) throws Exception {
+        write(tmp, "email.ftl", "Hi ${name}!");
+        write(tmp, "email.templane",
+            "body: ./email.ftl\nname:\n  type: string\n  required: true\n");
+        TemplaneConfiguration cfg = new TemplaneConfiguration(tmp);
+        TemplaneTemplate t = cfg.getTemplate("email.templane");
+        assertThat(t.render(Map.of("name", "Lin"))).isEqualTo("Hi Lin!");
+    }
+
+    @Test
+    void sidecarTypeCheckStillFires(@TempDir Path tmp) throws Exception {
+        write(tmp, "age.ftl", "You are ${age}");
+        write(tmp, "age.templane",
+            "body: ./age.ftl\nage:\n  type: number\n  required: true\n");
+        TemplaneConfiguration cfg = new TemplaneConfiguration(tmp);
+        TemplaneTemplate t = cfg.getTemplate("age.templane");
+        assertThatThrownBy(() -> t.render(Map.of("age", "forever")))
+            .isInstanceOf(TemplaneTemplateException.class);
+    }
+
+    @Test
+    void sidecarMissingBodyFileRaises(@TempDir Path tmp) throws Exception {
+        write(tmp, "broken.templane",
+            "body: ./not-here.ftl\nname:\n  type: string\n  required: true\n");
+        TemplaneConfiguration cfg = new TemplaneConfiguration(tmp);
+        assertThatThrownBy(() -> cfg.getTemplate("broken.templane"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("body file");
+    }
 }

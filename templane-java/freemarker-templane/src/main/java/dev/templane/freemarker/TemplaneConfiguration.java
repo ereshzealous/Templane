@@ -18,20 +18,21 @@ public class TemplaneConfiguration {
         this.fmConfig.setDefaultEncoding("UTF-8");
     }
 
+    /**
+     * Load a Templane schema (embedded or sidecar) and compile its body.
+     * Sidecar bodies (via {@code body: ./path.ftl}) are resolved relative to
+     * the schema file's directory.
+     */
     public TemplaneTemplate getTemplate(String name) {
-        Path source = templateDir.resolve(name);
-        String content;
-        try {
-            content = Files.readString(source);
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot read template " + name, e);
-        }
-        SchemaParser.Result r = parser.parse(content, name);
+        Path schemaPath = templateDir.resolve(name);
+        SchemaParser.Result r = SchemaParser.loadFromPath(schemaPath);
         if (r.error() != null) {
-            throw new IllegalArgumentException("Schema parse error in " + name + ": " + r.error());
+            throw new IllegalArgumentException("Schema load error in " + name + ": " + r.error());
         }
         if (r.body() == null) {
-            throw new IllegalArgumentException("Template " + name + " has no body separator '---'");
+            throw new IllegalArgumentException(
+                "Template " + name + " has no renderable body — " +
+                "add a '---' separator or a 'body:' key pointing to an external file");
         }
         freemarker.template.Template fmTmpl;
         try {

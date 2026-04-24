@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { compile, TemplaneHandlebarsError } from '../src/handlebars-templane';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { compile, compileFromPath, TemplaneHandlebarsError } from '../src/handlebars-templane';
 
 test('compile + render basic template', () => {
   const source = [
@@ -123,4 +126,65 @@ test('schema is exposed on the template object', () => {
   const tmpl = compile(source, 'my-id');
   assert.equal(tmpl.schema.id, 'my-id');
   assert.equal(tmpl.schema.fields.name.required, true);
+});
+
+// ---------------------------------------------------------------------------
+// Sidecar mode (SPEC 1.1 §4.3) — schema references external body file
+// ---------------------------------------------------------------------------
+
+test('compileFromPath loads sidecar body and renders', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'tplane-hbs-'));
+  try {
+    await writeFile(join(dir, 'email.hbs'), 'Hi {{name}}!');
+    await writeFile(
+      join(dir, 'email.templane'),
+      'body: ./email.hbs\nname:\n  type: string\n  required: true\n',
+    );
+    const tmpl = await compileFromPath(join(dir, 'email.templane'));
+    assert.equal(tmpl.render({ name: 'Lin' }), 'Hi Lin!');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('compileFromPath type-checks sidecar data', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'tplane-hbs-'));
+  try {
+    await writeFile(join(dir, 'age.hbs'), 'You are {{age}}');
+    await writeFile(
+      join(dir, 'age.templane'),
+      'body: ./age.hbs\nage:\n  type: number\n  required: true\n',
+    );
+    const tmpl = await compileFromPath(join(dir, 'age.templane'));
+    assert.throws(() => tmpl.render({ age: 'forever' }), TemplaneHandlebarsError);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('compileFromPath works on embedded (--- separator) schema too', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'tplane-hbs-'));
+  try {
+    await writeFile(
+      join(dir, 'embedded.templane'),
+      'name:\n  type: string\n  required: true\n---\nHello {{name}}!',
+    );
+    const tmpl = await compileFromPath(join(dir, 'embedded.templane'));
+    assert.equal(tmpl.render({ name: 'World' }), 'Hello World!');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('compileFromPath throws when sidecar body file is missing', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'tplane-hbs-'));
+  try {
+    await writeFile(
+      join(dir, 'broken.templane'),
+      'body: ./nope.hbs\nname:\n  type: string\n  required: true\n',
+    );
+    await assert.rejects(() => compileFromPath(join(dir, 'broken.templane')), /body file/i);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
