@@ -194,27 +194,33 @@ Five reference implementations, all **32/32** on the conformance suite, each idi
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                templane-spec (the hub)                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│  │ 32 fixtures  │  │ templane-conform  │  │  templane-core    │   │
-│  │ (JSON)       │  │ CLI (Node)   │  │  (Python ref)│   │
-│  └──────────────┘  └──────────────┘  └──────────────┘   │
-└─────────────────────────────────────────────────────────┘
-                 ▲
-                 │ conform adapter protocol
-                 │ (line-delimited JSON over stdin/stdout)
-                 │
-    ┌────────────┼──────────────┬──────────────┬──────────────┐
-    ▼            ▼              ▼              ▼              ▼
-┌────────┐  ┌────────┐   ┌──────────┐   ┌─────────┐   ┌────────┐
-│ templane-ts │  │ templane-py │   │ templane-java │   │ templane-go  │   │  ...   │
-│   TS   │  │ Python │   │ Java 21  │   │  Go     │   │ future │
-└────────┘  └────────┘   └──────────┘   └─────────┘   └────────┘
+```mermaid
+flowchart TB
+    subgraph hub["templane-spec (the hub)"]
+        FIX[32 fixtures<br/>JSON]
+        CLI[templane-conform CLI<br/>Node]
+        REF[templane-core<br/>Python reference]
+    end
+
+    hub -. conform adapter protocol<br/>line-delimited JSON over stdin/stdout .- impls
+
+    subgraph impls["Implementations"]
+        direction LR
+        TS[templane-ts<br/>TypeScript]
+        PY[templane-python<br/>Python]
+        JAVA[templane-java<br/>Java 21]
+        GO[templane-go<br/>Go]
+        FUT[...<br/>future]
+    end
+
+    style hub fill:#FBF6EB,stroke:#2B2A28,color:#2B2A28
+    style impls fill:#F4EDE0,stroke:#2B2A28,color:#2B2A28
+    style CLI fill:#D9A441,color:#2B2A28,stroke:#2B2A28
 ```
 
 Every implementation exposes the same four operations. The conform adapter protocol (one JSON line in, one JSON line out) lets `templane-conform` test every implementation against the same 32 fixtures, proving semantic equivalence across languages.
+
+📐 **Deep dive**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) has the full pipeline, IR model, conformance sequence, engine-binding pattern, CLI dataflow, and publishing topology — all Mermaid, renders on GitHub.
 
 ---
 
