@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Templane — icon options</title>
+  <style>
+    :root {
+      --cream: #F4EDE0;
+      --paper: #FBF6EB;
+      --ink:   #2B2A28;
+      --rust:  #C75B3C;
+      --ochre: #D9A441;
+      --forest:#4A6B52;
+      --brown: #6B4423;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      background: var(--cream);
+      color: var(--ink);
+      padding: 48px 32px 96px;
+    }
+    header {
+      max-width: 960px;
+      margin: 0 auto 48px;
+    }
+    h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: -0.01em; }
+    p.sub { margin: 0; opacity: 0.75; font-size: 16px; }
+
+    .grid {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+    }
+    .card {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card .art {
+      background: var(--cream);
+      border-radius: 6px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .card .art img { width: 100%; height: 100%; }
+    .card h2 { margin: 0; font-size: 18px; }
+    .card p  { margin: 0; font-size: 14px; opacity: 0.75; line-height: 1.5; }
+
+    .sizes { display: flex; gap: 12px; align-items: center; padding-top: 4px; }
+    .sizes img { background: var(--cream); border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+
+    .palette {
+      max-width: 960px;
+      margin: 56px auto 0;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 18px;
+      border: 1px dashed rgba(0,0,0,0.3);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+    .swatch { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+    .swatch span.box {
+      width: 26px; height: 26px; border-radius: 4px; border: 1px solid var(--ink);
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Templane — icon directions</h1>
+    <p class="sub">Five starting points. Warm, humanist palette — terracotta, ochre, forest, cream, charcoal. No blue or purple.</p>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="art"><img src="icons/01-layered-planes.svg" alt=""/></div>
+      <h2>01 · Layered Planes</h2>
+      <p>Three stacked angled rectangles — evokes "template" + "plane". Top plane carries the conformance check.</p>
+      <div class="sizes">
+        <img src="icons/01-layered-planes.svg" width="64" height="64" alt=""/>
+        <img src="icons/01-layered-planes.svg" width="32" height="32" alt=""/>
+        <img src="icons/01-layered-planes.svg" width="16" height="16" alt=""/>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="art"><img src="icons/02-paper-seal.svg" alt=""/></div>
+      <h2>02 · Paper + Seal</h2>
+      <p>A document with a wax seal stamped into it. Reads as "contract" and "conformance" — closest to the tagline.</p>
+      <div class="sizes">
+        <img src="icons/02-paper-seal.svg" width="64" height="64" alt=""/>
+        <img src="icons/02-paper-seal.svg" width="32" height="32" alt=""/>
+        <img src="icons/02-paper-seal.svg" width="16" height="16" alt=""/>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="art"><img src="icons/03-folded-template.svg" alt=""/></div>
+      <h2>03 · Folded Template</h2>
+      <p>Two stacked sheets, top one has a folded corner and a green check. "Validated template" — softest, most human feel.</p>
+      <div class="sizes">
+        <img src="icons/03-folded-template.svg" width="64" height="64" alt=""/>
+        <img src="icons/03-folded-template.svg" width="32" height="32" alt=""/>
+        <img src="icons/03-folded-template.svg" width="16" height="16" alt=""/>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="art"><img src="icons/04-t-monogram-grid.svg" alt=""/></div>
+      <h2>04 · T Monogram (grid)</h2>
+      <p>A "T" built out of typed schema cells. Structured but warm; holds up at favicon size the best.</p>
+      <div class="sizes">
+        <img src="icons/04-t-monogram-grid.svg" width="64" height="64" alt=""/>
+        <img src="icons/04-t-monogram-grid.svg" width="32" height="32" alt=""/>
+        <img src="icons/04-t-monogram-grid.svg" width="16" height="16" alt=""/>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="art"><img src="icons/05-bracket-check.svg" alt=""/></div>
+      <h2>05 · { ✓ } Bracket</h2>
+      <p>Hand-drawn braces with a green check inside — typed template contract, most "human/handwritten" feel.</p>
+      <div class="sizes">
+        <img src="icons/05-bracket-check.svg" width="64" height="64" alt=""/>
+        <img src="icons/05-bracket-check.svg" width="32" height="32" alt=""/>
+        <img src="icons/05-bracket-check.svg" width="16" height="16" alt=""/>
+      </div>
+    </div>
+  </div>
+
+  <div class="palette">
+    <div class="swatch"><span class="box" style="background:#F4EDE0"></span>cream #F4EDE0</div>
+    <div class="swatch"><span class="box" style="background:#FBF6EB"></span>paper #FBF6EB</div>
+    <div class="swatch"><span class="box" style="background:#2B2A28"></span>ink #2B2A28</div>
+    <div class="swatch"><span class="box" style="background:#C75B3C"></span>terracotta #C75B3C</div>
+    <div class="swatch"><span class="box" style="background:#D9A441"></span>ochre #D9A441</div>
+    <div class="swatch"><span class="box" style="background:#4A6B52"></span>forest #4A6B52</div>
+    <div class="swatch"><span class="box" style="background:#6B4423"></span>brown #6B4423</div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Templane — T Monogram made of schema cells
+       Concept: letter "T" formed from a grid of small squares — typed/structured template.
+       Palette: warm earthy multi-tone on cream. -->
+  <rect width="256" height="256" fill="#F4EDE0"/>
+
+  <!-- Grid of 7 wide × 7 tall cells, 24px each, centered. Cells drawn only where the T shape is.
+       T layout (1 = filled, 0 = blank):
+       Row 0: 1 1 1 1 1 1 1
+       Row 1: 1 1 1 1 1 1 1
+       Row 2: 0 0 1 1 1 0 0
+       Row 3: 0 0 1 1 1 0 0
+       Row 4: 0 0 1 1 1 0 0
+       Row 5: 0 0 1 1 1 0 0
+       Row 6: 0 0 1 1 1 0 0
+  -->
+  <g transform="translate(44 44)" stroke="#2B2A28" stroke-width="3" stroke-linejoin="round">
+    <!-- Row 0 (crossbar top) -->
+    <rect x="0"   y="0"   width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="24"  y="0"   width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="48"  y="0"   width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="72"  y="0"   width="24" height="24" rx="3" fill="#6B4423"/>
+    <rect x="96"  y="0"   width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="120" y="0"   width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="144" y="0"   width="24" height="24" rx="3" fill="#C75B3C"/>
+
+    <!-- Row 1 (crossbar bottom) -->
+    <rect x="0"   y="24"  width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="24"  y="24"  width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="48"  y="24"  width="24" height="24" rx="3" fill="#6B4423"/>
+    <rect x="72"  y="24"  width="24" height="24" rx="3" fill="#4A6B52"/>
+    <rect x="96"  y="24"  width="24" height="24" rx="3" fill="#6B4423"/>
+    <rect x="120" y="24"  width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="144" y="24"  width="24" height="24" rx="3" fill="#D9A441"/>
+
+    <!-- Stem rows 2-6 -->
+    <rect x="48"  y="48"  width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="72"  y="48"  width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="96"  y="48"  width="24" height="24" rx="3" fill="#6B4423"/>
+
+    <rect x="48"  y="72"  width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="72"  y="72"  width="24" height="24" rx="3" fill="#6B4423"/>
+    <rect x="96"  y="72"  width="24" height="24" rx="3" fill="#D9A441"/>
+
+    <rect x="48"  y="96"  width="24" height="24" rx="3" fill="#6B4423"/>
+    <rect x="72"  y="96"  width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="96"  y="96"  width="24" height="24" rx="3" fill="#C75B3C"/>
+
+    <rect x="48"  y="120" width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="72"  y="120" width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="96"  y="120" width="24" height="24" rx="3" fill="#4A6B52"/>
+
+    <rect x="48"  y="144" width="24" height="24" rx="3" fill="#C75B3C"/>
+    <rect x="72"  y="144" width="24" height="24" rx="3" fill="#D9A441"/>
+    <rect x="96"  y="144" width="24" height="24" rx="3" fill="#6B4423"/>
+  </g>
+</svg>
