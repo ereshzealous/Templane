@@ -1,6 +1,6 @@
 # templane-spec
 
-The Templane protocol specification hub: **32 conformance fixtures**, the
+The Templane protocol specification hub: **40 conformance fixtures**, the
 `templane-conform` CLI (Node.js), and a Python reference implementation (`templane-core`).
 
 All Templane implementations derive correctness from the fixtures in this package.
@@ -12,7 +12,7 @@ If `templane-conform` reports `<name> 40/40`, the implementation is compliant.
 
 ```
 templane-spec/
-├── fixtures/              ← 32 JSON fixture files (input + expected output)
+├── fixtures/              ← 40 JSON fixture files (input + expected output)
 │   ├── schema-parser/     (8)
 │   ├── type-checker/      (8)
 │   ├── ir-generator/      (8)

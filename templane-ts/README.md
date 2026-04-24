@@ -1,174 +1,212 @@
 # templane-ts
 
-TypeScript implementation of [Templane](../SPEC.md). Ships a full **Handlebars
-integration** (`handlebars-templane`) and the `xt` CLI (`render`, `check`, `test`,
-`dev`, `build`).
+**TypeScript/JavaScript implementation of [Templane](https://github.com/ereshzealous/Templane)** — typed template contracts for Handlebars and other engines, plus the `xt` developer CLI.
 
-**Conformance:** `ts 40/40` ✓ — **81 unit tests passing**.
+Templane adds compile-time schema validation to your templates. Define what data your template expects in a small `.schema.yaml` file next to your `.hbs` / `.jinja` / `.ftl` / `.tmpl`, and Templane catches missing fields, typos, and wrong types **before the engine renders**, not at 2am in production.
+
+- **Conformance:** 40/40 fixtures across the [Templane protocol](https://github.com/ereshzealous/Templane/blob/main/SPEC.md) · 81 unit tests
+- **Engine binding:** Handlebars (`handlebars-templane`)
+- **CLI:** `xt` (render, check, test, dev, build)
+- **Runtime:** Node.js 20+
+- **License:** Apache 2.0
 
 ---
 
-## Installation
+## Install
 
 ```bash
-cd templane-ts
-npm install
-npm run build    # compiles to dist/
+npm install templane-ts
 ```
 
-Requires Node.js 20+.
+This installs:
+- The **library** (import from `handlebars-templane` submodule)
+- The **`xt` CLI** (available in `./node_modules/.bin/xt` or via `npx xt`)
 
 ---
 
-## Quick start — programmatic API
+## Quick start
 
-```typescript
-import { compile } from './src/handlebars-templane';
+Create `email.hbs` (plain Handlebars — not modified by Templane):
 
-const source = `
-name:
+```handlebars
+Hi {{user.name}}! Your order #{{order_id}} total is ${{amount}}.
+```
+
+Create `email.schema.yaml` next to it (declares the data contract):
+
+```yaml
+body: ./email.hbs
+engine: handlebars
+
+user:
+  type: object
+  required: true
+  fields:
+    name: { type: string, required: true }
+order_id:
   type: string
   required: true
----
-Hello {{name}}!
-`;
-
-const template = compile(source, 'greeting');
-console.log(template.render({ name: 'Alice' }));
-// → Hello Alice!
+amount:
+  type: number
+  required: true
 ```
 
-### Separate check and render
+Use from TypeScript:
 
 ```typescript
-import { compile } from './src/handlebars-templane';
+import { compileFromPath, TemplaneHandlebarsError } from 'handlebars-templane';
 
-const template = compile(source, 'greeting');
+const tmpl = await compileFromPath('templates/email.schema.yaml');
 
-// Validate data without rendering
-const errors = template.check({ naem: 'Alice' });
-for (const e of errors) {
-  console.error(`[${e.code}] ${e.message}`);
+try {
+  const output = tmpl.render({
+    user: { name: 'Alice' },
+    order_id: 'INV-042',
+    amount: 99.00,
+  });
+  console.log(output);
+  // → "Hi Alice! Your order #INV-042 total is $99."
+} catch (err) {
+  if (err instanceof TemplaneHandlebarsError) {
+    for (const e of err.errors) {
+      console.error(`[${e.code}] ${e.field}: ${e.message}`);
+    }
+  }
 }
-// [missing_required_field] Required field 'name' is missing
-// [did_you_mean]           Unknown field 'naem'. Did you mean 'name'?
-
-// Render (throws TemplaneHandlebarsError on type errors)
-template.render({ name: 'Alice' });
 ```
+
+---
+
+## Validation errors — caught before rendering
+
+```typescript
+// Missing field + wrong type all trip at once
+try {
+  tmpl.render({
+    // user missing entirely
+    order_id: 42,      // wrong type
+    amount: 'free',    // wrong type
+  });
+} catch (err) {
+  if (err instanceof TemplaneHandlebarsError) {
+    err.errors.forEach(e => console.error(`[${e.code}] ${e.field}`));
+  }
+}
+// [missing_required_field] user
+// [type_mismatch] order_id
+// [type_mismatch] amount
+```
+
+All errors are collected — never short-circuits at the first.
 
 ---
 
 ## The `xt` CLI
 
-Five subcommands:
-
-### `xt render <template> <data.json>`
-
-Render a template with data. Type-checks before rendering.
+Installed alongside the library. Five subcommands:
 
 ```bash
-node dist/xt.js render templates/greeting.hbs data.json
-# Hello Alice!
+xt render <schema.yaml> <data.json>   # render to stdout
+xt check  <schema.yaml> <data.json>   # validate only; exit 1 on error
+xt test   <templates-dir>             # smoke-test all schemas in a dir
+xt dev    <schema.yaml> <data.json>   # watch + re-render on save
+xt build  <templates-dir> --out bundle.js   # precompile bodies for production
 ```
 
-### `xt check <template> <data.json>`
+Example CI gate:
 
-Validate data against the schema without rendering.
-
-```bash
-node dist/xt.js check templates/greeting.hbs data.json
-# ✓ data matches schema
+```yaml
+# .github/workflows/validate.yml
+- run: npx xt check templates/welcome.schema.yaml templates/welcome.example.json
 ```
 
-### `xt test <dir>`
-
-Walk a directory, compile every `*.hbs`, and render any with an adjacent
-`<name>.example.json`.
-
-```bash
-node dist/xt.js test templates/
-#   ✓ greeting.hbs (compiled + rendered example)
-#   ✓ sub/nested.hbs (compiled)
-# 2/2 passed
-```
-
-Exits non-zero if any template fails.
-
-### `xt dev <template> <data.json>`
-
-Watch both files, re-render on any change. Template authoring REPL.
-
-```bash
-node dist/xt.js dev greeting.hbs data.json
-```
-
-### `xt build <dir> --out <file>`
-
-Precompile every `*.hbs` to a single CommonJS module (no runtime parsing).
-
-```bash
-node dist/xt.js build templates/ --out dist/templates.cjs
-# Built 12 template(s) → dist/templates.cjs
-```
-
-The generated module exports a map `{name: compiledFn}`. Requires
-`handlebars/runtime` as a peer dep at runtime.
+One-line block of a bad-data PR.
 
 ---
 
-## Handlebars-templane API
+## API
 
 ```typescript
-import { compile, TemplaneHandlebarsError } from './src/handlebars-templane';
+import { compile, compileFromPath, TemplaneHandlebarsError, TemplaneTemplate } from 'handlebars-templane';
+
+// Compile from a string (for schemas already in memory, or legacy inline-body form)
+compile(source: string, schemaId?: string): TemplaneTemplate
+
+// Compile from a file path — follows `body:` references to external template files
+compileFromPath(path: string): Promise<TemplaneTemplate>
 
 interface TemplaneTemplate {
   schema: TypedSchema;
   body: string;
-  check(data: Record<string, unknown>): TypeCheckError[];
-  render(data: Record<string, unknown>): string;  // throws TemplaneHandlebarsError
+  check(data: Record<string, unknown>): TypeCheckError[];  // returns errors without throwing
+  render(data: Record<string, unknown>): string;           // throws TemplaneHandlebarsError on invalid data
 }
-
-function compile(source: string, schemaId?: string): TemplaneTemplate;
 ```
 
-`TemplaneHandlebarsError.errors` is the raw `TypeCheckError[]` array.
+Lower-level core functions are also available:
+
+```typescript
+import { parse, loadFromPath, check, generate } from 'templane-ts';
+// parse(yamlStr, id) → ParseResult
+// loadFromPath(path) → Promise<ParseResult>
+// check(schema, data) → TypeCheckError[]
+// generate(ast, data, schemaId, templateId) → TIRResult
+```
 
 ---
 
-## Running tests
+## Why Templane
+
+Templates are untyped contracts. They accept a bag of values, look up names by string, and render *something* — even when the data has a typo, a missing field, or a wrong type. The failure is silent: the render succeeds, the customer gets a broken email, and you find out four days later.
+
+Templane fixes this at the boundary. A schema next to your template declares what the template expects; the binding refuses to render when the data doesn't match. See the [main README](https://github.com/ereshzealous/Templane) for the full pitch.
+
+---
+
+## Adoption pattern
+
+**You don't migrate templates.** Your existing `.hbs` files stay as-is. You drop one `.schema.yaml` beside each one:
+
+```
+templates/
+  welcome.hbs                 ← untouched
+  welcome.schema.yaml         ← NEW
+  invoice.hbs                 ← untouched
+  invoice.schema.yaml         ← NEW
+```
+
+Your code switches from `Handlebars.compile()` to `compileFromPath()`. That's the migration.
+
+See the [ADOPTION guide](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md) for per-engine walkthroughs.
+
+---
+
+## Examples
+
+Five worked examples under the repo's [`templane-ts/examples/`](https://github.com/ereshzealous/Templane/tree/main/templane-ts/examples) directory: hello, validation errors, nested objects and lists, Handlebars custom helpers, and a full release-notes generator.
+
+---
+
+## Building from source
 
 ```bash
-npm test
-# 64 tests, 0 failures
+git clone https://github.com/ereshzealous/Templane.git
+cd Templane/templane-ts
+npm install
+npm run build   # produces dist/
+npm test        # 81 tests
 ```
 
-Tests cover: schema parser (7), type checker (9), IR generator (9), adapters
-(10), handlebars-templane (12), xt CLI (17).
-
 ---
 
-## Design notes
+## Links
 
-### Discriminated unions via TypeScript
-
-Templane's AST and TIR types are discriminated unions. TypeScript's native
-discriminated-union support (`type Node = {kind: "text", ...} | {kind: "expr", ...}`)
-means the JSON wire format *is* the type — no `to_dict`/`from_dict`
-serialization helpers needed. Contrast with Python (dataclasses) and Java
-(sealed interfaces + records).
-
-### Zero test framework deps
-
-Uses Node 20+'s built-in `node:test` + `node:assert/strict` via `tsx` for
-TypeScript support. No Jest, no Vitest.
-
-### Production deps: 2
-
-Only `js-yaml` and `handlebars`. Everything else is stdlib.
-
----
+- **Repo**: https://github.com/ereshzealous/Templane
+- **Full spec (RFC 2119)**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
+- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md) — 12 Mermaid diagrams
+- **Adoption guide**: [docs/ADOPTION.md](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md)
+- **Issues**: [GitHub Issues](https://github.com/ereshzealous/Templane/issues)
 
 ## License
 
-Apache License 2.0. See [LICENSE](../LICENSE).
+Apache License 2.0

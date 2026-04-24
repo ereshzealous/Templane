@@ -1,202 +1,221 @@
 # templane-python
 
-Python implementation of [Templane](../SPEC.md). Ships a **Jinja2 integration**
-(`jinja_templane`), a **schema evolution detector** (`breaking_change`), and a
-**content hash** utility (`hash`).
+**Python implementation of [Templane](https://github.com/ereshzealous/Templane)** — typed template contracts for Jinja2.
 
-**Conformance:** `py 40/40` ✓ — **75 unit tests passing**.
+Templane adds compile-time schema validation to your templates. Define what data your template expects in a small `.schema.yaml` file next to your `.jinja`, and Templane catches missing fields, typos, and wrong types **before Jinja renders**, not at 2am in production.
+
+- **Conformance:** 40/40 fixtures across the [Templane protocol](https://github.com/ereshzealous/Templane/blob/main/SPEC.md) · 75 unit tests
+- **Engine binding:** Jinja2 (`jinja_templane`)
+- **Also ships:** breaking-change detector, schema hash
+- **Runtime:** Python 3.12+
+- **License:** Apache 2.0
 
 ---
 
-## Installation
+## Install
 
 ```bash
-cd templane-python
-uv sync --extra dev
-```
-
-Requires Python 3.12+ and `uv`.
-
-Or with pip:
-
-```bash
-pip install -e '.[dev]'
+pip install templane-python
+# or with uv:
+uv add templane-python
 ```
 
 ---
 
-## Packages
+## Quick start
 
-This repository ships four installable packages:
+Create `email.jinja` (plain Jinja2 — not modified by Templane):
 
-| Package              | Purpose                                           |
-|----------------------|---------------------------------------------------|
-| `templane_core`           | Core: models, schema_parser, type_checker, ir_generator, breaking_change, hash |
-| `templane_adapter_html`   | HTML output adapter (with entity escaping)        |
-| `templane_adapter_yaml`   | YAML output adapter (no escaping)                 |
-| `jinja_templane`          | Jinja2 integration: `TemplaneEnvironment` + `TemplaneTemplate` |
-
----
-
-## Quick start — Jinja2 integration
-
-### Template file (`greeting.templane`):
-
+```jinja
+Hi {{ user.name }}! Your order #{{ order_id }} total is ${{ amount }}.
 ```
-name:
+
+Create `email.schema.yaml` next to it (declares the data contract):
+
+```yaml
+body: ./email.jinja
+engine: jinja
+
+user:
+  type: object
+  required: true
+  fields:
+    name: { type: string, required: true }
+order_id:
   type: string
   required: true
-status:
-  type: enum
-  values: [active, inactive]
+amount:
+  type: number
   required: true
----
-Hello {{ name }}!
-{% if status == "active" %}
-  Welcome back.
-{% endif %}
 ```
 
-### Python:
+Use from Python:
 
 ```python
-from jinja_templane.environment import TemplaneEnvironment, TemplaneTemplateError
+from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
 
-env = TemplaneEnvironment("./templates")
-template = env.get_template("greeting.templane")
+env = TemplaneEnvironment("templates")
+tmpl = env.get_template("email.schema.yaml")
 
-# Valid data
-print(template.render(name="Alice", status="active"))
-# → Hello Alice!
-#     Welcome back.
-
-# Invalid data — raises with all errors collected
 try:
-    template.render(name="Alice", status="actve")
-except TemplaneTemplateError as e:
-    for err in e.errors:
-        print(f"[{err.code}] {err.message}")
-    # [invalid_enum_value] Field 'status' value 'actve' not in enum [active, inactive]
-```
-
-### Key invariants
-
-- Schema is parsed at `get_template()` time (fail-fast if YAML is malformed
-  or the `---` separator is missing).
-- Data is type-checked at `render()` time (since data isn't known at load).
-- All errors are collected; `TemplaneTemplateError` contains the full list.
-
----
-
-## Core API
-
-```python
-from templane_core.schema_parser import parse
-from templane_core.type_checker import check
-from templane_core.ir_generator import generate
-from templane_core.models import TypedSchema, typed_schema_from_dict
-
-# 1. Parse a schema
-result = parse(yaml_source, schema_id="user-profile")
-schema = typed_schema_from_dict(result["schema"])
-
-# 2. Type-check user data
-errors = check(schema, data={"name": "Alice", "age": 30})
-for err in errors:
-    print(f"[{err.code}] {err.field}: {err.message}")
-
-# 3. Generate a TIR (for adapter rendering)
-tir = generate(ast_nodes, data, schema_id="user", template_id="greeting")
-
-# 4. Render
-from templane_adapter_html.html_adapter import render as html_render
-output = html_render(tir)
+    output = tmpl.render(
+        user={"name": "Alice"},
+        order_id="INV-042",
+        amount=99.00,
+    )
+    print(output)
+    # → "Hi Alice! Your order #INV-042 total is $99.0."
+except TemplaneTemplateError as exc:
+    for err in exc.errors:
+        print(f"[{err.code}] {err.field}: {err.message}")
 ```
 
 ---
 
-## Schema evolution — breaking change detection
-
-`templane_core.breaking_change.detect(old_schema, new_schema)` reports all
-breaking changes between two schemas:
+## Validation errors — caught before rendering
 
 ```python
+# Missing field + wrong type both trip at once
+try:
+    tmpl.render(
+        # user missing entirely
+        order_id=42,      # wrong type
+        amount="free",    # wrong type
+    )
+except TemplaneTemplateError as exc:
+    for err in exc.errors:
+        print(f"[{err.code}] {err.field}")
+
+# [missing_required_field] user
+# [type_mismatch] order_id
+# [type_mismatch] amount
+```
+
+All errors are collected — never short-circuits at the first.
+
+---
+
+## Breaking-change detection
+
+Detect schema evolution issues before they break downstream data:
+
+```python
+from templane_core.schema_parser import parse as parse_schema
+from templane_core.models import typed_schema_from_dict
 from templane_core.breaking_change import detect
-from templane_core.models import (
-    TypedSchema, TemplaneField, StringType, EnumType,
+
+def load(yaml_str: str, name: str):
+    result = parse_schema(yaml_str, name)
+    return typed_schema_from_dict(result["schema"])
+
+old = load(open("schema-v1.yaml").read(), "v1")
+new = load(open("schema-v2.yaml").read(), "v2")
+
+changes = detect(old, new)
+for c in changes:
+    print(f"[{c.category}] {c.field_path}: {c.old} → {c.new}")
+
+# Four categories:
+#   removed_field        — schema had the field; now doesn't
+#   required_change      — optional → required
+#   type_change          — field type changed
+#   enum_value_removed   — an enum value was removed
+```
+
+Safe changes (new optional field, added enum value, required → optional) are NOT reported.
+
+---
+
+## API
+
+### `jinja_templane` — the engine binding
+
+```python
+from jinja_templane import (
+    TemplaneEnvironment,
+    TemplaneTemplate,
+    TemplaneTemplateError,
 )
 
-old = TypedSchema(id="v1", fields={
-    "email": TemplaneField("email", StringType(), required=False),
-    "status": TemplaneField("status", EnumType(["active", "inactive", "pending"]), required=True),
-})
+# Like jinja2.Environment, but get_template returns a TemplaneTemplate
+env = TemplaneEnvironment(search_path: str | Path)
+env.get_template(name: str) -> TemplaneTemplate
+    # Handles both .schema.yaml (with body: reference) and legacy inline-body .templane files
 
-new = TypedSchema(id="v2", fields={
-    "email": TemplaneField("email", StringType(), required=True),          # optional → required
-    "status": TemplaneField("status", EnumType(["active", "inactive"]), required=True),  # dropped "pending"
-})
-
-for change in detect(old, new):
-    print(f"{change.category}  {change.field_path}: {change.old} → {change.new}")
-# required_change     email: optional → required
-# enum_value_removed  status: pending → <removed>
+tmpl.render(**data) -> str  # raises TemplaneTemplateError on validation failure
+tmpl.schema                  # the parsed TypedSchema
 ```
 
-Four categories are reported:
-
-- `removed_field` — field absent in new schema
-- `required_change` — optional → required
-- `type_change` — field type changed
-- `enum_value_removed` — enum value dropped
-
-Recurses into `object` fields with dotted paths (e.g. `address.zip`).
-
-See [SPEC.md §8](../SPEC.md#8-schema-evolution) for the normative definition.
-
----
-
-## Schema hash
-
-`templane_core.hash.schema_hash(schema)` returns a deterministic SHA-256 hex
-digest of a schema's canonical JSON form. Useful for cache invalidation
-and schema version tracking:
+### `templane_core` — the protocol primitives
 
 ```python
+from templane_core.schema_parser import parse, load_from_path
+from templane_core.type_checker import check
+from templane_core.ir_generator import generate
+from templane_core.breaking_change import detect
 from templane_core.hash import schema_hash
 
-print(schema_hash(my_schema))
-# → a3f1e9c8b2d5... (64-char hex)
+# parse(yaml_str, schema_id) → dict with {schema, body?, body_path?, engine?, error?}
+# load_from_path(path) → same shape, with body resolved from disk when sidecar
+# check(schema, data) → list[TypeCheckError]
+# generate(ast, data, schema_id, template_id) → TIRResult
+# detect(old_schema, new_schema) → list[BreakingChange]
+# schema_hash(schema) → "sha256:..." stable across equivalent schemas
 ```
-
-Field insertion order does not affect the hash (`sort_keys=True`).
 
 ---
 
-## Running tests
+## Why Templane
+
+Templates are untyped contracts. They accept a bag of values, look up names by string, and render *something* — even when the data has a typo, a missing field, or a wrong type. The failure is silent: the render succeeds, the customer gets a broken email, and you find out four days later.
+
+Templane fixes this at the boundary. A schema next to your template declares what the template expects; the binding refuses to render when the data doesn't match. See the [main README](https://github.com/ereshzealous/Templane) for the full pitch.
+
+---
+
+## Adoption pattern
+
+**You don't migrate templates.** Your existing `.jinja` files stay as-is. You drop one `.schema.yaml` beside each one:
+
+```
+templates/
+  welcome.jinja                 ← untouched
+  welcome.schema.yaml           ← NEW
+  invoice.jinja                 ← untouched
+  invoice.schema.yaml           ← NEW
+```
+
+Your code switches from `jinja2.Environment` to `jinja_templane.TemplaneEnvironment`. That's the migration.
+
+See the [ADOPTION guide](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md) for per-engine walkthroughs.
+
+---
+
+## Examples
+
+Six worked examples under the repo's [`templane-python/examples/`](https://github.com/ereshzealous/Templane/tree/main/templane-python/examples): hello, validation errors, nested objects and lists, Jinja features (filters, `if`/`for`), breaking-change detection, and a full password-reset email demo.
+
+---
+
+## Building from source
 
 ```bash
-.venv/bin/pytest
-# 59 passed
+git clone https://github.com/ereshzealous/Templane.git
+cd Templane/templane-python
+uv sync --extra dev
+.venv/bin/pytest   # 75 tests
 ```
-
-Breakdown: models (7), schema_parser (7), type_checker (9), ir_generator (9),
-adapters (10), breaking_change (8), hash (3), jinja_templane (6).
 
 ---
 
-## Running conformance
+## Links
 
-From the repo root:
-
-```bash
-node templane-spec/templane-conform/dist/cli.js \
-  --adapters "py:python3 templane-python/conform-adapter/run.py"
-```
-
-Expected: `py: 40/40`.
-
----
+- **Repo**: https://github.com/ereshzealous/Templane
+- **Full spec (RFC 2119)**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
+- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md) — 12 Mermaid diagrams
+- **Adoption guide**: [docs/ADOPTION.md](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md)
+- **Issues**: [GitHub Issues](https://github.com/ereshzealous/Templane/issues)
 
 ## License
 
-Apache License 2.0. See [LICENSE](../LICENSE).
+Apache License 2.0
