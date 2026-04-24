@@ -126,40 +126,36 @@ Hello {{ user.name }}!
 Balance: ${{ account.balance }}
 ```
 
-**After Templane** — declare the schema inline with the template:
+**After Templane** — your Jinja file **doesn't change**. You drop a schema file beside it (this is *sidecar mode*, SPEC 1.1):
 
 ```
+# greeting.schema.templane — NEW. One file, ~15 lines.
+body: ./greeting.jinja        # ← points to your existing template
+engine: jinja
+
 user:
   type: object
   required: true
   fields:
-    name:
-      type: string
-      required: true
-    status:
-      type: enum
-      values: [active, inactive, pending]
-      required: true
+    name:   { type: string, required: true }
+    status: { type: enum, values: [active, inactive, pending], required: true }
 account:
   type: object
   required: true
   fields:
-    balance:
-      type: number
-      required: true
----
-Hello {{ user.name }}!
-{% if user.status == "active" %}Premium member.{% endif %}
-Balance: ${{ account.balance }}
+    balance: { type: number, required: true }
 ```
+
+Your existing `greeting.jinja` stays as plain Jinja2 — editable in any Jinja tool, renderable by any Jinja engine. The schema describes the data contract; it doesn't replace the template.
 
 Now bad data fails loudly, with every error collected — not just the first:
 
 ```python
-from jinja_templane.environment import TemplaneEnvironment, TemplaneTemplateError
+from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
 
 env = TemplaneEnvironment("./templates")
-template = env.get_template("greeting.templane")
+# Pass the schema file — the binding follows body: to your .jinja.
+template = env.get_template("greeting.schema.templane")
 
 try:
     template.render(user={"name": "Alice", "status": "actve"},  # typo
@@ -177,6 +173,8 @@ except TemplaneTemplateError as e:
 
 The fix happens at template-load time (in CI, at deploy time, in your editor — wherever you wire it in). Never at 2 AM when a customer complains.
 
+> **Adoption**: you don't migrate templates; you add schemas. Drop one `.schema.templane` next to your existing `.jinja` / `.hbs` / `.ftl` / `.tmpl` file and you're done. See [`docs/ADOPTION.md`](docs/ADOPTION.md) for per-engine walkthroughs.
+
 ---
 
 ## Implementations
@@ -185,13 +183,13 @@ Five reference implementations, all **40/40** on the conformance suite, each idi
 
 | Language   | Package        | Engine integration | Conformance | Tests |
 |------------|----------------|--------------------|:-----------:|:-----:|
-| Python     | [`templane-spec/templane-core`](templane-spec/) | — (reference impl) | ✓ 40/40 | 42 |
-| TypeScript | [`templane-ts`](templane-ts/) | [`handlebars-templane`](templane-ts/src/handlebars-templane.ts) (Handlebars) | ✓ 40/40 | 64 |
-| Python     | [`templane-python`](templane-python/) | [`jinja_templane`](templane-python/src/jinja_templane/) (Jinja2) | ✓ 40/40 | 59 |
-| Java       | [`templane-java`](templane-java/) | [`freemarker-templane`](templane-java/freemarker-templane/) (FreeMarker) | ✓ 40/40 | 49 |
-| Go         | [`templane-go`](templane-go/) | — (integrations pending) | ✓ 40/40 | 43 |
+| Python     | [`templane-spec/templane-core`](templane-spec/) | — (reference impl) | ✓ 40/40 | 55 |
+| TypeScript | [`templane-ts`](templane-ts/) | [`handlebars-templane`](templane-ts/src/handlebars-templane.ts) (Handlebars) | ✓ 40/40 | 81 |
+| Python     | [`templane-python`](templane-python/) | [`jinja_templane`](templane-python/src/jinja_templane/) (Jinja2) | ✓ 40/40 | 75 |
+| Java       | [`templane-java`](templane-java/) | [`freemarker-templane`](templane-java/freemarker-templane/) (FreeMarker) | ✓ 40/40 | 65 |
+| Go         | [`templane-go`](templane-go/) | — (integrations pending) | ✓ 40/40 | 56 |
 
-**Total: 5 × 40 = 200 fixture passes across 300+ unit tests.** Every implementation is proven to behave identically on every edge case the protocol specifies — by running them all through the same test harness.
+**Total: 5 × 40 = 200 fixture passes across 332 unit tests.** Every implementation is proven to behave identically on every edge case the protocol specifies — by running them all through the same test harness.
 
 ---
 
@@ -200,7 +198,7 @@ Five reference implementations, all **40/40** on the conformance suite, each idi
 ```mermaid
 flowchart TB
     subgraph hub["templane-spec (the hub)"]
-        FIX[32 fixtures<br/>JSON]
+        FIX[40 fixtures<br/>JSON]
         CLI[templane-conform CLI<br/>Node]
         REF[templane-core<br/>Python reference]
     end
@@ -293,7 +291,9 @@ Templane is not a competitor to any of these. It borrows their playbook — vers
 
 ## Documentation
 
-- **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned. RFC 2119 keywords throughout.
+- **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned (currently 1.1). RFC 2119 keywords throughout.
+- **[docs/ADOPTION.md](docs/ADOPTION.md)** — Adding Templane to an existing Jinja / Handlebars / FreeMarker / Go-template / Helm codebase. Sidecar-mode walkthrough per engine.
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Full pipeline, IR model, conformance sequence, publishing topology. 12 Mermaid diagrams.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to extend the protocol, add a language binding, or add a new template-engine integration.
 - Per-language READMEs: [spec](templane-spec/README.md), [ts](templane-ts/README.md), [py](templane-python/README.md), [java](templane-java/README.md), [go](templane-go/README.md).
 

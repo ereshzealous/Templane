@@ -58,11 +58,18 @@ exact field path — not at 2am when a customer sees a blank email.
 
 ## 2. The rendering pipeline
 
-This is the hot path. Every Templane implementation runs these six steps.
+This is the hot path. Every Templane implementation runs these steps.
+The body can arrive via one of two paths — **embedded** (inline after
+`---`) or **sidecar** (external file referenced by `body:`).
 
 ```mermaid
 flowchart TD
-    A[.templane file] --> B[Schema Parser]
+    A[.templane schema] --> B[Schema Parser]
+    B --> B1{body source?}
+    B1 -->|--- separator| C1[inline body string]
+    B1 -->|body: path| C2[external body file<br/>.jinja · .hbs · .ftl · .tmpl]
+    C1 --> J[Template body]
+    C2 --> J
     B --> C[Schema AST]
 
     D[Data JSON/YAML] --> E[Data Loader]
@@ -73,7 +80,7 @@ flowchart TD
     G -->|errors| H[/ValidationError list<br/>with field paths/]
     G -->|ok| I[IR Generator]
 
-    J[Template body] --> I
+    J --> I
     I --> K[IR tree<br/>typed, resolved]
 
     K --> L{Adapter}
@@ -88,11 +95,17 @@ flowchart TD
     style H fill:#C75B3C,color:#F4EDE0,stroke:#2B2A28
     style P fill:#4A6B52,color:#F4EDE0,stroke:#2B2A28
     style K fill:#FBF6EB,stroke:#2B2A28,color:#2B2A28
+    style C2 fill:#D9A441,color:#2B2A28,stroke:#2B2A28
 ```
 
 **Key property**: the IR is **post-check**. By the time it reaches any
 adapter, the adapter can assume every field access is valid. Adapters
 never need to handle missing-field errors.
+
+**Sidecar vs embedded**: both paths converge at the "Template body"
+node. Everything downstream is identical. This is why adding sidecar
+(SPEC 1.1) didn't touch the type checker, IR generator, or any
+adapter — the body reaches the checker the same way in both modes.
 
 ---
 
@@ -569,7 +582,8 @@ flowchart TB
 
 ## Where to go next
 
-- [`SPEC.md`](../SPEC.md) — the normative protocol spec (RFC 2119 keywords, fixture-referenced).
+- [`SPEC.md`](../SPEC.md) — the normative protocol spec (RFC 2119 keywords, fixture-referenced; now at 1.1).
+- [`ADOPTION.md`](ADOPTION.md) — adding Templane to an existing Jinja/Handlebars/FreeMarker/Go-template codebase (the sidecar-mode walkthrough).
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — adding a language binding, adding an engine integration.
 - [`examples/`](../examples/) — six progressive tiers from hello-world to Helm chart validation.
 - [`.github/workflows/README.md`](../.github/workflows/README.md) — CI and release workflow reference.
