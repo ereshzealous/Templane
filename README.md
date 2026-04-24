@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="brand/svg/mark-primary.svg" alt="Templane" width="128" height="128"/>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/svg/mark-reverse.svg">
+    <img src="brand/svg/mark-primary.svg" alt="templane" width="128" height="128"/>
+  </picture>
 </p>
 
 <h1 align="center">templane</h1>
