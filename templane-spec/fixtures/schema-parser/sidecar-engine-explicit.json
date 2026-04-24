@@ -1,0 +1,17 @@
+{
+  "fixture_id": "schema-parser/sidecar-engine-explicit",
+  "input": {
+    "id": "engine-explicit",
+    "yaml": "body: ./t.hbs\nengine: jinja\nuser:\n  type: string\n  required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "engine-explicit",
+      "fields": {
+        "user": {"name": "user", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "body_path": "./t.hbs",
+    "engine": "jinja"
+  }
+}

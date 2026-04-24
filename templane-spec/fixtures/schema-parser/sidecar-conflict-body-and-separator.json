@@ -1,0 +1,10 @@
+{
+  "fixture_id": "schema-parser/sidecar-conflict-body-and-separator",
+  "input": {
+    "id": "conflict",
+    "yaml": "body: ./a.jinja\nname:\n  type: string\n  required: true\n---\nHello\n"
+  },
+  "expected_output": {
+    "error": "cannot use both 'body:' key and '---' separator"
+  }
+}

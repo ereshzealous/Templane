@@ -21,7 +21,7 @@ compile-time type safety to templating engines. It defines:
    render.
 3. A **type checker** that validates data against schemas and produces
    structured errors.
-4. A **conformance fixture suite** (the `templane-conform` CLI + 32 fixtures) any
+4. A **conformance fixture suite** (the `templane-conform` CLI + 40 fixtures) any
    compliant implementation must pass.
 
 Any templating engine that adopts Templane gains compile-time type checking,
@@ -536,7 +536,7 @@ The following changes MUST NOT be reported as breaking:
 
 ## 9. Conform adapter protocol
 
-Implementations are validated by passing all 32 fixtures in
+Implementations are validated by passing all 40 fixtures in
 `templane-spec/fixtures/` through a subprocess shim called a **conform adapter**.
 The adapter is invoked by the `templane-conform` CLI (Node.js).
 
@@ -588,7 +588,11 @@ The CLI compares `output` to the fixture's `expected_output` using
 }
 ```
 
-There are exactly 32 fixtures: 8 per category × 4 categories.
+There are exactly 40 fixtures across 4 operational categories:
+- `schema-parser/` — 16 fixtures (8 core + 8 sidecar, SPEC 1.1)
+- `type-checker/` — 8 fixtures
+- `ir-generator/` — 8 fixtures
+- `adapters/` — 8 fixtures (4 html + 4 yaml)
 
 ---
 
@@ -596,9 +600,9 @@ There are exactly 32 fixtures: 8 per category × 4 categories.
 
 ### 10.1 Compliance criterion
 
-An implementation is **Templane 1.0 compliant** if and only if:
+An implementation is **Templane 1.1 compliant** if and only if:
 
-1. Its conform adapter reports 32/32 across all fixtures when run via
+1. Its conform adapter reports 40/40 across all fixtures when run via
    `templane-conform`.
 2. Its type-check error messages match the formats in §7.2 character-for-
    character (verified by fixture-specific expected outputs).
@@ -608,7 +612,7 @@ An implementation is **Templane 1.0 compliant** if and only if:
 ### 10.2 Current compliant implementations
 
 At the time of this specification's publication, five reference
-implementations exist and pass 32/32:
+implementations exist and pass 40/40:
 
 | Language   | Package        | Template engine integration |
 |------------|----------------|------------------------------|
@@ -636,11 +640,11 @@ Expected:
 
 ```
 Running 32 fixture(s) across 5 implementation(s)...
-  ✓ spec:   32/32
-  ✓ ts:     32/32
-  ✓ py:     32/32
-  ✓ java:   32/32
-  ✓ go:     32/32
+  ✓ spec:   40/40
+  ✓ ts:     40/40
+  ✓ py:     40/40
+  ✓ java:   40/40
+  ✓ go:     40/40
 All implementations conformant.
 ```
 

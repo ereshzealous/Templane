@@ -1,0 +1,17 @@
+{
+  "fixture_id": "schema-parser/sidecar-engine-inferred-freemarker",
+  "input": {
+    "id": "inferred-ftl",
+    "yaml": "body: ./mail.ftl\nname:\n  type: string\n  required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "inferred-ftl",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "body_path": "./mail.ftl",
+    "engine": "freemarker"
+  }
+}

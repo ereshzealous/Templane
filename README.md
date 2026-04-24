@@ -12,7 +12,7 @@
 <p align="center"><strong>Templates have been untyped for 20 years. This fixes that.</strong></p>
 
 <p align="center">
-  <a href="SPEC.md#10-conformance"><img src="https://img.shields.io/badge/conformance-5%20×%2032%2F32-brightgreen" alt="Conformance"/></a>
+  <a href="SPEC.md#10-conformance"><img src="https://img.shields.io/badge/conformance-5%20×%2040%2F40-brightgreen" alt="Conformance"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"/></a>
 </p>
 
@@ -96,7 +96,7 @@ Templane applies the identical insight to templating:
 |--------------------------|-------------------------------|------------------------|-------------------------------|------------------------|
 | Host                     | Editor                        | Editor                 | Templating engine             | Templating engine      |
 | Intelligence layer       | One custom plugin per (editor×language) | Language server (one per language) | None — teams write ad-hoc template tests | Templane implementation (one per language) |
-| Conformance              | Ad-hoc                        | LSP spec + test harness | Ad-hoc                        | 32-fixture conform suite |
+| Conformance              | Ad-hoc                        | LSP spec + test harness | Ad-hoc                        | 40-fixture conform suite |
 
 Templane doesn't replace Jinja2, Handlebars, FreeMarker, or Go templates. It sits *above* them and supplies the schema layer they never had. Any engine that adopts Templane gains compile-time type checking, structured error reporting, schema-evolution detection, and IDE tooling — with no change to the engine itself.
 
@@ -109,7 +109,7 @@ Templane is a **protocol**, not a library. The protocol defines:
 1. **A schema document format** (YAML) describing the shape of template data — fields, types, optionality, enums, nesting.
 2. **A typed intermediate representation** (TIR) — a resolved AST where every expression has a known value. Output adapters render TIR to HTML, YAML, or any other format.
 3. **Four operations** every conformant implementation provides: `parse`, `check`, `generate`, `render`.
-4. **A 32-fixture conformance suite** (`templane-conform`). Any implementation that passes 32/32 is Templane 1.0 compliant. Period.
+4. **A 40-fixture conformance suite** (`templane-conform`). Any implementation that passes 40/40 is Templane 1.1 compliant. Period.
 5. **A breaking-change detector** (`removed_field`, `required_change`, `type_change`, `enum_value_removed`) so the next backend field rename is caught before it ships, not four days after.
 
 The [full specification](SPEC.md) is versioned, uses RFC 2119 keywords, and fits in one file.
@@ -181,17 +181,17 @@ The fix happens at template-load time (in CI, at deploy time, in your editor —
 
 ## Implementations
 
-Five reference implementations, all **32/32** on the conformance suite, each idiomatic to its language:
+Five reference implementations, all **40/40** on the conformance suite, each idiomatic to its language:
 
 | Language   | Package        | Engine integration | Conformance | Tests |
 |------------|----------------|--------------------|:-----------:|:-----:|
-| Python     | [`templane-spec/templane-core`](templane-spec/) | — (reference impl) | ✓ 32/32 | 42 |
-| TypeScript | [`templane-ts`](templane-ts/) | [`handlebars-templane`](templane-ts/src/handlebars-templane.ts) (Handlebars) | ✓ 32/32 | 64 |
-| Python     | [`templane-python`](templane-python/) | [`jinja_templane`](templane-python/src/jinja_templane/) (Jinja2) | ✓ 32/32 | 59 |
-| Java       | [`templane-java`](templane-java/) | [`freemarker-templane`](templane-java/freemarker-templane/) (FreeMarker) | ✓ 32/32 | 49 |
-| Go         | [`templane-go`](templane-go/) | — (integrations pending) | ✓ 32/32 | 43 |
+| Python     | [`templane-spec/templane-core`](templane-spec/) | — (reference impl) | ✓ 40/40 | 42 |
+| TypeScript | [`templane-ts`](templane-ts/) | [`handlebars-templane`](templane-ts/src/handlebars-templane.ts) (Handlebars) | ✓ 40/40 | 64 |
+| Python     | [`templane-python`](templane-python/) | [`jinja_templane`](templane-python/src/jinja_templane/) (Jinja2) | ✓ 40/40 | 59 |
+| Java       | [`templane-java`](templane-java/) | [`freemarker-templane`](templane-java/freemarker-templane/) (FreeMarker) | ✓ 40/40 | 49 |
+| Go         | [`templane-go`](templane-go/) | — (integrations pending) | ✓ 40/40 | 43 |
 
-**Total: 5 × 32 = 160 fixture passes across 257 unit tests.** Every implementation is proven to behave identically on every edge case the protocol specifies — by running them all through the same test harness.
+**Total: 5 × 40 = 200 fixture passes across 300+ unit tests.** Every implementation is proven to behave identically on every edge case the protocol specifies — by running them all through the same test harness.
 
 ---
 
@@ -253,11 +253,11 @@ Expected:
 
 ```
 Running 32 fixture(s) across 5 implementation(s)...
-  ✓ spec:   32/32
-  ✓ ts:     32/32
-  ✓ py:     32/32
-  ✓ java:   32/32
-  ✓ go:     32/32
+  ✓ spec:   40/40
+  ✓ ts:     40/40
+  ✓ py:     40/40
+  ✓ java:   40/40
+  ✓ go:     40/40
 All implementations conformant.
 ```
 

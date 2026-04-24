@@ -90,6 +90,12 @@ func handle(fixtureID string, fixture json.RawMessage) (any, error) {
 		if r.Body != nil {
 			out["body"] = *r.Body
 		}
+		if r.BodyPath != nil {
+			out["body_path"] = *r.BodyPath
+		}
+		if r.Engine != nil {
+			out["engine"] = *r.Engine
+		}
 		return out, nil
 
 	case hasPrefix(fixtureID, "type-checker"):

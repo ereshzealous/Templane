@@ -1,0 +1,17 @@
+{
+  "fixture_id": "schema-parser/sidecar-engine-inferred-handlebars",
+  "input": {
+    "id": "inferred-hbs",
+    "yaml": "body: ./mail.hbs\nname:\n  type: string\n  required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "inferred-hbs",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "body_path": "./mail.hbs",
+    "engine": "handlebars"
+  }
+}

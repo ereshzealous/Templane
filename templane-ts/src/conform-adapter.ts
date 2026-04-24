@@ -19,7 +19,14 @@ interface Response {
 function handle(fixtureId: string, fixture: Record<string, unknown>): Response {
   try {
     if (fixtureId.startsWith('schema-parser')) {
-      return { output: schemaParse(fixture.yaml as string, (fixture.id as string) ?? 'unknown') };
+      const result = schemaParse(fixture.yaml as string, (fixture.id as string) ?? 'unknown');
+      // Normalize TS camelCase to snake_case on the wire for conformance parity.
+      if ('error' in result) return { output: result };
+      const out: Record<string, unknown> = { schema: result.schema };
+      if (result.body !== undefined) out.body = result.body;
+      if (result.bodyPath !== undefined) out.body_path = result.bodyPath;
+      if (result.engine !== undefined) out.engine = result.engine;
+      return { output: out };
     }
 
     if (fixtureId.startsWith('type-checker')) {

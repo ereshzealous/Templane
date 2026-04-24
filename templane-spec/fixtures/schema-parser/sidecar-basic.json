@@ -1,0 +1,17 @@
+{
+  "fixture_id": "schema-parser/sidecar-basic",
+  "input": {
+    "id": "sidecar-basic",
+    "yaml": "body: ./email.jinja\nname:\n  type: string\n  required: true\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "sidecar-basic",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true}
+      }
+    },
+    "body_path": "./email.jinja",
+    "engine": "jinja"
+  }
+}

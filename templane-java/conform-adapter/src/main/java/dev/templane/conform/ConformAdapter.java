@@ -59,6 +59,8 @@ public class ConformAdapter {
             } else {
                 out.set("schema", M.valueToTree(r.schema()));
                 if (r.body() != null) out.put("body", r.body());
+                if (r.bodyPath() != null) out.put("body_path", r.bodyPath());
+                if (r.engine() != null) out.put("engine", r.engine());
             }
             return out;
         }

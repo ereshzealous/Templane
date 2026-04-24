@@ -1,0 +1,10 @@
+{
+  "fixture_id": "schema-parser/sidecar-absolute-path-rejected",
+  "input": {
+    "id": "abs",
+    "yaml": "body: /etc/passwd\nname:\n  type: string\n  required: true\n"
+  },
+  "expected_output": {
+    "error": "body path must be relative and inside the schema's directory"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "fixture_id": "schema-parser/sidecar-check-only",
+  "input": {
+    "id": "check-only",
+    "yaml": "name:\n  type: string\n  required: true\nage:\n  type: number\n  required: false\n"
+  },
+  "expected_output": {
+    "schema": {
+      "id": "check-only",
+      "fields": {
+        "name": {"name": "name", "type": {"kind": "string"}, "required": true},
+        "age": {"name": "age", "type": {"kind": "number"}, "required": false}
+      }
+    }
+  }
+}
