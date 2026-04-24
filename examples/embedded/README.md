@@ -1,10 +1,13 @@
-# Embedded-mode examples
+# Legacy inline-body examples
 
-Every example in this directory is a **single `.templane` file** that
-contains schema + body separated by `---`. One file, one template,
-atomic.
+> **Status (SPEC 1.2)**: the inline-body form — schema + `---` + body
+> in a single `.templane` file — is **legacy**. Parsers still accept
+> it but new work should use a `.schema.yaml` file with a `body:`
+> reference. See [`../sidecar/`](../sidecar/) for the default form.
 
-These are complex, realistic scenarios — not toy examples.
+Every example in this directory is a single `.templane` file that
+contains schema + body separated by `---`. Kept here as reference for
+people looking at older Templane code.
 
 ## The examples
 

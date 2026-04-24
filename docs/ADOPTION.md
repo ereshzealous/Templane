@@ -4,7 +4,7 @@ You don't migrate templates. You add schemas.
 
 This is the document's one-line thesis. Every Templane-aware engine
 binding accepts your existing `.jinja`, `.hbs`, `.ftl`, `.tmpl` files
-unchanged. You drop a `.schema.templane` next to them. The binding
+unchanged. You drop a `.schema.yaml` next to them. The binding
 follows the `body:` reference and type-checks the data before the
 engine renders.
 
@@ -22,16 +22,25 @@ engine renders.
 
 ## The mental model
 
-A `.templane` file is a **schema**. It describes the shape of the data
-your template expects. There are two ways to use it:
+A **Templane schema** is a `.schema.yaml` file next to your existing
+template file. It describes the shape of the data the template expects.
+The schema has a `body:` key that points at the template file — the
+template stays in its native format (`.jinja`, `.hbs`, `.ftl`,
+`.tmpl`) and is never modified.
 
-| Mode | File layout | Use when |
-|---|---|---|
-| **Sidecar** (SPEC 1.1) | `email.schema.templane` + `email.jinja` (two files) | Adopting on an existing codebase. Templates stay in their native format. |
-| **Embedded** (SPEC 1.0) | Schema + `---` + body (one file) | Greenfield projects where one file per template is ergonomic. |
+```
+templates/
+  welcome-email.jinja            ← your existing template, untouched
+  welcome-email.schema.yaml      ← NEW: Templane schema beside it
+```
 
-Both modes type-check identically. The difference is only where the
-body lives.
+That's the whole adoption story. Keep reading for per-engine examples.
+
+> **Legacy note**: SPEC 1.0 supported an "inline body" form — schema +
+> `---` + body in a single `.templane` file. As of 1.2 this is legacy.
+> Parsers still accept it, but no new docs, examples, or tooling emit
+> it. If you have existing `.templane` files they keep working; new
+> files should be `.schema.yaml`.
 
 ---
 
@@ -53,17 +62,17 @@ You currently load them via raw `jinja2.Environment`.
 ```
 templates/
   welcome-email.jinja                    ← untouched
-  welcome-email.schema.templane          ← NEW
+  welcome-email.schema.yaml          ← NEW
   password-reset.jinja                   ← untouched
-  password-reset.schema.templane         ← NEW
+  password-reset.schema.yaml         ← NEW
   invoice.jinja                          ← untouched
-  invoice.schema.templane                ← NEW
+  invoice.schema.yaml                ← NEW
 ```
 
 The schema content:
 
 ```yaml
-# templates/welcome-email.schema.templane
+# templates/welcome-email.schema.yaml
 body: ./welcome-email.jinja              # relative to this schema file
 engine: jinja
 
@@ -90,7 +99,7 @@ html = tmpl.render(user={...}, subscription_tier="pro")
 # After
 from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
 env = TemplaneEnvironment("templates")
-tmpl = env.get_template("welcome-email.schema.templane")
+tmpl = env.get_template("welcome-email.schema.yaml")
 try:
     html = tmpl.render(user={...}, subscription_tier="pro")
 except TemplaneTemplateError as e:
@@ -109,7 +118,7 @@ Working example: [`templane-python/examples/06-sidecar/`](../templane-python/exa
 ```
 templates/
   release-notes.hbs                      ← untouched
-  release-notes.schema.templane          ← NEW
+  release-notes.schema.yaml          ← NEW
 ```
 
 **Code:**
@@ -117,7 +126,7 @@ templates/
 ```ts
 import { compileFromPath, TemplaneHandlebarsError } from 'handlebars-templane';
 
-const tmpl = await compileFromPath('templates/release-notes.schema.templane');
+const tmpl = await compileFromPath('templates/release-notes.schema.yaml');
 try {
   const output = tmpl.render({ product: 'Templane', version: 'v0.1.0', ... });
 } catch (err) {
@@ -140,7 +149,7 @@ Working example: [`templane-ts/examples/05-sidecar/`](../templane-ts/examples/05
 ```
 src/main/resources/templates/
   invoice.ftl                            ← untouched
-  invoice.schema.templane                ← NEW
+  invoice.schema.yaml                ← NEW
 ```
 
 **Code:**
@@ -150,7 +159,7 @@ import dev.templane.freemarker.*;
 
 TemplaneConfiguration cfg = new TemplaneConfiguration(
     Path.of("src/main/resources/templates"));
-TemplaneTemplate tmpl = cfg.getTemplate("invoice.schema.templane");
+TemplaneTemplate tmpl = cfg.getTemplate("invoice.schema.yaml");
 
 try {
     String output = tmpl.render(Map.of(
@@ -176,7 +185,7 @@ Working example: [`templane-java/examples/src/main/resources/06sidecar/`](../tem
 ```
 templates/
   service.tmpl                           ← untouched
-  service.schema.templane                ← NEW
+  service.schema.yaml                ← NEW
 ```
 
 **Code:**
@@ -187,7 +196,7 @@ import (
     "github.com/ereshzealous/Templane/templane-go/core"
 )
 
-r := core.LoadSchemaFromPath("templates/service.schema.templane")
+r := core.LoadSchemaFromPath("templates/service.schema.yaml")
 if r.Error != "" { log.Fatal(r.Error) }
 
 if errs := core.Check(r.Schema, data); len(errs) > 0 {
@@ -218,14 +227,14 @@ charts/web/
   templates/
     deployment.yaml                      ← existing (Go template)
     service.yaml                         ← existing (Go template)
-+ values.schema.templane                 ← ONE new file
++ values.schema.yaml                 ← ONE new file
 ```
 
 The schema file references one of the chart templates as its body and
 validates every `values-*.yaml` against it:
 
 ```yaml
-# charts/web/values.schema.templane
+# charts/web/values.schema.yaml
 body: ./templates/deployment.yaml
 engine: gotemplate
 
@@ -266,7 +275,7 @@ In CI:
 - name: Validate Helm values
   run: |
     for f in charts/web/values-*.yaml; do
-      xt check charts/web/values.schema.templane "$f" \
+      xt check charts/web/values.schema.yaml "$f" \
         || { echo "❌ $f fails schema"; exit 1; }
     done
 ```
@@ -288,12 +297,12 @@ envs/
   staging.values.yaml
   prod.values.yaml
   canary.values.yaml
-envs.schema.templane           ← ONE schema, validates all 4 files
+envs.schema.yaml           ← ONE schema, validates all 4 files
 ```
 
 ```bash
 for f in envs/*.values.yaml; do
-  xt check envs.schema.templane "$f"
+  xt check envs.schema.yaml "$f"
 done
 ```
 
@@ -308,9 +317,9 @@ You don't need a schema-per-data-file. One schema handles many.
 ```yaml
 - name: Validate template data
   run: |
-    for f in templates/*.schema.templane; do
+    for f in templates/*.schema.yaml; do
       # For each template, check the example data that ships with it
-      base="${f%.schema.templane}"
+      base="${f%.schema.yaml}"
       if [ -f "${base}.example.json" ]; then
         xt check "$f" "${base}.example.json" \
           || { echo "❌ ${base} example failed"; exit 1; }
@@ -326,7 +335,7 @@ You don't need a schema-per-data-file. One schema handles many.
   hooks:
     - id: templane-check
       name: Validate values against schema
-      entry: xt check charts/web/values.schema.templane
+      entry: xt check charts/web/values.schema.yaml
       language: system
       files: ^charts/web/values-.*\.(yaml|json)$
 ```
@@ -357,11 +366,11 @@ the chart/template/email ships.
 
 | You have | You add | Your templates |
 |---|---|---|
-| Jinja codebase | `.schema.templane` per `.jinja` | Unchanged |
-| Handlebars codebase | `.schema.templane` per `.hbs` | Unchanged |
-| FreeMarker codebase | `.schema.templane` per `.ftl` | Unchanged |
-| Go-template codebase | `.schema.templane` per `.tmpl` | Unchanged |
-| Helm chart | `values.schema.templane` | Unchanged |
+| Jinja codebase | `.schema.yaml` per `.jinja` | Unchanged |
+| Handlebars codebase | `.schema.yaml` per `.hbs` | Unchanged |
+| FreeMarker codebase | `.schema.yaml` per `.ftl` | Unchanged |
+| Go-template codebase | `.schema.yaml` per `.tmpl` | Unchanged |
+| Helm chart | `values.schema.yaml` | Unchanged |
 
 The schema describes the contract; the engine keeps rendering exactly
 as before; bad data gets rejected at the boundary instead of in

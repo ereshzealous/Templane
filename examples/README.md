@@ -2,16 +2,17 @@
 
 Three flavors of examples, grouped by purpose:
 
-## 1. By mode — complex, realistic scenarios
+## 1. By form — complex, realistic scenarios
 
-The sharpest way to pick an example: **are you looking for embedded
-mode or sidecar mode?** These dirs group complex, production-shaped
-examples by mode:
+These dirs group complex, production-shaped examples. The default
+form — `.schema.yaml` with `body:` pointing at a native template
+file — is under [`sidecar/`](sidecar/). The legacy inline-body form
+is under [`embedded/`](embedded/); kept for reference only.
 
-| Mode | Dir | What you see there |
+| Form | Dir | What you see there |
 |---|---|---|
-| **Embedded** (one file, schema + body via `---`) | [`embedded/`](embedded/) — 3 examples | Invoice with taxes and discounts, compliance audit log report, GitHub Actions workflow generator |
-| **Sidecar** (schema file + native-engine body file) | [`sidecar/`](sidecar/) — 3 examples | Multi-environment Kubernetes deployment validation, order confirmation email, feature-flag config validation |
+| **Default** — `.schema.yaml` + native body file | [`sidecar/`](sidecar/) — 3 examples | Multi-environment Kubernetes deployment validation, order confirmation email, feature-flag config validation |
+| **Legacy inline** — one `.templane` file with `---` separator | [`embedded/`](embedded/) — 3 examples | Invoice with taxes and discounts, compliance audit log report, GitHub Actions workflow generator. Kept for reference; not recommended for new work. |
 
 ## 2. Per-language examples (in each SDK's idioms)
 
@@ -24,7 +25,7 @@ If you want to see how Templane feels in a specific language, start here:
 | Java 21 (with FreeMarker) | [`templane-java/examples/`](../templane-java/examples/) — 6 examples |
 | Go (with `text/template`) | [`templane-go/examples/`](../templane-go/examples/) — 5 examples |
 
-Each dir has its own `README.md` with setup, run commands, and expected output. Examples cover: hello-world → validation errors → nested/lists → engine binding → breaking-change detection → sidecar.
+Each dir has its own `README.md` with setup, run commands, and expected output. Examples cover: hello-world → validation errors → nested/lists → engine binding → breaking-change detection → external-body schema.
 
 ## 3. Cross-cutting tutorials (language-agnostic, below)
 

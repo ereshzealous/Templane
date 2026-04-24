@@ -1,7 +1,7 @@
 // 05 — Sidecar mode: keep your .tmpl files, add a schema beside them.
 //
 // service.tmpl is plain Go text/template — editable in any Go-aware editor.
-// service.schema.templane sits next to it, declaring the data contract
+// service.schema.yaml sits next to it, declaring the data contract
 // and pointing back to the .tmpl via `body: ./service.tmpl`.
 package main
 
@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	r := core.LoadSchemaFromPath("service.schema.templane")
+	r := core.LoadSchemaFromPath("service.schema.yaml")
 	if r.Error != "" {
 		fmt.Fprintln(os.Stderr, "schema load error:", r.Error)
 		os.Exit(1)

@@ -80,11 +80,11 @@ Parse two schema versions, diff them, print the breaking changes with
 the category (`removed_field`, `required_change`, `type_change`,
 `enum_value_removed`).
 
-## 06 — Sidecar mode
+## 06 — External-body schema
 
 The adoption pattern (SPEC 1.1 §4.3). `password_reset.jinja` is a plain
 Jinja2 template — no Templane-specific syntax, editable in any Jinja
-tool. `password_reset.schema.templane` sits beside it and references the
+tool. `password_reset.schema.yaml` sits beside it and references the
 body via `body: ./password_reset.jinja`.
 
 `TemplaneEnvironment.get_template()` handles sidecar transparently — no

@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * The template body lives in invoice.ftl — plain FreeMarker, nothing
  * Templane-specific. The schema lives beside it in
- * invoice.schema.templane, referencing the body via `body: ./invoice.ftl`.
+ * invoice.schema.yaml, referencing the body via `body: ./invoice.ftl`.
  *
  * This is the adoption pattern: an existing FreeMarker codebase keeps its
  * .ftl files unchanged, drops a schema file next to each one, and gains
@@ -24,7 +24,7 @@ public class SidecarInvoice {
     public static void main(String[] args) {
         Path dir = Path.of("src/main/resources/06sidecar");
         TemplaneConfiguration cfg = new TemplaneConfiguration(dir);
-        TemplaneTemplate tmpl = cfg.getTemplate("invoice.schema.templane");
+        TemplaneTemplate tmpl = cfg.getTemplate("invoice.schema.yaml");
 
         Map<String, Object> goodData = Map.of(
             "invoice_number", "INV-2026-0042",

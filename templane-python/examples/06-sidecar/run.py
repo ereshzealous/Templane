@@ -2,14 +2,14 @@
 
 This is the adoption pattern. password_reset.jinja is a plain Jinja2
 template — no Templane-specific syntax, readable by any Jinja tool.
-password_reset.schema.templane sits next to it and validates the data
+password_reset.schema.yaml sits next to it and validates the data
 before Jinja ever sees it.
 """
 from pathlib import Path
 from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
 
 env = TemplaneEnvironment(Path(__file__).parent)
-tmpl = env.get_template("password_reset.schema.templane")
+tmpl = env.get_template("password_reset.schema.yaml")
 
 # --- Good data: renders cleanly ---
 print("--- Good data: renders cleanly ---")

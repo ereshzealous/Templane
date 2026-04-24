@@ -78,11 +78,11 @@ Parses v1 + v2 schemas, diffs them via
 category (`removed_field`, `required_change`, `type_change`,
 `enum_value_removed`).
 
-## 06 — Sidecar mode
+## 06 — External-body schema
 
 Demonstrates SPEC 1.1 sidecar: the template body is a plain
 FreeMarker file (`invoice.ftl`) that can be edited in any FreeMarker
-tool. Next to it sits `invoice.schema.templane`, which declares the
+tool. Next to it sits `invoice.schema.yaml`, which declares the
 data contract and references the body via `body: ./invoice.ftl`.
 
 This is the **adoption pattern**. An existing FreeMarker codebase

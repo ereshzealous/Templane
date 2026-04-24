@@ -32,7 +32,7 @@ catches it at CI time instead.
 
 | File                                | Role |
 |-------------------------------------|------|
-| `values.schema.templane`            | Sidecar schema. References the template body + validates every `values-*.yaml`. |
+| `values.schema.yaml`            | Sidecar schema. References the template body + validates every `values-*.yaml`. |
 | `deployment.yaml.tmpl`              | Plain Go template — the chart's deployment body. Untouched by Templane. |
 | `values-prod.json`                  | Production values — passes validation |
 | `values-misconfigured.json`         | Real-world-ish broken values — fails validation with 5 errors |
@@ -77,7 +77,7 @@ Real-world patterns this catches:
 
 ```bash
 node templane-ts/dist/xt.js check \
-  examples/06-helm-chart-validation/values.schema.templane \
+  examples/06-helm-chart-validation/values.schema.yaml \
   examples/06-helm-chart-validation/values-prod.json
 ```
 
@@ -92,7 +92,7 @@ Exit code 0. Safe to pass to `helm install`.
 
 ```bash
 node templane-ts/dist/xt.js check \
-  examples/06-helm-chart-validation/values.schema.templane \
+  examples/06-helm-chart-validation/values.schema.yaml \
   examples/06-helm-chart-validation/values-misconfigured.json
 ```
 
@@ -121,7 +121,7 @@ charts/
     values.yaml                ← existing, untouched
     values-staging.yaml        ← existing, untouched
     values-prod.yaml           ← existing, untouched
-+   values.schema.templane     ← the only new file; validates all 3 values files
++   values.schema.yaml     ← the only new file; validates all 3 values files
 ```
 
 No one rewrites `deployment.yaml`. No one moves files. The CI gate is one
@@ -131,7 +131,7 @@ line:
 - name: Validate Helm values
   run: |
     for f in charts/web/values-*.yaml; do
-      xt check charts/web/values.schema.templane "$f" \
+      xt check charts/web/values.schema.yaml "$f" \
         || { echo "❌ $f fails schema"; exit 1; }
     done
 ```

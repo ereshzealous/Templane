@@ -126,10 +126,10 @@ Hello {{ user.name }}!
 Balance: ${{ account.balance }}
 ```
 
-**After Templane** — your Jinja file **doesn't change**. You drop a schema file beside it (this is *sidecar mode*, SPEC 1.1):
+**After Templane** — your Jinja file **doesn't change**. You drop a **Templane schema** (`.schema.yaml`) beside it:
 
 ```
-# greeting.schema.templane — NEW. One file, ~15 lines.
+# greeting.schema.yaml — NEW. One file, ~15 lines.
 body: ./greeting.jinja        # ← points to your existing template
 engine: jinja
 
@@ -155,7 +155,7 @@ from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
 
 env = TemplaneEnvironment("./templates")
 # Pass the schema file — the binding follows body: to your .jinja.
-template = env.get_template("greeting.schema.templane")
+template = env.get_template("greeting.schema.yaml")
 
 try:
     template.render(user={"name": "Alice", "status": "actve"},  # typo
@@ -173,7 +173,7 @@ except TemplaneTemplateError as e:
 
 The fix happens at template-load time (in CI, at deploy time, in your editor — wherever you wire it in). Never at 2 AM when a customer complains.
 
-> **Adoption**: you don't migrate templates; you add schemas. Drop one `.schema.templane` next to your existing `.jinja` / `.hbs` / `.ftl` / `.tmpl` file and you're done. See [`docs/ADOPTION.md`](docs/ADOPTION.md) for per-engine walkthroughs.
+> **Adoption**: you don't migrate templates; you add schemas. Drop one `.schema.yaml` next to your existing `.jinja` / `.hbs` / `.ftl` / `.tmpl` file and you're done. See [`docs/ADOPTION.md`](docs/ADOPTION.md) for per-engine walkthroughs.
 
 ---
 
@@ -293,7 +293,7 @@ Templane is not a competitor to any of these. It borrows their playbook — vers
 
 - 🚀 **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** — **Start here**. Zero-to-running walkthrough: prerequisites, bootstrap, tests, conformance matrix, and a tour of Core / CLI / Python / Java / TypeScript / Go.
 - **[SPEC.md](SPEC.md)** — Normative protocol specification (type system, wire format, operations, conformance). Versioned (currently 1.1). RFC 2119 keywords throughout.
-- **[docs/ADOPTION.md](docs/ADOPTION.md)** — Adding Templane to an existing Jinja / Handlebars / FreeMarker / Go-template / Helm codebase. Sidecar-mode walkthrough per engine.
+- **[docs/ADOPTION.md](docs/ADOPTION.md)** — Adding Templane to an existing Jinja / Handlebars / FreeMarker / Go-template / Helm codebase. Per-engine walkthroughs; `.schema.yaml` examples throughout.
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Full pipeline, IR model, conformance sequence, publishing topology. 12 Mermaid diagrams.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to extend the protocol, add a language binding, or add a new template-engine integration.
 - Per-language READMEs: [spec](templane-spec/README.md), [ts](templane-ts/README.md), [py](templane-python/README.md), [java](templane-java/README.md), [go](templane-go/README.md).

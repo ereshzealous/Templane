@@ -1,14 +1,28 @@
 # Templane — Templane Protocol
 
-**Specification version:** 1.1
+**Specification version:** 1.2
 **Status:** Stable
 **Last updated:** 2026-04-24
 
-**Changes in 1.1:** Adds §4.3 Sidecar mode — schemas MAY reference an
-external body file via the reserved top-level `body:` key instead of
-inlining the body after `---`. Adds the reserved `engine:` key for
-declaring the template engine explicitly. Backward-compatible: every
-1.0 schema is a valid 1.1 schema.
+**Changes in 1.2:**
+- Adds §4.4 File extensions — **`.schema.yaml`** is the RECOMMENDED
+  extension for all new Templane schemas. A Templane schema is pure
+  YAML; no custom extension is required. `.templane` is accepted for
+  legacy files (including inline-body files; see below).
+- §4.2 (inline body via `---` separator, formerly "embedded mode") is
+  now **legacy**. New work SHOULD NOT use it. The parser MUST continue
+  to support it. Files using inline-body SHOULD keep the `.templane`
+  extension because the content is not valid-as-YAML.
+- Drops "sidecar mode" as a first-class named concept. The `body:`
+  key — introduced in 1.1 — is now the default, unnamed way a schema
+  references a template body. Documents refer to it simply as "a
+  Templane schema."
+
+**Changes in 1.1 (historical):** added §4.3 defining the `body:` and
+`engine:` reserved top-level keys.
+
+Every 1.0 and 1.1 schema is a valid 1.2 schema. No code changes
+required of existing implementations.
 
 ## Abstract
 
@@ -195,7 +209,10 @@ address:
 - Any YAML parse error MUST be returned as a result error, never as an
   exception.
 
-### 4.2 Template body separator (embedded mode)
+### 4.2 Inline template body (legacy, §1.0-era)
+
+> **Status:** legacy as of 1.2. New work SHOULD NOT use this form. The
+> parser MUST continue to accept it.
 
 A Templane schema document MAY include a template body after the separator
 `"\n---\n"`. The schema parser MUST emit both the parsed schema AND the
@@ -211,11 +228,15 @@ Hello {{ name }}!
 
 The body's template syntax is defined by the consuming engine, not by Templane.
 
-### 4.3 Sidecar mode
+Because the content after `---` is not valid YAML (it's engine-native
+template syntax), files using this form SHOULD use the `.templane`
+extension and MUST NOT use `.yaml` or `.schema.yaml`.
 
-A Templane schema document MAY instead reference an **external** body file
-via the reserved top-level key `body`, leaving the template content in its
-native format (`.jinja`, `.hbs`, `.ftl`, `.tmpl`, `.md`, etc.) untouched:
+### 4.3 External body reference (recommended — the default)
+
+A Templane schema references an **external** body file via the reserved
+top-level key `body`, leaving the template content in its native format
+(`.jinja`, `.hbs`, `.ftl`, `.tmpl`, `.md`, etc.) untouched:
 
 ```yaml
 body: ./email.jinja
@@ -279,11 +300,27 @@ files against a schema without producing output. The parser MUST emit
 the schema with a `null` / absent body.
 
 **Wire format changes (§5.1):** the wire format's TypedSchema gains two
-optional keys: `body_path` (the resolved relative path, if sidecar) and
-`engine` (the declared or inferred engine, if known). The conform adapter
-protocol continues to ship `{schema, body}` with `body` already resolved
-to its string contents — implementations are not expected to do file I/O
-across the wire.
+optional keys: `body_path` (the resolved relative path, if the schema
+uses external-body reference) and `engine` (the declared or inferred
+engine, if known). The conform adapter protocol continues to ship
+`{schema, body}` with `body` already resolved to its string contents —
+implementations are not expected to do file I/O across the wire.
+
+### 4.4 File extensions (normative, 1.2)
+
+| Extension | Use | Rationale |
+|---|---|---|
+| `.schema.yaml` | **Recommended** for all new Templane schemas. | The file is pure YAML; the `.schema.*` convention matches JSON Schema's `.schema.json`. No custom editor association needed. |
+| `.yaml` | Acceptable. | Also pure YAML. Slightly worse for greppability (collides with unrelated YAML). |
+| `.templane` | **Accepted only for legacy inline-body files** (§4.2). | The content is not valid YAML, so a custom extension is necessary. |
+
+Implementations MUST NOT reject a schema based on file extension. The
+parser dispatches on content (presence of `body:` key vs `\n---\n`
+separator), never on filename.
+
+Tools emitting example or template schemas for new projects SHOULD use
+`.schema.yaml`. Tools documenting the legacy inline-body form MAY use
+`.templane` but SHOULD note that it is legacy.
 
 ---
 
@@ -600,7 +637,7 @@ There are exactly 40 fixtures across 4 operational categories:
 
 ### 10.1 Compliance criterion
 
-An implementation is **Templane 1.1 compliant** if and only if:
+An implementation is **Templane 1.2 compliant** if and only if:
 
 1. Its conform adapter reports 40/40 across all fixtures when run via
    `templane-conform`.

@@ -86,12 +86,12 @@ Categories: `removed_field`, `required_change`, `type_change`,
 `enum_value_removed`. Safe changes (new optional fields, enum additions)
 are not reported.
 
-## 05 — Sidecar mode
+## 05 — External-body schema
 
 The adoption pattern (SPEC 1.1 §4.3). `service.tmpl` is a plain Go
 `text/template` — in this case a systemd unit file generator. Editable
 in any Go-aware editor with stdlib syntax highlighting. The schema next
-to it (`service.schema.templane`) declares the data contract and
+to it (`service.schema.yaml`) declares the data contract and
 references the body via `body: ./service.tmpl`.
 
 Uses `core.LoadSchemaFromPath()`, which reads the schema file and

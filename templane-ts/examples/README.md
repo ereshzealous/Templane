@@ -74,11 +74,11 @@ renders a notification email. Shows that Handlebars' full helper system
 is available — the type check only governs what data shape the
 template will accept.
 
-## 05 — Sidecar mode
+## 05 — External-body schema
 
 The adoption pattern (SPEC 1.1 §4.3). `release-notes.hbs` is a plain
 Handlebars template — Vim/VSCode/Sublime all syntax-highlight it today,
-no extension needed. `release-notes.schema.templane` sits beside it and
+no extension needed. `release-notes.schema.yaml` sits beside it and
 references the body via `body: ./release-notes.hbs`.
 
 Uses the new `compileFromPath()` async API. Run the example to see a

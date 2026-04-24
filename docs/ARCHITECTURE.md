@@ -59,8 +59,9 @@ exact field path — not at 2am when a customer sees a blank email.
 ## 2. The rendering pipeline
 
 This is the hot path. Every Templane implementation runs these steps.
-The body can arrive via one of two paths — **embedded** (inline after
-`---`) or **sidecar** (external file referenced by `body:`).
+The body can arrive via one of two paths — the default **external-body
+reference** (`body:` key → native template file) or the legacy **inline
+body** (`---` separator; 1.0-era, still parsed).
 
 ```mermaid
 flowchart TD
@@ -102,10 +103,11 @@ flowchart TD
 adapter, the adapter can assume every field access is valid. Adapters
 never need to handle missing-field errors.
 
-**Sidecar vs embedded**: both paths converge at the "Template body"
-node. Everything downstream is identical. This is why adding sidecar
-(SPEC 1.1) didn't touch the type checker, IR generator, or any
-adapter — the body reaches the checker the same way in both modes.
+**Default vs legacy**: both paths converge at the "Template body"
+node. Everything downstream is identical. This is why introducing
+external-body references in SPEC 1.1 didn't touch the type checker,
+IR generator, or any adapter — the body reaches the checker the same
+way in both forms.
 
 ---
 
@@ -583,7 +585,7 @@ flowchart TB
 ## Where to go next
 
 - [`SPEC.md`](../SPEC.md) — the normative protocol spec (RFC 2119 keywords, fixture-referenced; now at 1.1).
-- [`ADOPTION.md`](ADOPTION.md) — adding Templane to an existing Jinja/Handlebars/FreeMarker/Go-template codebase (the sidecar-mode walkthrough).
+- [`ADOPTION.md`](ADOPTION.md) — adding Templane to an existing Jinja/Handlebars/FreeMarker/Go-template codebase (per-engine walkthroughs).
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — adding a language binding, adding an engine integration.
 - [`examples/`](../examples/) — six progressive tiers from hello-world to Helm chart validation.
 - [`.github/workflows/README.md`](../.github/workflows/README.md) — CI and release workflow reference.

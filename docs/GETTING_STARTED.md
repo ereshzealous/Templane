@@ -235,7 +235,7 @@ for d in examples/*/; do
 done
 ```
 
-Covers: hello, validation errors, nested/lists, Jinja binding, breaking-change detection, sidecar mode.
+Covers: hello, validation errors, nested/lists, Jinja binding, breaking-change detection, external-body schema.
 
 ### TypeScript examples (5)
 
@@ -247,7 +247,7 @@ for d in examples/*/; do
 done
 ```
 
-Covers: hello, validation errors, nested/lists, Handlebars binding, sidecar mode.
+Covers: hello, validation errors, nested/lists, Handlebars binding, external-body schema.
 
 ### Java examples (6)
 
@@ -259,7 +259,7 @@ for cls in Hello ValidationErrors NestedAndLists FreemarkerBinding BreakingChang
 done
 ```
 
-Covers: hello, validation errors, nested/lists, FreeMarker binding, breaking-change detection, sidecar mode.
+Covers: hello, validation errors, nested/lists, FreeMarker binding, breaking-change detection, external-body schema.
 
 ### Go examples (5)
 
@@ -271,7 +271,7 @@ for d in examples/*/; do
 done
 ```
 
-Covers: hello, validation errors, nested/lists, breaking-change detection, sidecar mode.
+Covers: hello, validation errors, nested/lists, breaking-change detection, external-body schema.
 
 ### Root examples (6)
 
@@ -297,7 +297,7 @@ Each example dir has its own README with exact commands.
 
 - **Specification** (`SPEC.md`): 700 lines, RFC 2119 keywords, defines type system, wire format, operations, error codes, conformance criteria.
 - **Reference implementation** (`templane-spec/templane-core/`): Python implementation of the spec. Simple, readable, correct. Not meant for production — meant to settle arguments about what the spec means.
-- **Fixtures** (`templane-spec/fixtures/`): 40 JSON files covering schema parsing, type checking, IR generation, adapter rendering, and sidecar mode. Each is `{fixture_id, input, expected_output}`.
+- **Fixtures** (`templane-spec/fixtures/`): 40 JSON files covering schema parsing, type checking, IR generation, and adapter rendering. Each is `{fixture_id, input, expected_output}`.
 
 All other implementations are measured by whether their conform-adapter emits the same output as `expected_output` for each fixture.
 
@@ -314,7 +314,7 @@ Primary public API:
 from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
 
 env = TemplaneEnvironment("./templates")
-tmpl = env.get_template("welcome.schema.templane")
+tmpl = env.get_template("welcome.schema.yaml")
 html = tmpl.render(user={...}, subscription="pro")
 ```
 
@@ -338,7 +338,7 @@ Primary public API:
 import dev.templane.freemarker.*;
 
 TemplaneConfiguration cfg = new TemplaneConfiguration(Path.of("templates"));
-TemplaneTemplate tmpl = cfg.getTemplate("invoice.schema.templane");
+TemplaneTemplate tmpl = cfg.getTemplate("invoice.schema.yaml");
 String output = tmpl.render(Map.of("invoice_number", "INV-0042", ...));
 ```
 
@@ -359,8 +359,8 @@ import { compile, compileFromPath, TemplaneHandlebarsError } from 'handlebars-te
 // Embedded-mode compile from a string
 const tmpl = compile(source, 'greeting');
 
-// Sidecar-mode load from a file path
-const tmpl2 = await compileFromPath('templates/welcome.schema.templane');
+// Load from a file path (follows body: → external body file)
+const tmpl2 = await compileFromPath('templates/welcome.schema.yaml');
 const html = tmpl2.render({ user: {...}, subscription: 'pro' });
 ```
 
@@ -388,7 +388,7 @@ import (
     "github.com/ereshzealous/Templane/templane-go/core"
 )
 
-r := core.LoadSchemaFromPath("templates/service.schema.templane")
+r := core.LoadSchemaFromPath("templates/service.schema.yaml")
 if r.Error != "" { log.Fatal(r.Error) }
 if errs := core.Check(r.Schema, data); len(errs) > 0 { /* refuse */ }
 tmpl := template.Must(template.New("svc").Parse(*r.Body))
@@ -436,7 +436,7 @@ xt check <template.templane> <data.json>
   Use in CI / pre-commit hooks.
 
 xt test <templates-dir>
-  Compile every *.schema.templane under the dir. If there's an adjacent
+  Compile every *.schema.yaml under the dir. If there's an adjacent
   <name>.example.json, also render it as a smoke test. Reports ✓/✗.
 
 xt dev <template.templane> <data.json>
@@ -444,12 +444,13 @@ xt dev <template.templane> <data.json>
   on an email or invoice layout.
 
 xt build <templates-dir> --out <file>
-  Precompile every *.schema.templane into a single CommonJS module
+  Precompile every *.schema.yaml into a single CommonJS module
   exporting {name: renderFn}. For production deployments.
 ```
 
-Both CLIs support `.templane` files in embedded mode (`---` separator)
-AND sidecar mode (`body:` reference).
+Both CLIs support the recommended `.schema.yaml` form with a `body:`
+reference, and still parse legacy `.templane` files that inline the
+body after `---`.
 
 ---
 
@@ -460,17 +461,18 @@ AND sidecar mode (`body:` reference).
 Read [`docs/ADOPTION.md`](ADOPTION.md). The short version:
 
 - You don't migrate templates.
-- You add one `.schema.templane` file beside each existing `.jinja` / `.hbs` / `.ftl` / `.tmpl`.
+- You add one `.schema.yaml` file beside each existing `.jinja` / `.hbs` / `.ftl` / `.tmpl`.
 - The schema declares your data contract.
-- Your binding's existing API (`env.get_template`, `compileFromPath`, `cfg.getTemplate`, `core.LoadSchemaFromPath`) handles sidecar transparently.
+- Your binding's existing API (`env.get_template`, `compileFromPath`, `cfg.getTemplate`, `core.LoadSchemaFromPath`) follows the `body:` reference transparently.
 
-### I'm starting from scratch. Embedded or sidecar?
+### I'm starting from scratch. Which form?
 
-**Embedded** (one file) is ergonomic for a single-template project. Just put `---` between schema and body.
+**Default: `.schema.yaml` with `body:` pointing at a native template
+file** (Jinja / Handlebars / FreeMarker / text/template). Works across
+every binding. Editor-friendly. Scales from 1 template to 100.
 
-**Sidecar** (two files) scales better — your IDE, git tooling, and editor plugins already know what `.jinja` and `.hbs` files are.
-
-Both pass the same 40 fixtures. Pick whichever suits the project size.
+The legacy inline form (`.templane` with `---`) still parses but
+shouldn't be used for new work.
 
 ### I want to add Templane to a new language
 
@@ -478,7 +480,7 @@ Read [`CONTRIBUTING.md`](../CONTRIBUTING.md) and mirror one of the
 existing implementations. The checklist:
 
 1. Implement the 4 operations: `parse`, `check`, `generate`, `render`.
-2. Handle both embedded and sidecar parsing (SPEC §4.2 + §4.3).
+2. Handle both the default external-body form AND the legacy inline-body form (SPEC §4.2 + §4.3).
 3. Ship a `conform-adapter` that speaks line-delimited JSON per SPEC §9.
 4. Run `templane-conform --adapters <your-adapter>` and reach 40/40.
 5. Add it to the cross-impl matrix in CI.

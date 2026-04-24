@@ -1,14 +1,14 @@
 // 05 — Sidecar mode: keep your .hbs files, add a schema beside them.
 //
 // release-notes.hbs is plain Handlebars — no Templane syntax. The schema
-// next to it (release-notes.schema.templane) declares the data contract
+// next to it (release-notes.schema.yaml) declares the data contract
 // and points back to the .hbs via `body: ./release-notes.hbs`.
 import { join } from 'node:path';
 import { compileFromPath, TemplaneHandlebarsError } from '../../dist/handlebars-templane';
 
 async function main() {
   const tmpl = await compileFromPath(
-    join(__dirname, 'release-notes.schema.templane'),
+    join(__dirname, 'release-notes.schema.yaml'),
   );
 
   // --- Good data: renders cleanly ---
