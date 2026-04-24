@@ -67,7 +67,7 @@ to build and test a single language.
 | Gradle | (uses wrapper — don't install system Gradle) | Comes with the repo |
 | Go | 1.22+ (1.26 works) | `brew install go` |
 
-**Important**: templane-java uses Gradle 8.5 via `./gradlew`. **Don't use system `gradle`** — Shadow plugin 8.1.1 is incompatible with Gradle 9+.
+**Important**: templane-java uses the bundled Gradle wrapper (currently 8.11.1). **Don't use system `gradle`** — the repo is tested against `./gradlew`, and Gradle 9+ may still require separate validation with the Shadow-based conform-adapter build.
 
 ---
 
@@ -120,7 +120,7 @@ npm run build
 cd templane-java
 ./gradlew build
 # → Compiles every Gradle subproject + runs its tests
-# First run downloads Gradle 8.5 + dependencies (~5 min)
+# First run downloads Gradle 8.11.1 + dependencies (~5 min)
 # Subsequent runs cached in ~1 min
 ```
 

@@ -319,7 +319,7 @@ cd Templane/templane-java
 ./gradlew test         # 65 tests
 ```
 
-**Note**: use `./gradlew` (bundled Gradle 8.5). Do NOT use system `gradle` 9+ — the Shadow plugin used by `conform-adapter` is incompatible.
+**Note**: use `./gradlew` (bundled Gradle 8.11.1). Do not assume system `gradle` is interchangeable; the repository is validated against the bundled wrapper, and Gradle 9+ should be treated as a separate compatibility check.
 
 ---
 
