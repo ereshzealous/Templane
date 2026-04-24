@@ -1,8 +1,14 @@
 # Templane — Templane Protocol
 
-**Specification version:** 1.0
+**Specification version:** 1.1
 **Status:** Stable
 **Last updated:** 2026-04-24
+
+**Changes in 1.1:** Adds §4.3 Sidecar mode — schemas MAY reference an
+external body file via the reserved top-level `body:` key instead of
+inlining the body after `---`. Adds the reserved `engine:` key for
+declaring the template engine explicitly. Backward-compatible: every
+1.0 schema is a valid 1.1 schema.
 
 ## Abstract
 
@@ -189,7 +195,7 @@ address:
 - Any YAML parse error MUST be returned as a result error, never as an
   exception.
 
-### 4.2 Template body separator
+### 4.2 Template body separator (embedded mode)
 
 A Templane schema document MAY include a template body after the separator
 `"\n---\n"`. The schema parser MUST emit both the parsed schema AND the
@@ -204,6 +210,80 @@ Hello {{ name }}!
 ```
 
 The body's template syntax is defined by the consuming engine, not by Templane.
+
+### 4.3 Sidecar mode
+
+A Templane schema document MAY instead reference an **external** body file
+via the reserved top-level key `body`, leaving the template content in its
+native format (`.jinja`, `.hbs`, `.ftl`, `.tmpl`, `.md`, etc.) untouched:
+
+```yaml
+body: ./email.jinja
+engine: jinja
+user:
+  type: object
+  required: true
+  fields:
+    name: { type: string, required: true }
+```
+
+**Reserved top-level keys** (1.1):
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `body` | string | no | Relative path to an external body file. |
+| `engine` | enum | no | One of `jinja`, `handlebars`, `freemarker`, `gotemplate`, `markdown`, `html-raw`, `yaml-raw`. |
+
+When either key is present at the top of the YAML mapping, the schema parser
+MUST NOT treat it as a field definition. All other top-level keys remain
+field definitions as in §4.1.
+
+**Body path resolution (normative):**
+
+- `body` MUST be a **relative** path. Absolute paths (starting with `/`)
+  and paths containing `..` that escape the schema's directory MUST cause
+  the parser to return a result error: `"body path must be relative and
+  inside the schema's directory"`.
+- Resolution is relative to the directory of the schema file being parsed.
+- If the resolved path does not exist at load time, the parser MUST return
+  a result error: `"body file not found: <resolved-path>"`.
+- The parser MUST reject schemas that contain BOTH a `body:` key AND a
+  `"\n---\n"` separator, returning the error: `"cannot use both 'body:'
+  key and '---' separator"`.
+
+**Engine inference (normative):**
+
+If `engine:` is absent and `body:` is present, implementations MAY infer
+the engine from the body file extension using this mapping:
+
+| Extension | Inferred engine |
+|---|---|
+| `.jinja`, `.jinja2`, `.j2` | `jinja` |
+| `.hbs`, `.handlebars` | `handlebars` |
+| `.ftl`, `.ftlh` | `freemarker` |
+| `.tmpl`, `.gotmpl` | `gotemplate` |
+| `.md`, `.markdown` | `markdown` |
+| `.html`, `.htm` | `html-raw` |
+| `.yaml`, `.yml` | `yaml-raw` |
+
+If the extension is unknown or missing, `engine:` MUST be set explicitly.
+
+If both `engine:` and an inferrable extension are present and they
+disagree, the explicit `engine:` value wins; no warning is required.
+
+**Check-only mode:**
+
+A schema with neither `body:` key nor `---` separator is a **check-only**
+schema — valid, parseable, renders nothing. It exists to validate data
+files against a schema without producing output. The parser MUST emit
+the schema with a `null` / absent body.
+
+**Wire format changes (§5.1):** the wire format's TypedSchema gains two
+optional keys: `body_path` (the resolved relative path, if sidecar) and
+`engine` (the declared or inferred engine, if known). The conform adapter
+protocol continues to ship `{schema, body}` with `body` already resolved
+to its string contents — implementations are not expected to do file I/O
+across the wire.
 
 ---
 
