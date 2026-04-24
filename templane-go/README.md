@@ -24,10 +24,12 @@ go test ./...
 
 Or use as a Go module:
 
+```bash
+go get github.com/ereshzealous/Templane/templane-go@latest
+```
+
 ```go
-import "templane-go/core"
-// (Once published to GitHub, the import path will be
-//  github.com/<org>/templane-go/core.)
+import "github.com/ereshzealous/Templane/templane-go/core"
 ```
 
 ---
@@ -36,10 +38,10 @@ import "templane-go/core"
 
 | Package                 | Purpose                                              |
 |-------------------------|------------------------------------------------------|
-| `templane-go/core`           | Models + SchemaParser + TypeChecker + IRGenerator + BreakingChangeDetector |
-| `templane-go/htmladapter`    | HTML rendering (with entity escaping)                |
-| `templane-go/yamladapter`    | YAML rendering (no escaping)                         |
-| `templane-go/cmd/conform-adapter` | Binary for templane-conform testing                  |
+| `github.com/ereshzealous/Templane/templane-go/core`           | Models + SchemaParser + TypeChecker + IRGenerator + BreakingChangeDetector |
+| `github.com/ereshzealous/Templane/templane-go/htmladapter`    | HTML rendering (with entity escaping)                |
+| `github.com/ereshzealous/Templane/templane-go/yamladapter`    | YAML rendering (no escaping)                         |
+| `github.com/ereshzealous/Templane/templane-go/cmd/conform-adapter` | Binary for templane-conform testing                  |
 
 ---
 
@@ -52,7 +54,7 @@ package main
 
 import (
     "fmt"
-    "templane-go/core"
+    "github.com/ereshzealous/Templane/templane-go/core"
 )
 
 func main() {
@@ -86,8 +88,8 @@ age:
 
 ```go
 import (
-    "templane-go/core"
-    "templane-go/htmladapter"
+    "github.com/ereshzealous/Templane/templane-go/core"
+    "github.com/ereshzealous/Templane/templane-go/htmladapter"
 )
 
 ast := []core.ASTNode{
@@ -107,7 +109,7 @@ fmt.Println(htmladapter.Render(tir))
 ## Schema evolution
 
 ```go
-import "templane-go/core"
+import "github.com/ereshzealous/Templane/templane-go/core"
 
 changes := core.DetectBreakingChanges(oldSchema, newSchema)
 for _, c := range changes {

@@ -1,4 +1,4 @@
-module templane-go
+module github.com/ereshzealous/Templane/templane-go
 
 go 1.26.2
 

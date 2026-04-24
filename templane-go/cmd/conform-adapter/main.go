@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"os"
 
-	"templane-go/core"
-	"templane-go/htmladapter"
-	"templane-go/yamladapter"
+	"github.com/ereshzealous/Templane/templane-go/core"
+	"github.com/ereshzealous/Templane/templane-go/htmladapter"
+	"github.com/ereshzealous/Templane/templane-go/yamladapter"
 )
 
 type request struct {

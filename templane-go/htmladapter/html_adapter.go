@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"templane-go/core"
+	"github.com/ereshzealous/Templane/templane-go/core"
 )
 
 // Render produces an HTML string from a TIR.

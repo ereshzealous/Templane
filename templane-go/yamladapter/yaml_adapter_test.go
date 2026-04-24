@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"templane-go/core"
+	"github.com/ereshzealous/Templane/templane-go/core"
 )
 
 func TestYamlBasic(t *testing.T) {
