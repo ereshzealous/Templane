@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v7
       - name: Install deps
         working-directory: templane-spec/templane-core
         run: uv sync --extra dev
@@ -76,7 +76,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v7
       - name: Install deps
         working-directory: templane-python
         run: uv sync --extra dev
@@ -139,7 +139,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
