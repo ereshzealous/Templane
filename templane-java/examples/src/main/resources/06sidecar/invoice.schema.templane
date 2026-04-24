@@ -1,0 +1,37 @@
+# Sidecar schema for invoice.ftl.
+# The .ftl file is plain FreeMarker — unchanged, readable by any FreeMarker
+# tool. This schema lives beside it and guards the data it receives.
+body: ./invoice.ftl
+engine: freemarker
+
+invoice_number:
+  type: string
+  required: true
+customer:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    email:
+      type: string
+      required: true
+line_items:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      description:
+        type: string
+        required: true
+      qty:
+        type: number
+        required: true
+      unit_price:
+        type: number
+        required: true
+total:
+  type: number
+  required: true

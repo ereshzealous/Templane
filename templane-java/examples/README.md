@@ -1,6 +1,6 @@
 # templane-java — examples
 
-Five runnable Java examples using the FreeMarker binding. This module
+Six runnable Java examples using the FreeMarker binding. This module
 is a Gradle subproject wired up under `templane-java/examples/`.
 
 ## Setup
@@ -18,9 +18,10 @@ cd templane-java
 ./gradlew :examples:runExample -Pmain=dev.templane.examples.NestedAndLists
 ./gradlew :examples:runExample -Pmain=dev.templane.examples.FreemarkerBinding
 ./gradlew :examples:runExample -Pmain=dev.templane.examples.BreakingChanges
+./gradlew :examples:runExample -Pmain=dev.templane.examples.SidecarInvoice
 ```
 
-## The five examples
+## The six examples
 
 | # | Class | Resource dir | What it shows |
 |---|-------|--------------|---------------|
@@ -29,6 +30,7 @@ cd templane-java
 | 03 | `NestedAndLists` | `03nested/` | Nested object, enum, list-of-objects |
 | 04 | `FreemarkerBinding` | `04freemarker/` | FreeMarker's `<#if>`/`<#list>` on validated data |
 | 05 | `BreakingChanges` | `05breaking/` | `BreakingChangeDetector.detect(v1, v2)` |
+| 06 | `SidecarInvoice` | `06sidecar/` | **Sidecar mode**: keep your `.ftl` files, add a schema beside them |
 
 ## 01 — Hello
 
@@ -75,3 +77,19 @@ Parses v1 + v2 schemas, diffs them via
 `dev.templane.core.BreakingChangeDetector`, prints the changes with
 category (`removed_field`, `required_change`, `type_change`,
 `enum_value_removed`).
+
+## 06 — Sidecar mode
+
+Demonstrates SPEC 1.1 sidecar: the template body is a plain
+FreeMarker file (`invoice.ftl`) that can be edited in any FreeMarker
+tool. Next to it sits `invoice.schema.templane`, which declares the
+data contract and references the body via `body: ./invoice.ftl`.
+
+This is the **adoption pattern**. An existing FreeMarker codebase
+doesn't migrate any templates — you drop schemas next to your `.ftl`
+files, and Templane type-checks the data before FreeMarker renders it.
+
+The example renders with good data, then trips three type errors with
+bad data (missing nested field, two type mismatches) — showing that
+the type check fires at the sidecar boundary exactly like embedded
+mode.
