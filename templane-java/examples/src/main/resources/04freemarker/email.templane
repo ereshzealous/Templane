@@ -1,0 +1,35 @@
+user:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    is_new:
+      type: boolean
+      required: true
+unread_count:
+  type: number
+  required: true
+notifications:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      kind:
+        type: enum
+        values: [mention, reply, follow]
+        required: true
+      source:
+        type: string
+        required: true
+---
+Subject: You have ${unread_count} new notification(s)
+
+Hi ${user.name},
+
+<#if user.is_new>Welcome to your first week! Here's what's waiting:<#else>Here's your latest activity:</#if>
+
+<#list notifications as n>  <#if n.kind == "mention">@${n.source} mentioned you</#if><#if n.kind == "reply">${n.source} replied to your post</#if><#if n.kind == "follow">${n.source} started following you</#if>
+</#list>

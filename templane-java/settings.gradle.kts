@@ -6,4 +6,5 @@ include(
     "templane-adapter-yaml",
     "freemarker-templane",
     "conform-adapter",
+    "examples",
 )

@@ -1,6 +1,25 @@
 # Templane Examples
 
-Progressive examples — each builds on the previous. Every example is runnable; every `README.md` shows the exact commands.
+Two flavors of examples, pick whichever matches how you're evaluating Templane:
+
+## Per-language examples (runnable in each SDK's idioms)
+
+If you want to see how Templane feels in a specific language, start here:
+
+| Language | Examples dir |
+|---|---|
+| Python (with Jinja2) | [`templane-python/examples/`](../templane-python/examples/) — 5 examples |
+| TypeScript (with Handlebars) | [`templane-ts/examples/`](../templane-ts/examples/) — 4 examples |
+| Java 21 (with FreeMarker) | [`templane-java/examples/`](../templane-java/examples/) — 5 examples |
+| Go (with `text/template`) | [`templane-go/examples/`](../templane-go/examples/) — 4 examples |
+
+Each dir has its own `README.md` with setup, run commands, and expected output. Examples cover: hello-world → validation errors → nested/lists → engine binding → breaking-change detection.
+
+## Cross-cutting examples (language-agnostic, below)
+
+The examples below use `templane-ts`'s `xt` CLI to walk through scenarios that aren't about any one SDK — schema evolution, cross-language parity, Helm-chart validation. They're runnable too; just require Node.js.
+
+---
 
 ## How to pick an example
 

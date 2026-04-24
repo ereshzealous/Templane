@@ -1,0 +1,16 @@
+id:
+  type: string
+  required: true
+# name removed → removed_field
+# email becomes required → required_change
+email:
+  type: string
+  required: true
+# role: age changed type + enum values narrowed
+role:
+  type: enum
+  values: [admin, editor]   # viewer removed → enum_value_removed
+  required: true
+age:
+  type: number              # new required field → required_change (for existing data)
+  required: true

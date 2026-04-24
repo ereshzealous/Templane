@@ -1,0 +1,30 @@
+customer:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    tier:
+      type: enum
+      values: [free, pro, enterprise]
+      required: true
+items:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      sku:
+        type: string
+        required: true
+      qty:
+        type: number
+        required: true
+total_cents:
+  type: number
+  required: true
+---
+Order for ${customer.name} (${customer.tier}):
+<#list items as item>  - ${item.sku} × ${item.qty}
+</#list>Total (cents): ${total_cents}

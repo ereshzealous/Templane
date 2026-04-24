@@ -1,0 +1,12 @@
+name:
+  type: string
+  required: true
+temperature_c:
+  type: number
+  required: true
+is_morning:
+  type: boolean
+  required: true
+---
+{% if is_morning %}Good morning{% else %}Hello{% endif %}, {{ name }}!
+It's {{ temperature_c }}°C outside today.

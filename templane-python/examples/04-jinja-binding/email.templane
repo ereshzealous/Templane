@@ -1,0 +1,42 @@
+user:
+  type: object
+  required: true
+  fields:
+    name:
+      type: string
+      required: true
+    signup_days_ago:
+      type: number
+      required: true
+unread_count:
+  type: number
+  required: true
+notifications:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      kind:
+        type: enum
+        values: [mention, reply, follow]
+        required: true
+      source:
+        type: string
+        required: true
+---
+Subject: You have {{ unread_count }} new notification{{ "s" if unread_count != 1 else "" }}
+
+Hi {{ user.name }},
+
+{% if user.signup_days_ago < 7 -%}
+Welcome to your first week! Here's what's waiting:
+{%- else -%}
+Here's your latest activity:
+{%- endif %}
+
+{% for n in notifications -%}
+  {% if n.kind == "mention" %}@{{ n.source }} mentioned you{% endif -%}
+  {% if n.kind == "reply" %}{{ n.source }} replied to your post{% endif -%}
+  {% if n.kind == "follow" %}{{ n.source }} started following you{% endif %}
+{% endfor %}

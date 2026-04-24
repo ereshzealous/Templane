@@ -1,0 +1,11 @@
+id:
+  type: string
+  required: true
+# name removed → removed_field
+email:
+  type: string
+  required: true            # optional → required → required_change
+role:
+  type: enum
+  values: [admin, editor]   # viewer removed → enum_value_removed
+  required: true
