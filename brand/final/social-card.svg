@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <!-- Templane — GitHub/OG social card (1280x640) -->
+  <rect width="1280" height="640" fill="#F4EDE0"/>
+
+  <!-- decorative corner stripes -->
+  <path d="M 0 0 L 80 0 L 0 80 Z" fill="#C75B3C" opacity="0.9"/>
+  <path d="M 1280 640 L 1200 640 L 1280 560 Z" fill="#4A6B52" opacity="0.9"/>
+  <path d="M 1280 0 L 1200 0 L 1280 80 Z" fill="#D9A441" opacity="0.8"/>
+
+  <!-- mark, large, left-centered -->
+  <g transform="translate(100 200) scale(0.94)">
+    <rect width="256" height="256" rx="40" fill="#FBF6EB" stroke="#2B2A28" stroke-width="3"/>
+    <path d="M 82 58
+             C 64 58, 58 72, 58 94
+             L 58 116
+             C 58 124, 52 128, 42 128
+             C 52 128, 58 132, 58 140
+             L 58 162
+             C 58 184, 64 198, 82 198"
+          fill="none" stroke="#2B2A28" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 174 58
+             C 192 58, 198 72, 198 94
+             L 198 116
+             C 198 124, 204 128, 214 128
+             C 204 128, 198 132, 198 140
+             L 198 162
+             C 198 184, 192 198, 174 198"
+          fill="none" stroke="#2B2A28" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 96 132 L 118 154 L 162 102"
+          fill="none" stroke="#4A6B52" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="172" cy="82" r="6.5" fill="#D9A441" stroke="#2B2A28" stroke-width="2.5"/>
+    <path d="M 88 218 Q 128 210, 168 218"
+          fill="none" stroke="#C75B3C" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Title -->
+  <text x="440" y="290"
+        font-family="'Iowan Old Style', 'Palatino Linotype', Georgia, 'ui-serif', serif"
+        font-size="140"
+        font-weight="600"
+        letter-spacing="-2"
+        fill="#2B2A28">Templane</text>
+
+  <!-- Tagline -->
+  <text x="446" y="350"
+        font-family="'Iowan Old Style', 'Palatino Linotype', Georgia, 'ui-serif', serif"
+        font-size="32"
+        font-style="italic"
+        fill="#6B4423">A protocol for typed template contracts,</text>
+  <text x="446" y="390"
+        font-family="'Iowan Old Style', 'Palatino Linotype', Georgia, 'ui-serif', serif"
+        font-size="32"
+        font-style="italic"
+        fill="#6B4423">conformance, and cross-engine rendering.</text>
+
+  <!-- language chips -->
+  <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="22" fill="#2B2A28">
+    <rect x="446" y="450" width="110" height="42" rx="8" fill="none" stroke="#2B2A28" stroke-width="2"/>
+    <text x="501" y="479" text-anchor="middle">Python</text>
+
+    <rect x="570" y="450" width="140" height="42" rx="8" fill="none" stroke="#2B2A28" stroke-width="2"/>
+    <text x="640" y="479" text-anchor="middle">TypeScript</text>
+
+    <rect x="724" y="450" width="80" height="42" rx="8" fill="none" stroke="#2B2A28" stroke-width="2"/>
+    <text x="764" y="479" text-anchor="middle">Java</text>
+
+    <rect x="818" y="450" width="70" height="42" rx="8" fill="none" stroke="#2B2A28" stroke-width="2"/>
+    <text x="853" y="479" text-anchor="middle">Go</text>
+  </g>
+
+  <!-- Footer proof -->
+  <text x="440" y="555"
+        font-family="ui-monospace, 'SF Mono', Menlo, monospace"
+        font-size="22"
+        fill="#4A6B52">5 × 32/32 conformance · 257 unit tests · 160 fixture checks</text>
+</svg>

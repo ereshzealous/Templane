@@ -1,9 +1,17 @@
-# Templane — Templane Protocol
+<p align="center">
+  <img src="brand/final/templane-mark.svg" alt="Templane" width="160" height="160"/>
+</p>
 
-**Templates have been untyped for 20 years. This fixes that.**
+<h1 align="center">Templane</h1>
 
-[![Conformance](https://img.shields.io/badge/conformance-5%20×%2032%2F32-brightgreen)](SPEC.md#10-conformance)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+<p align="center"><em>A protocol for typed template contracts, conformance, and cross-engine rendering.</em></p>
+
+<p align="center"><strong>Templates have been untyped for 20 years. This fixes that.</strong></p>
+
+<p align="center">
+  <a href="SPEC.md#10-conformance"><img src="https://img.shields.io/badge/conformance-5%20×%2032%2F32-brightgreen" alt="Conformance"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"/></a>
+</p>
 
 ---
 

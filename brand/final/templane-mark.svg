@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Templane — primary mark
+       Hand-drawn { ✓ } — typed template contract.
+       Palette: cream bg, charcoal braces, forest check, ochre + terracotta accents. -->
+  <rect width="256" height="256" rx="40" fill="#F4EDE0"/>
+
+  <!-- Left brace { -->
+  <path d="M 82 58
+           C 64 58, 58 72, 58 94
+           L 58 116
+           C 58 124, 52 128, 42 128
+           C 52 128, 58 132, 58 140
+           L 58 162
+           C 58 184, 64 198, 82 198"
+        fill="none" stroke="#2B2A28" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right brace } -->
+  <path d="M 174 58
+           C 192 58, 198 72, 198 94
+           L 198 116
+           C 198 124, 204 128, 214 128
+           C 204 128, 198 132, 198 140
+           L 198 162
+           C 198 184, 192 198, 174 198"
+        fill="none" stroke="#2B2A28" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- check (forest) -->
+  <path d="M 96 132 L 118 154 L 162 102"
+        fill="none" stroke="#4A6B52" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ochre dot (signature accent) -->
+  <circle cx="172" cy="82" r="6.5" fill="#D9A441" stroke="#2B2A28" stroke-width="2.5"/>
+
+  <!-- terracotta underline -->
+  <path d="M 88 218 Q 128 210, 168 218"
+        fill="none" stroke="#C75B3C" stroke-width="5" stroke-linecap="round"/>
+</svg>
