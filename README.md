@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="brand/final/templane-mark.svg" alt="Templane" width="160" height="160"/>
+  <img src="brand/svg/mark-primary.svg" alt="Templane" width="128" height="128"/>
 </p>
 
-<h1 align="center">Templane</h1>
+<h1 align="center">templane</h1>
 
 <p align="center"><em>A protocol for typed template contracts, conformance, and cross-engine rendering.</em></p>
 

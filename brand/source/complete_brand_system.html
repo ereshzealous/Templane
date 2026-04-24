@@ -1,0 +1,372 @@
+<style>
+  .br-wrap { padding: 1rem 0; display: flex; flex-direction: column; gap: 28px; }
+  .br-sec { display: flex; flex-direction: column; gap: 12px; }
+  .br-sec-head { display: flex; align-items: baseline; gap: 12px; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 8px; }
+  .br-num { font-family: 'SF Mono', Menlo, monospace; font-size: 10px; color: var(--color-text-tertiary); font-weight: 500; letter-spacing: 0.1em; }
+  .br-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.01em; }
+  .br-note { font-size: 12px; color: var(--color-text-secondary); margin-left: auto; }
+
+  .br-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; display: flex; flex-direction: column; }
+  .br-panel { display: flex; align-items: center; justify-content: center; min-height: 120px; position: relative; padding: 24px 20px; }
+  .br-label { padding: 9px 12px; background: var(--color-background-secondary); font-family: 'SF Mono', Menlo, monospace; font-size: 10px; color: var(--color-text-secondary); letter-spacing: 0.04em; text-align: center; }
+
+  .br-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .br-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  .br-wm-lt { font-family: 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; letter-spacing: -0.03em; color: #0A0A0A; line-height: 1; }
+  .br-wm-dk { font-family: 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif; font-weight: 500; letter-spacing: -0.03em; color: #FAFAF7; line-height: 1; }
+
+  .br-sizes-row { display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; padding: 32px 20px 20px; background: #F5F1E8; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); }
+  .br-size-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .br-size-lab { font-family: 'SF Mono', Menlo, monospace; font-size: 10px; color: rgba(10,10,10,0.55); }
+
+  .br-browser { border: 0.5px solid rgba(10,10,10,0.15); border-radius: 6px; background: #F5F1E8; overflow: hidden; display: flex; flex-direction: column; }
+  .br-browser-bar { background: #EAE4D4; padding: 8px 10px; display: flex; align-items: center; gap: 8px; border-bottom: 0.5px solid rgba(10,10,10,0.1); }
+  .br-browser-tab { background: #F5F1E8; border-radius: 4px 4px 0 0; padding: 5px 10px 8px; display: flex; align-items: center; gap: 5px; margin-bottom: -9px; }
+  .br-tab-title { font-family: 'SF Pro Display', system-ui, sans-serif; font-size: 10px; color: rgba(10,10,10,0.7); }
+  .br-browser-body { padding: 18px 14px; font-family: 'SF Pro Display', sans-serif; }
+
+  .br-avatar-circle { width: 84px; height: 84px; border-radius: 50%; background: #FAFAF7; display: flex; align-items: center; justify-content: center; border: 0.5px solid rgba(10,10,10,0.1); }
+  .br-avatar-square { width: 84px; height: 84px; border-radius: 18px; background: #0A0A0A; display: flex; align-items: center; justify-content: center; }
+
+  .br-badge { display: inline-flex; align-items: center; gap: 8px; background: #0A0A0A; color: #FAFAF7; padding: 7px 12px; border-radius: 5px; font-family: 'SF Mono', Menlo, monospace; font-size: 12px; }
+  .br-badge-ver { color: #4ECB8C; font-weight: 500; }
+
+  .br-hero { background: #1C1C1E; padding: 52px 32px; border-radius: var(--border-radius-md); display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .br-hero-lockup { display: flex; align-items: center; gap: 18px; }
+  .br-hero-wm { font-family: 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif; font-size: 42px; font-weight: 500; letter-spacing: -0.035em; color: #FAFAF7; line-height: 1; }
+  .br-hero-tag { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; color: rgba(250,250,247,0.55); letter-spacing: 0.04em; text-align: center; }
+</style>
+
+<div class="br-wrap">
+
+  <!-- ============= 01 LOGO FORMATS ============= -->
+  <section class="br-sec">
+    <div class="br-sec-head">
+      <span class="br-num">01</span>
+      <span class="br-name">Logo formats</span>
+      <span class="br-note">4 lockups</span>
+    </div>
+
+    <div class="br-2">
+      <div class="br-card">
+        <div class="br-panel" style="background: #F5F1E8;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+              <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+              <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="br-wm-lt" style="font-size: 28px;">templane</span>
+          </div>
+        </div>
+        <div class="br-label">primary · horizontal</div>
+      </div>
+
+      <div class="br-card">
+        <div class="br-panel" style="background: #F5F1E8;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+              <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+              <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="br-wm-lt" style="font-size: 20px;">templane</span>
+          </div>
+        </div>
+        <div class="br-label">vertical · stacked</div>
+      </div>
+
+      <div class="br-card">
+        <div class="br-panel" style="background: #F5F1E8;">
+          <svg width="72" height="72" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+            <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+            <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="br-label">mark only</div>
+      </div>
+
+      <div class="br-card">
+        <div class="br-panel" style="background: #F5F1E8;">
+          <span class="br-wm-lt" style="font-size: 34px;">templane</span>
+        </div>
+        <div class="br-label">wordmark only</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 02 COLOR VARIANTS ============= -->
+  <section class="br-sec">
+    <div class="br-sec-head">
+      <span class="br-num">02</span>
+      <span class="br-name">Color variants</span>
+      <span class="br-note">4 treatments</span>
+    </div>
+
+    <div class="br-2">
+      <div class="br-card">
+        <div class="br-panel" style="background: #FFFFFF;">
+          <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+            <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+            <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="br-label">primary · ink + emerald</div>
+      </div>
+
+      <div class="br-card">
+        <div class="br-panel" style="background: #1C1C1E;">
+          <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="36" y="28" width="6" height="44" fill="#FAFAF7"/>
+            <rect x="42" y="46" width="22" height="8" fill="#4ECB8C"/>
+            <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="br-label">reverse · for dark surfaces</div>
+      </div>
+
+      <div class="br-card">
+        <div class="br-panel" style="background: #FFFFFF;">
+          <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+            <rect x="42" y="46" width="22" height="8" fill="#0A0A0A"/>
+            <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="br-label">mono ink · print fallback</div>
+      </div>
+
+      <div class="br-card">
+        <div class="br-panel" style="background: #0F5C3A;">
+          <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="36" y="28" width="6" height="44" fill="#FAFAF7"/>
+            <rect x="42" y="46" width="22" height="8" fill="#FAFAF7"/>
+            <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="br-label">mono cream · on brand color</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 03 SIZE SCALING ============= -->
+  <section class="br-sec">
+    <div class="br-sec-head">
+      <span class="br-num">03</span>
+      <span class="br-name">Size scaling</span>
+      <span class="br-note">128 → 16px</span>
+    </div>
+
+    <div class="br-sizes-row">
+      <div class="br-size-item">
+        <svg width="128" height="128" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+          <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+          <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-size-lab">128px</span>
+      </div>
+      <div class="br-size-item">
+        <svg width="64" height="64" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+          <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+          <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-size-lab">64px</span>
+      </div>
+      <div class="br-size-item">
+        <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+          <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+          <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-size-lab">48px</span>
+      </div>
+      <div class="br-size-item">
+        <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+          <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+          <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-size-lab">32px</span>
+      </div>
+      <div class="br-size-item">
+        <svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="28" width="7" height="44" fill="#0A0A0A"/>
+          <rect x="43" y="45" width="22" height="10" fill="#0F5C3A"/>
+          <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-size-lab">24px</span>
+      </div>
+      <div class="br-size-item">
+        <svg width="16" height="16" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 22 22, 20 30, 20 38 L 20 44 C 20 48, 16 50, 12 50 C 16 50, 20 52, 20 56 L 20 62 C 20 70, 22 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="26" width="9" height="48" fill="#0A0A0A"/>
+          <rect x="45" y="43" width="25" height="14" fill="#0F5C3A"/>
+          <path d="M 72 22 C 78 22, 80 30, 80 38 L 80 44 C 80 48, 84 50, 88 50 C 84 50, 80 52, 80 56 L 80 62 C 80 70, 78 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-size-lab">16px</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 04 APPLICATIONS ============= -->
+  <section class="br-sec">
+    <div class="br-sec-head">
+      <span class="br-num">04</span>
+      <span class="br-name">Applications</span>
+      <span class="br-note">real surfaces</span>
+    </div>
+
+    <div class="br-3">
+      <!-- Favicon in browser -->
+      <div class="br-card">
+        <div class="br-panel" style="background: var(--color-background-secondary); padding: 18px;">
+          <div class="br-browser" style="width: 100%;">
+            <div class="br-browser-bar">
+              <div class="br-browser-tab">
+                <svg width="11" height="11" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M 28 22 C 22 22, 20 30, 20 38 L 20 44 C 20 48, 16 50, 12 50 C 16 50, 20 52, 20 56 L 20 62 C 20 70, 22 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="36" y="26" width="10" height="48" fill="#0A0A0A"/>
+                  <rect x="46" y="43" width="24" height="14" fill="#0F5C3A"/>
+                  <path d="M 72 22 C 78 22, 80 30, 80 38 L 80 44 C 80 48, 84 50, 88 50 C 84 50, 80 52, 80 56 L 80 62 C 80 70, 78 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="br-tab-title">templane.dev</span>
+              </div>
+            </div>
+            <div class="br-browser-body">
+              <span style="font-size: 11px; color: rgba(10,10,10,0.5);">templane.dev / docs</span>
+            </div>
+          </div>
+        </div>
+        <div class="br-label">favicon in browser tab</div>
+      </div>
+
+      <!-- Circular avatar -->
+      <div class="br-card">
+        <div class="br-panel" style="background: var(--color-background-secondary);">
+          <div class="br-avatar-circle">
+            <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+              <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+              <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="br-label">github · social avatar</div>
+      </div>
+
+      <!-- App icon -->
+      <div class="br-card">
+        <div class="br-panel" style="background: var(--color-background-secondary);">
+          <div class="br-avatar-square">
+            <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="36" y="28" width="6" height="44" fill="#FAFAF7"/>
+              <rect x="42" y="46" width="22" height="8" fill="#4ECB8C"/>
+              <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="br-label">app icon · rounded square</div>
+      </div>
+    </div>
+
+    <div class="br-3" style="margin-top: 2px;">
+      <!-- npm badge -->
+      <div class="br-card">
+        <div class="br-panel" style="background: var(--color-background-secondary);">
+          <div class="br-badge">
+            <svg width="14" height="14" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 22 C 22 22, 20 30, 20 38 L 20 44 C 20 48, 16 50, 12 50 C 16 50, 20 52, 20 56 L 20 62 C 20 70, 22 78, 28 78" fill="none" stroke="#FAFAF7" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="36" y="26" width="9" height="48" fill="#FAFAF7"/>
+              <rect x="45" y="43" width="25" height="14" fill="#4ECB8C"/>
+              <path d="M 72 22 C 78 22, 80 30, 80 38 L 80 44 C 80 48, 84 50, 88 50 C 84 50, 80 52, 80 56 L 80 62 C 80 70, 78 78, 72 78" fill="none" stroke="#FAFAF7" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>templane</span>
+            <span class="br-badge-ver">v0.1.0</span>
+          </div>
+        </div>
+        <div class="br-label">package badge</div>
+      </div>
+
+      <!-- Terminal -->
+      <div class="br-card">
+        <div class="br-panel" style="background: #1C1C1E; padding: 18px 20px;">
+          <div style="font-family: 'SF Mono', Menlo, monospace; font-size: 11px; line-height: 1.6; color: rgba(250,250,247,0.7); width: 100%;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <svg width="14" height="14" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 28 22 C 22 22, 20 30, 20 38 L 20 44 C 20 48, 16 50, 12 50 C 16 50, 20 52, 20 56 L 20 62 C 20 70, 22 78, 28 78" fill="none" stroke="#FAFAF7" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="36" y="26" width="9" height="48" fill="#FAFAF7"/>
+                <rect x="45" y="43" width="25" height="14" fill="#4ECB8C"/>
+                <path d="M 72 22 C 78 22, 80 30, 80 38 L 80 44 C 80 48, 84 50, 88 50 C 84 50, 80 52, 80 56 L 80 62 C 80 70, 78 78, 72 78" fill="none" stroke="#FAFAF7" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span style="color: #FAFAF7; font-weight: 500;">templane</span>
+              <span style="color: rgba(250,250,247,0.4);">v0.1.0</span>
+            </div>
+            <div style="color: #4ECB8C;">✓ 32/32 conformant</div>
+          </div>
+        </div>
+        <div class="br-label">CLI · terminal output</div>
+      </div>
+
+      <!-- Docs header style -->
+      <div class="br-card">
+        <div class="br-panel" style="background: #FFFFFF; border-bottom: 0.5px solid rgba(10,10,10,0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <svg width="22" height="22" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="36" y="28" width="6" height="44" fill="#0A0A0A"/>
+                <rect x="42" y="46" width="22" height="8" fill="#0F5C3A"/>
+                <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="br-wm-lt" style="font-size: 14px;">templane</span>
+            </div>
+            <span style="font-family: 'SF Mono', monospace; font-size: 9px; color: rgba(10,10,10,0.5); letter-spacing: 0.05em;">docs · spec · github</span>
+          </div>
+        </div>
+        <div class="br-label">site header</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 05 HERO LOCKUP ============= -->
+  <section class="br-sec">
+    <div class="br-sec-head">
+      <span class="br-num">05</span>
+      <span class="br-name">Tagline lockup</span>
+      <span class="br-note">hero / splash</span>
+    </div>
+
+    <div class="br-hero">
+      <div class="br-hero-lockup">
+        <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 28 22 C 20 22, 18 30, 18 38 L 18 44 C 18 48, 15 50, 12 50 C 15 50, 18 52, 18 56 L 18 62 C 18 70, 20 78, 28 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="36" y="28" width="6" height="44" fill="#FAFAF7"/>
+          <rect x="42" y="46" width="22" height="8" fill="#4ECB8C"/>
+          <path d="M 72 22 C 80 22, 82 30, 82 38 L 82 44 C 82 48, 85 50, 88 50 C 85 50, 82 52, 82 56 L 82 62 C 82 70, 80 78, 72 78" fill="none" stroke="#FAFAF7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="br-hero-wm">templane</span>
+      </div>
+      <span class="br-hero-tag">a protocol for typed template contracts</span>
+    </div>
+  </section>
+
+</div>
