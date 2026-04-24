@@ -1,0 +1,133 @@
+# Dependabot keeps dependencies current across every ecosystem in the
+# monorepo. Weekly cadence. Patch/minor updates are grouped into one PR
+# per ecosystem to reduce noise; majors open as individual PRs so they
+# get proper review.
+#
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # -------------------------------------------------------------------
+  # npm
+  # -------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: /templane-ts
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, npm]
+    commit-message:
+      prefix: "chore(deps-ts)"
+      include: scope
+    groups:
+      ts-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /templane-spec/templane-conform
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, npm]
+    commit-message:
+      prefix: "chore(deps-conform)"
+      include: scope
+    groups:
+      conform-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # -------------------------------------------------------------------
+  # uv (Python — pyproject.toml + uv.lock)
+  # -------------------------------------------------------------------
+  - package-ecosystem: uv
+    directory: /templane-python
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, python]
+    commit-message:
+      prefix: "chore(deps-py)"
+      include: scope
+    groups:
+      py-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: uv
+    directory: /templane-spec/templane-core
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, python]
+    commit-message:
+      prefix: "chore(deps-ref)"
+      include: scope
+    groups:
+      ref-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # -------------------------------------------------------------------
+  # Gradle (Java)
+  # -------------------------------------------------------------------
+  - package-ecosystem: gradle
+    directory: /templane-java
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, java]
+    commit-message:
+      prefix: "chore(deps-java)"
+      include: scope
+    groups:
+      java-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    # Shadow plugin pinning — we are locked to 8.1.1 because Gradle 9+
+    # broke compat. Ignore major bumps until we move off Shadow.
+    ignore:
+      - dependency-name: "com.github.johnrengelman.shadow"
+        update-types: [version-update:semver-major]
+
+  # -------------------------------------------------------------------
+  # Go modules
+  # -------------------------------------------------------------------
+  - package-ecosystem: gomod
+    directory: /templane-go
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, go]
+    commit-message:
+      prefix: "chore(deps-go)"
+      include: scope
+    groups:
+      go-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # -------------------------------------------------------------------
+  # GitHub Actions (workflow action versions)
+  # -------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: "chore(deps-ci)"
+      include: scope
+    groups:
+      ci-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
