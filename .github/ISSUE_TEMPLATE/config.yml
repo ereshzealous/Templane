@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/ereshzealous/Templane#documentation
+    about: Check the README, SPEC, and docs/ before filing — most questions are answered there.
+  - name: 💬 Discussions
+    url: https://github.com/ereshzealous/Templane/discussions
+    about: Open-ended questions, ideas, or show-and-tell go in Discussions.
+  - name: 🔒 Security vulnerability
+    url: https://github.com/ereshzealous/Templane/security/advisories/new
+    about: Report security issues privately here — do not open a public issue.
