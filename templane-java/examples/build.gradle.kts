@@ -24,8 +24,8 @@ tasks.register<JavaExec>("runExample") {
     standardInput = System.`in`
 }
 
-tasks.named("publish") { enabled = false }
-tasks.named("publishToMavenLocal") { enabled = false }
+tasks.matching { it.name == "publish" || it.name == "publishToMavenLocal" }
+    .configureEach { enabled = false }
 tasks.named("distTar") { enabled = false }
 tasks.named("distZip") { enabled = false }
 tasks.named("startScripts") { enabled = false }

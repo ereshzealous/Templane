@@ -29,5 +29,5 @@ tasks.named("shadowDistTar") { enabled = false }
 tasks.named("shadowDistZip") { enabled = false }
 tasks.named("startShadowScripts") { enabled = false }
 
-tasks.named("publish") { enabled = false }
-tasks.named("publishToMavenLocal") { enabled = false }
+tasks.matching { it.name == "publish" || it.name == "publishToMavenLocal" }
+    .configureEach { enabled = false }
