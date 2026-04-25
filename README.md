@@ -90,21 +90,7 @@ The same schema and the same input produce the same errors in Python, TypeScript
 
 Inside every implementation, data flows through four stages before it reaches the underlying template engine:
 
-```mermaid
-flowchart LR
-    schema[schema.yaml] --> parse[parse]
-    parse --> typed[typed schema]
-    typed --> check[check]
-    data[your data] --> check
-    check -->|valid| generate[generate]
-    generate --> ir[intermediate representation]
-    ir --> render[render]
-    render --> output([output])
-    check -->|invalid| errors[/structured errors/]
-
-    style errors fill:#ffe5e5,stroke:#c0392b,color:#000
-    style output fill:#e5f5e5,stroke:#27ae60,color:#000
-```
+![Templane four-stage pipeline: schema and data flow through parse, check, generate, and render to produce output, with a structured-errors branch on validation failure](./images/1.png)
 
 The engine binding — FreeMarker, Jinja2, Handlebars, or Go templates — attaches at the `render` stage. Everything before that is engine-agnostic, so the validation behaviour is identical regardless of which template language you use.
 
