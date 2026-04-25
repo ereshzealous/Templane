@@ -288,8 +288,7 @@ Six runnable programs on GitHub — each is a single `main()` you can copy into 
 ## Links
 
 - **Spec & rationale**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
-- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md)
-- **Adoption guide**: [docs/ADOPTION.md](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md)
+- **Architecture & cross-language conformance**: [main README](https://github.com/ereshzealous/Templane#cross-language-consistency)
 - **Issues / discussions**: [GitHub](https://github.com/ereshzealous/Templane/issues)
 - **Maven Central**: [`io.github.ereshzealous`](https://central.sonatype.com/namespace/io.github.ereshzealous)
 

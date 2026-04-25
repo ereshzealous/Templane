@@ -98,7 +98,104 @@ The engine binding — FreeMarker, Jinja2, Handlebars, or Go templates — attac
 
 ## Cross-language consistency
 
-Templane is a protocol with five native implementations — no shared runtime, no cross-language bridges. Consistency is verified continuously: every implementation runs against a shared suite of acceptance tests with declared inputs and expected outputs, and the build fails on any divergence. This is how the same input produces the same errors in every language. Details live in [`SPEC.md`](SPEC.md) and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Templane is a protocol with five native implementations — no shared runtime, no cross-language bridges. The diagram below shows how the protocol stays in sync across languages: a single specification declares the intended behaviour, a shared suite of acceptance tests pins down inputs and expected outputs, and a cross-language runner exercises every implementation against every test on every change.
+
+```mermaid
+flowchart TB
+    subgraph contract["The contract"]
+        spec["SPEC.md<br/>normative protocol"]
+        fixtures["shared test suite<br/>declared inputs / expected outputs"]
+        spec --> fixtures
+    end
+
+    subgraph runner["Cross-language runner"]
+        conform["templane-conform<br/>executes every implementation against every test"]
+    end
+
+    subgraph impls["Native implementations"]
+        ref["reference (Python)"]
+        py["templane-python"]
+        ts["templane-ts"]
+        java["templane-java"]
+        go["templane-go"]
+    end
+
+    subgraph engines["Engine bindings"]
+        jinja["Jinja2"]
+        hbars["Handlebars"]
+        freemarker["FreeMarker"]
+        gostd["Go text/html templates"]
+    end
+
+    fixtures --> conform
+    conform -.adapter.-> ref
+    conform -.adapter.-> py
+    conform -.adapter.-> ts
+    conform -.adapter.-> java
+    conform -.adapter.-> go
+
+    py --> jinja
+    ts --> hbars
+    java --> freemarker
+    go --> gostd
+
+    style contract fill:#fff7e0,stroke:#d4a017
+    style runner fill:#e8f0ff,stroke:#3367d6
+    style impls fill:#f0f4f8,stroke:#5a6b7d
+    style engines fill:#e9f7ef,stroke:#1e8449
+```
+
+Each implementation ships a small adapter binary that reads a test case from standard input, runs the four-stage pipeline, and writes the result to standard output. The runner spawns the adapters in parallel, feeds them every test in turn, and diffs the output against the declared expected result. Cross-language parity is therefore proven by behaviour, not by code sharing.
+
+---
+
+## Schema language at a glance
+
+A schema declares the shape of the data a template expects. Field types and their options:
+
+| Type | Purpose | Field options |
+|---|---|---|
+| `string` | text values | `required` |
+| `number` | floating-point numbers | `required` |
+| `integer` | whole numbers | `required` |
+| `boolean` | `true` / `false` | `required` |
+| `enum` | one of a fixed set of values | `required`, `values: [...]` |
+| `list` | homogeneous array | `required`, `items: { type: ... }` |
+| `object` | nested record | `required`, `fields: { ... }` |
+
+Every option in one place:
+
+```yaml
+order_id:    { type: string,  required: true }
+amount:      { type: number,  required: true }
+quantity:    { type: integer, required: true }
+gift:        { type: boolean }                          # optional
+status:      { type: enum, values: [new, paid, shipped], required: true }
+tags:        { type: list, items: { type: string } }    # optional list of strings
+customer:
+  type: object
+  required: true
+  fields:
+    name:    { type: string, required: true }
+    email:   { type: string, required: true }
+```
+
+Defaults defined by the protocol: a field with no `type` is `string`; a field with no `required` is optional; an `enum` with no `values` rejects every value; a `list` with no `items` is `list<string>`.
+
+---
+
+## Breaking-change classification
+
+Templane includes a schema-evolution detector that classifies the diff between two schema versions into four protocol-level categories. Wire it into CI to fail builds when a schema change would break downstream consumers.
+
+| Category | When it fires | Example diff |
+|---|---|---|
+| `removed_field` | A field present in the old schema is absent in the new one | Drop `customer.phone` from the schema |
+| `required_change` | A field that was optional becomes required | `email: { required: true }` (was optional) |
+| `type_change` | A field's declared type changes | `age: { type: integer }` (was `string`) |
+| `enum_value_removed` | An enum drops a value it previously accepted | `values: [active, inactive]` (dropped `pending`) |
+
+Additive changes — adding a new optional field, adding a new enum value, relaxing a `required` to optional — are intentionally **not** reported. Only changes that can break already-deployed callers are flagged.
 
 ---
 
@@ -128,12 +225,9 @@ Every implementation exposes the same conceptual surface — `parse`, `check`, `
 
 ---
 
-## Documentation
+## Reference
 
-- [`SPEC.md`](SPEC.md) — normative protocol and schema reference
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — internal architecture and conformance flow
-- [`docs/ADOPTION.md`](docs/ADOPTION.md) — adding Templane to an existing codebase
-- [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) — local setup and walkthrough
+- [`SPEC.md`](SPEC.md) — normative protocol and schema reference, including conformance rules, schema grammar, and the wire format for typed schemas, ASTs, and IRs
 
 ---
 

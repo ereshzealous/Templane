@@ -10,3 +10,7 @@ target/
 build/
 templane-go/bin/
 .DS_Store
+
+# Local-only working notes — not part of the published repo
+docs/
+.idea/
