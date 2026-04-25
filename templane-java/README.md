@@ -6,9 +6,15 @@ Templates are silent. They take a `Map<String, Object>`, look up names by string
 
 Templane fixes that at the boundary. You declare what your template expects in a tiny `.schema.yaml` next to the `.ftl`, and Templane refuses to render when the data doesn't fit — **before FreeMarker ever sees it**.
 
-```
-[ data ]  →  [ Templane: validate ]  →  [ FreeMarker: render ]  →  [ output ]
-              ↑ rejects here, with a list of every problem
+```mermaid
+flowchart LR
+    data([data]) --> validate{Templane<br/>validate}
+    validate -->|valid| render[FreeMarker<br/>render]
+    render --> output([output])
+    validate -->|invalid| errors[/list of every problem/]
+
+    style errors fill:#ffe5e5,stroke:#c0392b,color:#000
+    style output fill:#e5f5e5,stroke:#27ae60,color:#000
 ```
 
 - Conformance: 40 / 40 fixtures across the [Templane spec](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
