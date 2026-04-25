@@ -7,10 +7,9 @@
 
 <h1 align="center">templane</h1>
 
-<p align="center"><em>Typed template contracts. One protocol. Five conforming implementations.</em></p>
+<p align="center"><em>Schema-validated templates. Same behavior in Java, Python, TypeScript, and Go.</em></p>
 
 <p align="center">
-  <a href="SPEC.md#10-conformance"><img src="https://img.shields.io/badge/conformance-200%2F200-brightgreen" alt="Conformance"/></a>
   <a href="https://central.sonatype.com/namespace/io.github.ereshzealous"><img src="https://img.shields.io/badge/Maven%20Central-templane--java%200.1.0-blue" alt="Maven Central"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"/></a>
 </p>
@@ -19,119 +18,20 @@
 
 ## The problem
 
-Templates are one of the most widely deployed layers in software, and one of the least typed. Jinja2, Handlebars, FreeMarker, Go templates, ERB, Liquid, Mustache — every popular engine accepts a string-keyed dictionary, looks fields up by name at render time, and fails silently when the data does not match.
+Templates are one of the most widely deployed layers in software, and one of the least typed. Jinja2, Handlebars, FreeMarker, Go templates, ERB, Liquid, Mustache — every popular engine accepts a string-keyed dictionary, looks fields up by name at render time, and fails silently when the data does not match. The result is not a compile-time error. It is blank output, a broken email, or a customer-facing bug that surfaces days after deploy.
 
-The result is not a compile-time error. It is blank output, a broken email, or a customer-facing bug that surfaces days after deploy.
-
-Templane closes this gap with a single typed contract, defined once and enforced consistently across five language implementations.
+Templane closes that gap.
 
 ---
 
-## The contract
+## What you get
 
-Templane has three artifacts and one rule.
+Drop a small `.schema.yaml` file beside your existing template, and Templane:
 
-### 1. A specification
-
-[`SPEC.md`](SPEC.md) is the normative reference. It defines the YAML schema grammar, the four-stage pipeline (`parse` → `check` → `generate` → `render`), the canonical error codes, and the breaking-change classification used by the schema-evolution detector.
-
-### 2. A fixture suite
-
-Forty concrete test cases live under [`templane-spec/fixtures/`](templane-spec/fixtures/). Each fixture is a self-contained JSON document declaring an input and an expected output:
-
-```jsonc
-{
-  "fixture_id": "type-checker/missing-required",
-  "input": {
-    "schema": {
-      "fields": {
-        "name":  { "type": { "kind": "string" }, "required": true },
-        "email": { "type": { "kind": "string" }, "required": true }
-      }
-    },
-    "data": { "name": "Alice" }
-  },
-  "expected_output": {
-    "errors": [
-      { "code": "missing_required_field",
-        "field": "email",
-        "message": "Required field 'email' is missing" }
-    ]
-  }
-}
-```
-
-The fixture suite is the operational definition of correctness. Coverage spans schema parsing, type checking, IR generation, sidecar resolution, and adapter rendering.
-
-### 3. Five implementations
-
-Each implementation is native code in its host language. There is no shared runtime, no FFI, no transpilation. Implementations are kept honest by a single rule:
-
-> An implementation is conformant if and only if it produces the declared `expected_output` for every fixture.
-
-Forty fixtures × five implementations = **200 conformance passes**, verified on every change.
-
----
-
-## Architecture
-
-```mermaid
-flowchart TB
-    subgraph contract["The contract"]
-        spec["SPEC.md<br/>normative reference"]
-        fixtures["40 fixtures<br/>input → expected output"]
-        spec --> fixtures
-    end
-
-    subgraph runner["Conformance runner"]
-        conform["templane-conform<br/>executes each implementation against every fixture"]
-    end
-
-    subgraph impls["Implementations"]
-        ref["templane-spec<br/>reference (Python)"]
-        py["templane-python"]
-        ts["templane-ts"]
-        java["templane-java"]
-        go["templane-go"]
-    end
-
-    subgraph engines["Engine bindings"]
-        jinja["Jinja2"]
-        hbars["Handlebars"]
-        freemarker["FreeMarker"]
-        gostd["Go text/html templates"]
-    end
-
-    fixtures --> conform
-    conform -.adapter.-> ref
-    conform -.adapter.-> py
-    conform -.adapter.-> ts
-    conform -.adapter.-> java
-    conform -.adapter.-> go
-
-    py --> jinja
-    ts --> hbars
-    java --> freemarker
-    go --> gostd
-
-    style contract fill:#fff7e0,stroke:#d4a017
-    style runner fill:#e8f0ff,stroke:#3367d6
-    style impls fill:#f0f4f8,stroke:#5a6b7d
-    style engines fill:#e9f7ef,stroke:#1e8449
-```
-
-Each implementation exposes a small adapter binary that reads a fixture from standard input and writes the produced output to standard output. The conformance runner spawns the adapters, feeds them every fixture in turn, and diffs the results against the declared `expected_output`. Cross-language parity is proven by behavioral agreement, not by code sharing.
-
-Within an implementation, the four stages compose in a single direction:
-
-```
-schema   ──parse──►  TypedSchema ─┐
-                                   ├──► check ──► [valid]   ──► generate ──► TIR ──► render ──► output
-data    ───────────────────────────┘                │
-                                                    └──► [invalid] ──► structured errors
-```
-
-The engine binding (FreeMarker, Jinja2, Handlebars, Go templates) attaches at the `render` stage. Everything before that — schema parsing, type checking, IR generation, breaking-change detection — is engine-agnostic and identical across all five implementations.
+- **Validates the data before the engine renders.** Missing fields, wrong types, unknown keys, invalid enum values, and likely typos are reported in a single pass — never one error at a time.
+- **Leaves your templates alone.** Your `.ftl`, `.jinja`, `.hbs`, and `.tmpl` files stay in their native syntax. Templane sits beside them, not inside them.
+- **Behaves identically in every language.** The same schema, the same data, and the same error set produce the same outcome whether you call it from Java, Python, TypeScript, or Go.
+- **Detects breaking changes between schema versions.** Removed fields, tightened requirements, type changes, and removed enum values are flagged automatically — additive changes are not.
 
 ---
 
@@ -182,21 +82,50 @@ Templane refuses to render and reports every problem at once:
 [missing_required_field] account.balance: required field is missing
 ```
 
-The same schema, the same data, and the same error set apply identically in Python, TypeScript, and Go. That property is exactly what the fixture suite enforces.
+The same schema and the same input produce the same errors in Python, TypeScript, and Go.
+
+---
+
+## How it works
+
+Inside every implementation, data flows through four stages before it reaches the underlying template engine:
+
+```mermaid
+flowchart LR
+    schema[schema.yaml] --> parse[parse]
+    parse --> typed[typed schema]
+    typed --> check[check]
+    data[your data] --> check
+    check -->|valid| generate[generate]
+    generate --> ir[intermediate representation]
+    ir --> render[render]
+    render --> output([output])
+    check -->|invalid| errors[/structured errors/]
+
+    style errors fill:#ffe5e5,stroke:#c0392b,color:#000
+    style output fill:#e5f5e5,stroke:#27ae60,color:#000
+```
+
+The engine binding — FreeMarker, Jinja2, Handlebars, or Go templates — attaches at the `render` stage. Everything before that is engine-agnostic, so the validation behaviour is identical regardless of which template language you use.
+
+---
+
+## Cross-language consistency
+
+Templane is a protocol with five native implementations — no shared runtime, no cross-language bridges. Consistency is verified continuously: every implementation runs against a shared suite of acceptance tests with declared inputs and expected outputs, and the build fails on any divergence. This is how the same input produces the same errors in every language. Details live in [`SPEC.md`](SPEC.md) and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 
 ## Implementations
 
-| Language | Module | Engine binding | Conformance | Availability |
-|---|---|---|:---:|---|
-| **Java** | [`templane-java`](templane-java/) | FreeMarker | 40 / 40 | [Maven Central 0.1.0](https://central.sonatype.com/namespace/io.github.ereshzealous) |
-| **Python** | [`templane-python`](templane-python/) | Jinja2 | 40 / 40 | source build, PyPI publish in progress |
-| **TypeScript** | [`templane-ts`](templane-ts/) | Handlebars | 40 / 40 | source build, npm publish in progress |
-| **Go** | [`templane-go`](templane-go/) | `text/html` templates | 40 / 40 | source build, Go module tag in progress |
-| **Reference** | [`templane-spec`](templane-spec/) | reference Python | 40 / 40 | repository-only by design |
+| Language | Module | Engine binding | Availability |
+|---|---|---|---|
+| **Java** | [`templane-java`](templane-java/) | FreeMarker | [Maven Central 0.1.0](https://central.sonatype.com/namespace/io.github.ereshzealous) |
+| **Python** | [`templane-python`](templane-python/) | Jinja2 | source build · PyPI publish in progress |
+| **TypeScript** | [`templane-ts`](templane-ts/) | Handlebars | source build · npm publish in progress |
+| **Go** | [`templane-go`](templane-go/) | `text/html` templates | source build · Go module tag in progress |
 
-The reference implementation is intentionally not published. It exists to define behavior, not to be depended on in production code.
+A reference implementation lives in [`templane-spec`](templane-spec/) for protocol authors. It is intentionally not published — it exists to define behaviour, not to be depended on in production code.
 
 ---
 
@@ -224,12 +153,7 @@ Every implementation exposes the same conceptual surface — `parse`, `check`, `
 
 ## Contributing
 
-Templane is protocol-first, which sets a high bar for behavioral changes. A change to protocol semantics requires synchronized updates to:
-
-1. [`SPEC.md`](SPEC.md)
-2. fixtures under [`templane-spec/fixtures/`](templane-spec/fixtures/)
-3. the reference implementation
-4. every conforming language implementation
+Templane is protocol-first, which sets a high bar for behavioural changes. A change to protocol semantics requires synchronized updates to [`SPEC.md`](SPEC.md), the shared test suite under [`templane-spec/fixtures/`](templane-spec/fixtures/), the reference implementation, and every conforming language implementation.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for workflow and review expectations.
 
