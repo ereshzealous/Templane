@@ -7,115 +7,120 @@
 
 <h1 align="center">templane</h1>
 
-<p align="center"><em>A protocol for typed template contracts, conformance, and cross-engine rendering.</em></p>
-
-<p align="center"><strong>Templates have lacked a shared typed contract layer for decades. Templane is an attempt to fix that.</strong></p>
+<p align="center"><em>Typed template contracts. Cross-language. Conformance-tested.</em></p>
 
 <p align="center">
   <a href="SPEC.md#10-conformance"><img src="https://img.shields.io/badge/conformance-5%20%C3%97%2040%2F40-brightgreen" alt="Conformance"/></a>
+  <a href="https://central.sonatype.com/namespace/io.github.ereshzealous"><img src="https://img.shields.io/badge/Maven%20Central-templane--java%200.1.0-blue" alt="Maven Central"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"/></a>
 </p>
 
 ---
 
-## Why This Exists
+## Why Templane exists
 
-Templates are one of the most widely deployed layers in software, and one of
-the least typed.
+Templates are one of the most widely deployed layers in software, and one of the least typed. Jinja2, Handlebars, FreeMarker, Go templates, ERB, Liquid, Mustache — they all share the same fragile contract: pass in a bag of values, look fields up by string name, and hope the data matches.
 
-Jinja2, Handlebars, FreeMarker, Go templates, ERB, Liquid, Mustache, and
-similar engines all rely on the same fragile contract: pass in a bag of values,
-look fields up by string name, and hope the data matches what the template
-expects. When it does not, the usual result is not a compile-time error. It is
-blank output, degraded rendering, or a bug that surfaces days later.
+When it doesn't, you don't get a compile-time error. You get blank output, a broken email, or a customer-visible bug four days later.
 
-The missing piece is simple: the shape of template data is usually nowhere
-declared as a real contract.
-
-Templane adds that contract layer.
+**The shape of template data is rarely declared as a real contract.** Templane adds that contract layer — once, as a protocol, with conforming implementations across five languages.
 
 ---
 
-## What Templane Is
+## What Templane is
 
-Templane is a **protocol**, not a replacement template engine.
+A **protocol**, not a templating engine. It defines:
 
-It defines:
+1. A YAML schema format for template input data.
+2. Four shared operations: `parse`, `check`, `generate`, `render`.
+3. A conformance model: 40 fixtures, identical inputs and outputs across every implementation.
+4. A breaking-change classification for schema evolution.
 
-1. A YAML schema format for describing template input data.
-2. A shared set of operations: `parse`, `check`, `generate`, `render`.
-3. A conformance model based on shared fixtures and a common adapter protocol.
-4. A breaking-change model for schema evolution.
+Your existing `.jinja` / `.hbs` / `.ftl` / `.tmpl` files stay in their native syntax. Templane sits beside them as a typed contract — validating data **before** the engine ever sees it.
 
-Templane sits above existing engines. Your Jinja, Handlebars, FreeMarker, or Go
-template files stay in their native syntax. Templane adds typed schema
-contracts, validation, and cross-language consistency around them.
-
----
-
-## What Templane Is Not
+## What Templane is not
 
 - Not a new templating language.
 - Not a replacement for Jinja2, Handlebars, FreeMarker, or Go templates.
-- Not a single shared runtime used by every language.
-- Not just a validation library at an API boundary.
+- Not a single shared runtime that every language wraps.
+- Not just a validation library at an API boundary — it's a protocol with a fixture suite.
 
-Each implementation is native to its own language. What is shared is the
-protocol, the fixture suite, and the conformance rules.
-
----
-
-## Core Concepts
-
-- **Schema**
-  A YAML contract describing the fields, types, optionality, enums, and nesting
-  expected by a template.
-
-- **Sidecar schema**
-  The recommended form: a `.schema.yaml` file next to an existing native
-  template file, referenced with `body: ./template.ext`.
-
-- **Engine binding**
-  A language-specific integration that validates data before handing it to the
-  native engine.
-
-- **`parse`**
-  Read a schema document and turn it into a typed schema model.
-
-- **`check`**
-  Validate data against the schema and collect all errors.
-
-- **`generate`**
-  Produce typed intermediate representation (TIR) from template structure plus
-  validated data.
-
-- **`render`**
-  Produce output through an adapter or engine-specific binding.
-
-- **Conformance**
-  Every implementation must match the same shared fixture suite.
-
-- **Breaking-change detection**
-  Schema diffs are classified into protocol-level breaking categories such as
-  `removed_field`, `required_change`, `type_change`, and `enum_value_removed`.
+Each implementation is native to its host language. What's shared is the protocol, the fixtures, and the conformance bar.
 
 ---
 
-## Quick Example
+## Architecture
 
-Existing template:
+```mermaid
+flowchart TB
+    subgraph contract["The contract — single source of truth"]
+        spec["<b>SPEC.md</b><br/>normative protocol"]
+        fixtures["<b>40 fixtures</b><br/>expected inputs / outputs"]
+        spec --> fixtures
+    end
 
-```jinja
-Hello {{ user.name }}!
-{% if user.status == "active" %}Premium member.{% endif %}
-Balance: ${{ account.balance }}
+    subgraph runner["Cross-language validator"]
+        conform["<b>templane-conform</b><br/>runs each impl against every fixture"]
+    end
+
+    subgraph impls["Native implementations (5)"]
+        ref["templane-spec<br/><i>reference (Python)</i>"]
+        py["templane-python"]
+        ts["templane-ts"]
+        java["templane-java"]
+        go["templane-go"]
+    end
+
+    subgraph engines["User-facing engine bindings"]
+        jinja["Jinja2"]
+        hbars["Handlebars"]
+        freemarker["FreeMarker"]
+        gostd["Go text/html templates"]
+    end
+
+    fixtures --> conform
+    conform -.adapter.-> ref
+    conform -.adapter.-> py
+    conform -.adapter.-> ts
+    conform -.adapter.-> java
+    conform -.adapter.-> go
+
+    py --> jinja
+    ts --> hbars
+    java --> freemarker
+    go --> gostd
+
+    style contract fill:#fff7e0,stroke:#d4a017
+    style runner fill:#e8f0ff,stroke:#3367d6
+    style impls fill:#f0f4f8,stroke:#5a6b7d
+    style engines fill:#e9f7ef,stroke:#1e8449
 ```
 
-Sidecar schema placed beside it:
+**How the plumbing works.** The contract has two artifacts: `SPEC.md` (the normative rules — RFC 2119 keywords, error codes, schema grammar) and **40 fixtures** (each one is `input.json` + `schema.yaml` + `expected.html` / `expected.yaml`). Every implementation must produce byte-identical output for every fixture.
+
+Each implementation ships a tiny **conformance adapter** — a process that reads a fixture from stdin, runs the four-op pipeline, and writes the result. The `templane-conform` runner spawns each adapter, feeds it all 40 fixtures, and diffs against the expected output. Pass = parity proven by behavior, not by sharing one runtime.
+
+Inside an implementation, the four ops always pipe in the same order:
+
+```
+schema.yaml ──parse──► TypedSchema ──┐
+                                      ├──► check ──► [valid] ──► generate ──► TIR ──► render ──► output
+user data ──────────────────────────┘                  │
+                                                       └─► [invalid] ──► list of every error
+```
+
+The engine binding (FreeMarker / Jinja2 / Handlebars / Go templates) plugs into the **render** step. Everything before that — schema parsing, type checking, IR generation, breaking-change detection — is engine-agnostic and shared across all 5 implementations.
+
+---
+
+## See it work
+
+Sidecar schema next to a plain FreeMarker template:
 
 ```yaml
-body: ./greeting.jinja
-engine: jinja
+# greeting.schema.yaml
+body: ./greeting.ftl
+engine: freemarker
 
 user:
   type: object
@@ -133,119 +138,53 @@ account:
     balance: { type: number, required: true }
 ```
 
-Python usage:
+Render it from Java:
 
-```python
-from jinja_templane import TemplaneEnvironment, TemplaneTemplateError
+```java
+import dev.templane.freemarker.TemplaneConfiguration;
 
-env = TemplaneEnvironment("./templates")
-template = env.get_template("greeting.schema.yaml")
+var cfg  = new TemplaneConfiguration(Path.of("templates"));
+var tmpl = cfg.getTemplate("greeting.schema.yaml");
 
-try:
-    output = template.render(
-        user={"name": "Alice", "status": "actve"},
-        account={"blance": 100},
-    )
-except TemplaneTemplateError as exc:
-    for err in exc.errors:
-        print(f"[{err.code}] {err.message}")
+tmpl.render(Map.of(
+    "user",    Map.of("name", "Alice", "status", "actve"),  // typo
+    "account", Map.of("blance", 100)                        // typo
+));
 ```
 
-Example failures:
+Templane refuses, with every problem at once:
 
 ```text
-[invalid_enum_value] Field 'user.status' value 'actve' not in enum [active, inactive, pending]
-[did_you_mean] Unknown field 'account.blance'. Did you mean 'balance'?
-[missing_required_field] Required field 'account.balance' is missing
+[invalid_enum_value]     user.status: 'actve' not in [active, inactive, pending]
+[did_you_mean]           account.blance: unknown field — did you mean 'balance'?
+[missing_required_field] account.balance: required field is missing
 ```
 
----
-
-## Repository Layout
-
-```text
-Templane/
-├── README.md                  product overview
-├── SPEC.md                    normative protocol and schema reference
-├── docs/                      guides and workflow documentation
-├── examples/                  cross-cutting examples
-├── templane-spec/             protocol hub, fixtures, conform runner, reference impl
-├── templane-python/           Python implementation + Jinja binding
-├── templane-ts/               TypeScript implementation + Handlebars binding + xt CLI
-├── templane-java/             Java implementation + FreeMarker binding
-├── templane-go/               Go implementation
-└── brand/                     logos and visual assets
-```
+The **same schema, same data, same errors** apply in Python, TypeScript, and Go. That's what conformance buys you.
 
 ---
 
 ## Implementations
 
-| Language | Package | Engine integration | Conformance | Tests |
-|---|---|---|:---:|:---:|
-| Python | [`templane-spec/templane-core`](templane-spec/) | reference implementation | 40/40 | 55 |
-| TypeScript | [`templane-ts`](templane-ts/) | Handlebars | 40/40 | 81 |
-| Python | [`templane-python`](templane-python/) | Jinja2 | 40/40 | 75 |
-| Java | [`templane-java`](templane-java/) | FreeMarker | 40/40 | 65 |
-| Go | [`templane-go`](templane-go/) | stdlib integration pattern | 40/40 | 56 |
+| Language | Package | Engine binding | Conformance | Availability |
+|---|---|---|:---:|---|
+| **Java** | [`templane-java`](templane-java/) | FreeMarker | 40 / 40 | [Maven Central 0.1.0](https://central.sonatype.com/namespace/io.github.ereshzealous) |
+| **Python** | [`templane-python`](templane-python/) | Jinja2 | 40 / 40 | source-build (PyPI publish pending) |
+| **TypeScript** | [`templane-ts`](templane-ts/) | Handlebars | 40 / 40 | source-build (npm publish pending) |
+| **Go** | [`templane-go`](templane-go/) | `text/html` templates | 40 / 40 | source-build (Go module tag pending) |
+| **Reference** | [`templane-spec`](templane-spec/) | reference Python implementation | 40 / 40 | repository-only |
 
-Total today: **5 implementations, 40 fixtures, 200 conformance passes, 332 unit tests.**
+Total today: **5 implementations × 40 fixtures = 200 conformance passes.**
 
----
-
-## Conformance Model
-
-Templane does **not** ship one shared core library that every language wraps.
-
-Instead:
-
-- `templane-spec/templane-core` is the **reference implementation**
-- each language reimplements the protocol natively
-- `templane-conform` runs every implementation against the same fixture suite
-- parity is proven by fixture agreement, not by sharing one runtime
-
-This is the central design decision of the repo. Templane is a protocol with
-multiple conforming implementations, not a single implementation with language
-bindings on top.
+The reference implementation is intentionally not published — it exists to define behavior, not to be depended on in production.
 
 ---
 
-## Current Status
+## Conformance model
 
-Current repo state:
+Templane does **not** ship one shared core that every language wraps. Each language reimplements the protocol natively. Parity is proven by the fixture suite, not by sharing a runtime. This is the central design decision of the repo — the [Architecture](#architecture) diagram above shows how it fits together.
 
-- The protocol spec, fixture suite, conform runner, and five implementations are
-  present in the repository.
-- The conformance model is central and explicit.
-- Sidecar schemas are the intended user-facing direction.
-
-Areas that still require disciplined validation before broader claims should be
-treated as final:
-
-- exact package/distribution readiness per language
-- consistency of CLI behavior versus docs
-- consistency of schema-form messaging across all docs
-- end-to-end first-run experience from a clean machine
-
-If you are evaluating the repo locally, start with the testing and baseline
-docs rather than assuming every README reflects final packaging status.
-
----
-
-## Getting Started
-
-If you want to use or evaluate Templane locally:
-
-- Start with the protocol and repo guides:
-  - [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
-  - [docs/BASELINE_CHECKLIST.md](docs/BASELINE_CHECKLIST.md)
-- Then choose an implementation:
-  - [templane-python/README.md](templane-python/README.md)
-  - [templane-ts/README.md](templane-ts/README.md)
-  - [templane-java/README.md](templane-java/README.md)
-  - [templane-go/README.md](templane-go/README.md)
-
-To run the full conformance matrix from repo root:
+Run the full matrix against a built repo:
 
 ```bash
 node templane-spec/templane-conform/dist/cli.js \
@@ -271,48 +210,43 @@ All implementations conformant.
 
 ---
 
-## Documentation Map
+## Pick a language
 
-- [SPEC.md](SPEC.md)
-  Normative protocol and schema reference.
+| You write | Start here |
+|---|---|
+| Java + FreeMarker | [`templane-java/README.md`](templane-java/README.md) — installable from Maven Central |
+| Python + Jinja2 | [`templane-python/README.md`](templane-python/README.md) |
+| TypeScript / JavaScript + Handlebars | [`templane-ts/README.md`](templane-ts/README.md) |
+| Go + `text/template` | [`templane-go/README.md`](templane-go/README.md) |
 
-- [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
-  Local setup, testing order, and repo walkthrough.
+All four implementations expose the same conceptual surface (`parse`, `check`, `generate`, `render`) idiomatic to their host language.
 
-- [docs/ADOPTION.md](docs/ADOPTION.md)
-  How to add Templane to an existing codebase.
+---
 
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-  Internal architecture, conformance flow, and implementation model.
+## Documentation
 
-- [docs/BASELINE_CHECKLIST.md](docs/BASELINE_CHECKLIST.md)
-  Current baseline contract for local validation from zero.
-
-- [examples/](examples/)
-  Cross-cutting examples and adoption scenarios.
-
-- [.github/workflows/README.md](.github/workflows/README.md)
-  CI/CD workflows, release paths, and publishing prerequisites for maintainers.
+- [SPEC.md](SPEC.md) — normative protocol and schema reference
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — internal architecture and conformance flow
+- [docs/ADOPTION.md](docs/ADOPTION.md) — how to add Templane to an existing codebase
+- [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — local setup and walkthrough
 
 ---
 
 ## Contributing
 
-Templane is protocol-first. That means behavior changes carry a high bar.
+Templane is protocol-first. Behavior changes carry a high bar.
 
-If you change protocol semantics, you should expect to update:
+A change to protocol semantics requires synchronized updates to:
 
-- [SPEC.md](SPEC.md)
-- fixtures under `templane-spec/fixtures/`
-- the reference implementation
-- every conforming language implementation
+1. [SPEC.md](SPEC.md)
+2. fixtures under `templane-spec/fixtures/`
+3. the reference implementation
+4. every conforming language implementation
 
-Start here:
-
-- [CONTRIBUTING.md](CONTRIBUTING.md)
+Start here: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE).
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
