@@ -1,107 +1,39 @@
 # templane-java
 
-**Java 21 implementation of [Templane](https://github.com/ereshzealous/Templane)** — typed template contracts for FreeMarker and other JVM engines.
+**Typed template contracts for the JVM.**
 
-Templane adds compile-time schema validation to your templates. Define what data your template expects in a small `.schema.yaml` file next to your `.ftl`, and Templane catches missing fields, typos, and wrong types **before FreeMarker renders**, not at 2am in production.
+Templates are silent. They take a `Map<String, Object>`, look up names by string, and render *something* — even when a field is missing, misspelled, or the wrong type. The bug ships, the customer sees a broken email, you find out four days later.
 
-- **Conformance:** 40/40 fixtures across the [Templane protocol](https://github.com/ereshzealous/Templane/blob/main/SPEC.md) · 65 unit tests
-- **Engine binding:** FreeMarker (`freemarker-templane`)
-- **Also ships:** breaking-change detector
-- **Runtime:** Java 21 (Temurin recommended)
-- **License:** Apache 2.0
+Templane fixes that at the boundary. You declare what your template expects in a tiny `.schema.yaml` next to the `.ftl`, and Templane refuses to render when the data doesn't fit — **before FreeMarker ever sees it**.
+
+```
+[ data ]  →  [ Templane: validate ]  →  [ FreeMarker: render ]  →  [ output ]
+              ↑ rejects here, with a list of every problem
+```
+
+- Conformance: 40 / 40 fixtures across the [Templane spec](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
+- Engine binding: FreeMarker
+- Add-on adapters: HTML, YAML
+- Built-in: breaking-change detector for schema evolution
+- Java 21 · Apache 2.0 · published on Maven Central
 
 ---
 
 ## Install
 
-Current repo-tested path is local source build:
-
-```bash
-git clone https://github.com/ereshzealous/Templane.git
-cd Templane/templane-java
-./gradlew build
-```
-
-If you want local Maven coordinates from this checkout:
-
-```bash
-./gradlew publishToMavenLocal
-```
-
-Then consume the locally published artifacts.
-
-> **Current repo state**: this README keeps the dependency coordinates for
-> reference, but the conservative tested workflow in this repository is source
-> build and optional `publishToMavenLocal`, not an asserted public Maven Central
-> release flow.
-
-### Remote publish goal: Maven Central
-
-The intended remote publication coordinates are:
-
-- `io.github.ereshzealous:templane-core`
-- `io.github.ereshzealous:templane-adapter-html`
-- `io.github.ereshzealous:templane-adapter-yaml`
-- `io.github.ereshzealous:freemarker-templane`
-
-The repository is wired for Maven Central publication through the Sonatype
-Central Portal release workflow:
-
-- Workflow: [`.github/workflows/release-templane-java.yml`](../.github/workflows/release-templane-java.yml)
-- Publish task used by CI: `./gradlew publishAggregationToCentralPortal`
-
-Before that workflow can succeed, the following must be true:
-
-1. The namespace `io.github.ereshzealous` must be verified in Sonatype Central.
-2. The repository must have these GitHub Actions secrets configured:
-   - `MAVEN_CENTRAL_USERNAME`
-   - `MAVEN_CENTRAL_PASSWORD`
-   - `SIGNING_KEY`
-   - `SIGNING_PASSWORD`
-
-Expected secret meanings:
-
-- `MAVEN_CENTRAL_USERNAME`
-  Sonatype Central Portal username/token identity.
-- `MAVEN_CENTRAL_PASSWORD`
-  Sonatype Central Portal password/token secret.
-- `SIGNING_KEY`
-  ASCII-armored OpenPGP private key used to sign published artifacts.
-- `SIGNING_PASSWORD`
-  Password for that signing key.
-
-Manual release path from GitHub Actions:
-
-1. Open the `Release templane-java (manual)` workflow.
-2. Supply the target version, for example `0.1.0`.
-3. Choose `maven-central` as `publish_target`.
-4. Run the workflow.
-
-The workflow will:
-
-1. bump `templane-java/gradle.properties`
-2. run Java tests
-3. build all publishable JARs
-4. create a GitHub release/tag
-5. publish signed artifacts to Maven Central
-
-### Gradle (`build.gradle.kts`)
+**Gradle (`build.gradle.kts`)**
 
 ```kotlin
+repositories { mavenCentral() }
+
 dependencies {
-    implementation("io.github.ereshzealous:templane-core:0.1.0")
     implementation("io.github.ereshzealous:freemarker-templane:0.1.0")
 }
 ```
 
-### Maven (`pom.xml`)
+**Maven (`pom.xml`)**
 
 ```xml
-<dependency>
-  <groupId>io.github.ereshzealous</groupId>
-  <artifactId>templane-core</artifactId>
-  <version>0.1.0</version>
-</dependency>
 <dependency>
   <groupId>io.github.ereshzealous</groupId>
   <artifactId>freemarker-templane</artifactId>
@@ -109,20 +41,24 @@ dependencies {
 </dependency>
 ```
 
+`freemarker-templane` transitively pulls `templane-core` and FreeMarker `2.3.32`. That's all you need for the FreeMarker path.
+
 ---
 
-## Quick start
+## Tutorial: 0 → Hero
 
-Create `src/main/resources/templates/email.ftl` (plain FreeMarker — not modified by Templane):
+### Step 1 · Hello, Templane
 
+Drop two files into `src/main/resources/templates/`:
+
+`hello.ftl`
 ```ftl
-Hi ${user.name}! Your order #${order_id} total is $${amount}.
+Hi ${user.name}! Order #${order_id} = $${amount}.
 ```
 
-Create `src/main/resources/templates/email.schema.yaml` next to it:
-
+`hello.schema.yaml`
 ```yaml
-body: ./email.ftl
+body: ./hello.ftl
 engine: freemarker
 
 user:
@@ -130,71 +66,102 @@ user:
   required: true
   fields:
     name: { type: string, required: true }
-order_id:
-  type: string
-  required: true
-amount:
-  type: number
-  required: true
+order_id: { type: string, required: true }
+amount:   { type: number, required: true }
 ```
 
-Use from Java:
+Render it:
 
 ```java
-import dev.templane.freemarker.*;
-import dev.templane.core.model.TypeCheckError;
+import dev.templane.freemarker.TemplaneConfiguration;
+import dev.templane.freemarker.TemplaneTemplate;
 
 import java.nio.file.Path;
 import java.util.Map;
 
-TemplaneConfiguration cfg = new TemplaneConfiguration(
-    Path.of("src/main/resources/templates"));
-TemplaneTemplate tmpl = cfg.getTemplate("email.schema.yaml");
+var cfg = new TemplaneConfiguration(Path.of("src/main/resources/templates"));
+var tmpl = cfg.getTemplate("hello.schema.yaml");
+
+String out = tmpl.render(Map.of(
+    "user", Map.of("name", "Alice"),
+    "order_id", "INV-042",
+    "amount", 99.00
+));
+// → "Hi Alice! Order #INV-042 = $99."
+```
+
+The `.ftl` is plain FreeMarker — Templane doesn't touch the syntax. You're not migrating templates, you're adding a contract beside them.
+
+### Step 2 · Catch bad data before it renders
+
+Same template, broken data:
+
+```java
+import dev.templane.core.model.TypeCheckError;
+import dev.templane.freemarker.TemplaneTemplateException;
+
+var bad = new java.util.HashMap<String, Object>();
+// "user" missing entirely
+bad.put("order_id", 42);     // wrong type — should be string
+bad.put("amount", "free");   // wrong type — should be number
 
 try {
-    String output = tmpl.render(Map.of(
-        "user", Map.of("name", "Alice"),
-        "order_id", "INV-042",
-        "amount", 99.00
-    ));
-    System.out.println(output);
-    // → "Hi Alice! Your order #INV-042 total is $99."
+    tmpl.render(bad);
 } catch (TemplaneTemplateException exc) {
     for (TypeCheckError e : exc.errors()) {
         System.err.printf("[%s] %s: %s%n", e.code(), e.field(), e.message());
     }
 }
+// [missing_required_field] user: required field 'user' is missing
+// [type_mismatch]          order_id: expected string, got integer
+// [type_mismatch]          amount:   expected number, got string
 ```
 
----
+**Every** error is collected — Templane never short-circuits at the first. You see all the problems in one render attempt, not whack-a-mole-by-redeploy.
 
-## Validation errors — caught before rendering
+### Step 3 · Nested objects and lists
 
-```java
-// Missing field + wrong types all trip at once
-Map<String, Object> bad = new HashMap<>();
-// "user" missing entirely
-bad.put("order_id", 42);      // wrong type
-bad.put("amount", "free");    // wrong type
+`invoice.schema.yaml`
+```yaml
+body: ./invoice.ftl
+engine: freemarker
 
-try {
-    tmpl.render(bad);
-} catch (TemplaneTemplateException exc) {
-    exc.errors().forEach(e ->
-        System.err.printf("[%s] %s%n", e.code(), e.field()));
-}
-// [missing_required_field] user
-// [type_mismatch] order_id
-// [type_mismatch] amount
+invoice_number: { type: string, required: true }
+customer:
+  type: object
+  required: true
+  fields:
+    name:  { type: string, required: true }
+    email: { type: string, required: true }
+line_items:
+  type: list
+  required: true
+  items:
+    type: object
+    fields:
+      description: { type: string, required: true }
+      qty:         { type: integer, required: true }
+      unit_price:  { type: number,  required: true }
+total: { type: number, required: true }
 ```
 
-All errors are collected — never short-circuits at the first.
+`invoice.ftl`
+```ftl
+Invoice ${invoice_number}
+Bill to: ${customer.name} <${customer.email}>
 
----
+<#list line_items as item>
+  ${item.qty}× ${item.description} @ $${item.unit_price}
+</#list>
 
-## Breaking-change detection
+Total: $${total}
+```
 
-Detect schema evolution issues before they break downstream data:
+Templane validates every level — nested fields, list elements, types within elements. A `qty: "two"` in line item #3 fails with `[type_mismatch] line_items[2].qty`.
+
+### Step 4 · Breaking-change detection
+
+When schemas evolve, downstream consumers break. Templane ships a detector you can wire into CI:
 
 ```java
 import dev.templane.core.BreakingChangeDetector;
@@ -203,134 +170,132 @@ import dev.templane.core.model.BreakingChange;
 import dev.templane.core.model.TypedSchema;
 
 import java.nio.file.*;
-import java.util.List;
 
-TypedSchema oldSchema = loadSchema(Path.of("schemas/v1.yaml"));
-TypedSchema newSchema = loadSchema(Path.of("schemas/v2.yaml"));
+TypedSchema v1 = parse(Path.of("schemas/invoice.v1.yaml"));
+TypedSchema v2 = parse(Path.of("schemas/invoice.v2.yaml"));
 
-List<BreakingChange> changes = BreakingChangeDetector.detect(oldSchema, newSchema);
-for (BreakingChange c : changes) {
+for (BreakingChange c : BreakingChangeDetector.detect(v1, v2)) {
     System.out.printf("[%s] %s: %s → %s%n",
         c.category(), c.fieldPath(), c.oldValue(), c.newValue());
 }
 
-static TypedSchema loadSchema(Path p) throws Exception {
-    SchemaParser.Result r = new SchemaParser().parse(
-        Files.readString(p), p.getFileName().toString());
+static TypedSchema parse(Path p) throws Exception {
+    var r = new SchemaParser().parse(Files.readString(p), p.getFileName().toString());
     if (r.error() != null) throw new RuntimeException(r.error());
     return r.schema();
 }
 ```
 
-Four categories: `removed_field`, `required_change`, `type_change`, `enum_value_removed`. Safe additions are NOT reported.
+Reports four categories — `removed_field`, `required_change`, `type_change`, `enum_value_removed`. Additive changes (new optional fields) are **not** flagged. Fail your build on any breaking change and consumers stop being surprised.
 
 ---
 
-## API
+## Add-on adapters
 
-### `dev.templane.freemarker` — the engine binding
+The HTML and YAML adapters render Templane's intermediate representation to a target format directly — useful when you want Templane's schema validation **without** pulling in FreeMarker, or when the output format matters more than the templating engine.
+
+### `templane-adapter-html` — auto-escaped HTML output
+
+```kotlin
+implementation("io.github.ereshzealous:templane-adapter-html:0.1.0")
+```
 
 ```java
-public class TemplaneConfiguration {
-    public TemplaneConfiguration(Path templateDir);
-    public TemplaneTemplate getTemplate(String name);
-}
-
-public class TemplaneTemplate {
-    public String name();
-    public TypedSchema schema();
-    public String render(Map<String, Object> data);  // throws TemplaneTemplateException
-}
-
-public class TemplaneTemplateException extends RuntimeException {
-    public List<TypeCheckError> errors();
-}
+import dev.templane.html.HtmlAdapter;
+// ...given a TIRResult tir from IRGenerator.generate(...)
+String html = HtmlAdapter.render(tir);
+// Auto-escapes &, <, >, ", '. Safe to embed user data.
 ```
 
-### `dev.templane.core` — the protocol primitives
+Use when you're building HTML output and want XSS-safe rendering with schema-validated input. The output includes provenance markers (`<!-- templane template_id=... schema_id=... -->`) so downstream tooling can trace what produced it.
+
+### `templane-adapter-yaml` — deterministic YAML output
+
+```kotlin
+implementation("io.github.ereshzealous:templane-adapter-yaml:0.1.0")
+```
 
 ```java
-public class SchemaParser {
-    public Result parse(String yaml, String id);
-    public static Result loadFromPath(Path schemaPath);  // follows body: reference
-}
-public class TypeChecker { static List<TypeCheckError> check(TypedSchema, Map); }
-public class IRGenerator { static TIRResult generate(...); }
-public class BreakingChangeDetector { static List<BreakingChange> detect(TypedSchema, TypedSchema); }
+import dev.templane.yaml.YamlAdapter;
+String yaml = YamlAdapter.render(tir);
 ```
 
-All models are immutable records: `TypedSchema`, `TemplaneField`, `TypeCheckError`, `BreakingChange`, `ASTNode`, `TIRNode`.
+Use when generating config, K8s manifests, or any YAML where you need consistent output and a schema contract on the input.
+
+> **When to reach for these:** if you're already using FreeMarker, stick with `freemarker-templane`. The HTML/YAML adapters are for non-FreeMarker pipelines or for tools that need to round-trip Templane's IR.
 
 ---
 
-## Why Templane
+## API at a glance
 
-Templates are untyped contracts. They accept a bag of values, look up names by string, and render *something* — even when the data has a typo, a missing field, or a wrong type. The failure is silent: the render succeeds, the customer gets a broken email, and you find out four days later.
+### `dev.templane.freemarker` (engine binding)
 
-Templane fixes this at the boundary. A schema next to your template declares what the template expects; the binding refuses to render when the data doesn't match. See the [main README](https://github.com/ereshzealous/Templane) for the full pitch.
+```java
+TemplaneConfiguration cfg = new TemplaneConfiguration(Path templateDir);
+TemplaneTemplate     tmpl = cfg.getTemplate("name.schema.yaml");
+String                out = tmpl.render(Map<String,Object> data);  // throws TemplaneTemplateException
+
+// On failure:
+exc.errors() // → List<TypeCheckError>, every problem at once
+```
+
+### `dev.templane.core` (protocol primitives)
+
+```java
+SchemaParser.Result   r = new SchemaParser().parse(yaml, sourceId);
+List<TypeCheckError>  e = TypeChecker.check(schema, data);
+TIRResult           tir = IRGenerator.generate(schema, body, data);
+List<BreakingChange>  c = BreakingChangeDetector.detect(oldSchema, newSchema);
+```
+
+All models are immutable Java records: `TypedSchema`, `TemplaneField`, `TypeCheckError`, `BreakingChange`, `ASTNode`, `TIRNode`.
 
 ---
 
-## Adoption pattern
+## Artifacts
 
-**You don't migrate templates.** Your existing `.ftl` files stay as-is. You drop one `.schema.yaml` beside each one:
+| Artifact | What it is | Pull it when... |
+|---|---|---|
+| `freemarker-templane` | FreeMarker binding (entry point for most users) | You render `.ftl` templates |
+| `templane-core` | Schema parser, type checker, IR, breaking-change detector | Pulled transitively; depend directly only for non-FreeMarker use |
+| `templane-adapter-html` | TIR → escaped HTML | You need HTML output without FreeMarker |
+| `templane-adapter-yaml` | TIR → YAML | You need YAML output without FreeMarker |
 
-```
-src/main/resources/templates/
-  welcome.ftl                 ← untouched
-  welcome.schema.yaml         ← NEW
-  invoice.ftl                 ← untouched
-  invoice.schema.yaml         ← NEW
-```
-
-Your code switches from `freemarker.Configuration` to `TemplaneConfiguration`. That's the migration.
-
-See the [ADOPTION guide](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md) for per-engine walkthroughs.
+All under group `io.github.ereshzealous`, version `0.1.0`.
 
 ---
 
-## Gradle module layout
+## Worked examples
 
-The Maven artifacts map to independent Gradle subprojects:
+Six runnable programs on GitHub — each is a single `main()` you can copy into your project as a starting point:
 
-| Artifact | Purpose |
+| Example | Shows |
 |---|---|
-| `io.github.ereshzealous:templane-core` | Schema parser, type checker, IR generator, breaking-change detector |
-| `io.github.ereshzealous:templane-adapter-html` | HTML adapter (entity escaping + provenance markers) |
-| `io.github.ereshzealous:templane-adapter-yaml` | YAML adapter |
-| `io.github.ereshzealous:freemarker-templane` | FreeMarker binding |
-
-Depend on `freemarker-templane` for the user-facing API; transitively brings `templane-core`.
-
----
-
-## Examples
-
-Six worked examples under the repo's [`templane-java/examples/`](https://github.com/ereshzealous/Templane/tree/main/templane-java/examples): hello, validation errors, nested objects and lists, FreeMarker features, breaking-change detection, and a full sidecar-mode invoice renderer.
+| [`Hello.java`](https://github.com/ereshzealous/Templane/blob/main/templane-java/examples/src/main/java/dev/templane/examples/Hello.java) | Simplest end-to-end render |
+| [`ValidationErrors.java`](https://github.com/ereshzealous/Templane/blob/main/templane-java/examples/src/main/java/dev/templane/examples/ValidationErrors.java) | Type-check error reporting |
+| [`NestedAndLists.java`](https://github.com/ereshzealous/Templane/blob/main/templane-java/examples/src/main/java/dev/templane/examples/NestedAndLists.java) | Nested objects + list-of-objects validation |
+| [`FreemarkerBinding.java`](https://github.com/ereshzealous/Templane/blob/main/templane-java/examples/src/main/java/dev/templane/examples/FreemarkerBinding.java) | Direct binding usage without sidecar mode |
+| [`BreakingChanges.java`](https://github.com/ereshzealous/Templane/blob/main/templane-java/examples/src/main/java/dev/templane/examples/BreakingChanges.java) | Schema diff between v1 and v2 |
+| [`SidecarInvoice.java`](https://github.com/ereshzealous/Templane/blob/main/templane-java/examples/src/main/java/dev/templane/examples/SidecarInvoice.java) | Real-world invoice template, sidecar mode |
 
 ---
 
-## Building from source
+## Requirements & compatibility
 
-```bash
-git clone https://github.com/ereshzealous/Templane.git
-cd Templane/templane-java
-./gradlew build        # tests + all JARs
-./gradlew test         # 65 tests
-```
-
-**Note**: use `./gradlew` (bundled Gradle 8.11.1). Do not assume system `gradle` is interchangeable; the repository is validated against the bundled wrapper, and Gradle 9+ should be treated as a separate compatibility check.
+- **Java 21+** (Temurin recommended) — uses sealed interfaces and pattern-matching `switch`
+- **FreeMarker 2.3.32** (transitive — override if your project pins a different version)
+- Thread-safe: `TemplaneConfiguration` is reusable; `TemplaneTemplate` instances are safe to render concurrently
 
 ---
 
 ## Links
 
-- **Repo**: https://github.com/ereshzealous/Templane
-- **Full spec (RFC 2119)**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
-- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md) — 12 Mermaid diagrams
+- **Spec & rationale**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
+- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md)
 - **Adoption guide**: [docs/ADOPTION.md](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md)
-- **Issues**: [GitHub Issues](https://github.com/ereshzealous/Templane/issues)
+- **Issues / discussions**: [GitHub](https://github.com/ereshzealous/Templane/issues)
+- **Maven Central**: [`io.github.ereshzealous`](https://central.sonatype.com/namespace/io.github.ereshzealous)
 
 ## License
 
-Apache License 2.0
+Apache License 2.0.
