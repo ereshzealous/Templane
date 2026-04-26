@@ -98,43 +98,15 @@ The engine binding — FreeMarker, Jinja2, Handlebars, or Go templates — attac
 
 ## Inside each implementation
 
-Every implementation ships the same components. The seams are deliberately identical across languages so that conformance is meaningful — not a coincidence.
+Every implementation ships the same components, in the same arrangement. Whether you read the source of `templane-java`, `templane-python`, `templane-ts`, or `templane-go`, you find the same module names, the same boundaries between them, and the same data flowing through them. That symmetry is what makes cross-language conformance meaningful — and what makes a debugging session in one language transferable to another.
 
-```mermaid
-flowchart TB
-    subgraph lang["templane-{lang}"]
-        direction TB
-        SP[SchemaParser]
-        DL[DataLoader]
-        TC[TypeChecker]
-        IR[IRGenerator]
-        BCD[BreakingChange<br/>Detector]
+![Three groupings of components inside every Templane implementation: the render path (SchemaParser, TypeChecker, IRGenerator, Engine binding), direct renderers (HTML and YAML adapters consuming IR), and beyond rendering (BreakingChangeDetector and conform-adapter)](./images/2.png)
 
-        subgraph adapters["Output adapters"]
-            HTML[html adapter]
-            YAML[yaml adapter]
-            ENG[engine binding<br/>jinja / handlebars /<br/>freemarker / gotmpl]
-        end
+Three groupings, three different concerns:
 
-        CONF[conform-adapter<br/>stdio bridge]
-    end
-
-    SP --> TC
-    DL --> TC
-    TC --> IR
-    IR --> HTML
-    IR --> YAML
-    IR --> ENG
-    SP -.schema A.-> BCD
-    SP -.schema B.-> BCD
-
-    IR -.exposed via.-> CONF
-
-    style CONF fill:#D9A441,color:#2B2A28,stroke:#2B2A28
-    style BCD fill:#FBF6EB,color:#2B2A28,stroke:#2B2A28
-```
-
-The `BreakingChangeDetector` is a separate entry point that takes two parsed schemas and reports the diff — it does not sit on the render path. The `conform-adapter` is a small stdio bridge each implementation ships so the cross-language runner can drive it as a subprocess.
+- **The render path** is what 90% of users touch. Four components, one direction, no branching except `valid` / `invalid` at the type checker.
+- **Direct renderers** — `html adapter` and `yaml adapter` — take the IR and produce structured output without involving any templating engine. Useful when you want validated output but do not want to pull in FreeMarker, Jinja2, Handlebars, or Go templates.
+- **Beyond rendering:** `BreakingChangeDetector` compares two parsed schemas and reports a list of breaking changes — wire it into CI for schema-evolution checks. `conform-adapter` is a small stdio bridge each implementation ships so the cross-language test runner can drive it as a subprocess.
 
 ---
 
