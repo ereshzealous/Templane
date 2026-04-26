@@ -1,7 +1,36 @@
 {
   "name": "templane-conform",
   "version": "0.1.0",
-  "private": true,
+  "description": "Cross-language conformance test runner for the Templane protocol — runs every implementation against a shared fixture suite.",
+  "keywords": [
+    "templane",
+    "conformance",
+    "testing",
+    "cli",
+    "fixtures"
+  ],
+  "license": "Apache-2.0",
+  "author": "Eresh Gorantla <eresh.zealous@gmail.com>",
+  "homepage": "https://github.com/ereshzealous/Templane#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ereshzealous/Templane.git",
+    "directory": "templane-spec/templane-conform"
+  },
+  "bugs": {
+    "url": "https://github.com/ereshzealous/Templane/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "templane-conform": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js"

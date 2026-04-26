@@ -35,6 +35,9 @@ jobs:
   release:
     name: Build + publish templane-ts
     runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/templane-ts
     permissions:
       contents: write   # to create tag + release
       id-token: write   # for npm provenance

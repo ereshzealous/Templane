@@ -32,6 +32,9 @@ jobs:
   release:
     name: Build + publish templane-conform
     runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/templane-conform
     permissions:
       contents: write
       id-token: write

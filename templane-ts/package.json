@@ -1,10 +1,70 @@
 {
   "name": "templane-ts",
   "version": "0.1.0",
-  "private": true,
+  "description": "Schema-validated Handlebars templates for TypeScript and JavaScript — typed contracts that catch bad data before render.",
+  "keywords": [
+    "templates",
+    "handlebars",
+    "schema",
+    "validation",
+    "typed-templates",
+    "templane",
+    "typescript"
+  ],
+  "license": "Apache-2.0",
+  "author": "Eresh Gorantla <eresh.zealous@gmail.com>",
+  "homepage": "https://github.com/ereshzealous/Templane#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ereshzealous/Templane.git",
+    "directory": "templane-ts"
+  },
+  "bugs": {
+    "url": "https://github.com/ereshzealous/Templane/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "dist/handlebars-templane.js",
+  "types": "dist/handlebars-templane.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/handlebars-templane.d.ts",
+      "default": "./dist/handlebars-templane.js"
+    },
+    "./schema-parser": {
+      "types": "./dist/schema-parser.d.ts",
+      "default": "./dist/schema-parser.js"
+    },
+    "./type-checker": {
+      "types": "./dist/type-checker.d.ts",
+      "default": "./dist/type-checker.js"
+    },
+    "./ir-generator": {
+      "types": "./dist/ir-generator.d.ts",
+      "default": "./dist/ir-generator.js"
+    },
+    "./html-adapter": {
+      "types": "./dist/html-adapter.d.ts",
+      "default": "./dist/html-adapter.js"
+    },
+    "./yaml-adapter": {
+      "types": "./dist/yaml-adapter.d.ts",
+      "default": "./dist/yaml-adapter.js"
+    },
+    "./models": {
+      "types": "./dist/models.d.ts",
+      "default": "./dist/models.js"
+    }
+  },
   "bin": {
     "xt": "dist/xt.js"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "node --import tsx --test tests/*.test.ts"

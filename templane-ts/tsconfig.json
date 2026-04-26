@@ -8,7 +8,9 @@
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "skipLibCheck": true
   },
   "include": ["src"]
