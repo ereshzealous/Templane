@@ -142,27 +142,7 @@ The `BreakingChangeDetector` is a separate entry point that takes two parsed sch
 
 Templane is a protocol, not a shared library. Every language ships its own native implementation — no shared runtime, no cross-language bridges. The promise is simple: **the same schema and the same data produce the same result in every language.** Identical output when validation passes; identical error set, with identical codes and field paths, when it fails.
 
-```mermaid
-flowchart LR
-    input["schema.yaml<br/>+ your data"]
-
-    input --> J["Java"]
-    input --> P["Python"]
-    input --> T["TypeScript"]
-    input --> G["Go"]
-
-    J --> out["identical output if valid<br/>identical errors if not"]
-    P --> out
-    T --> out
-    G --> out
-
-    style input fill:#fff7e0,stroke:#d4a017,color:#1e1e1e
-    style out fill:#e9f7ef,stroke:#1e8449,color:#1e1e1e
-    style J fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
-    style P fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
-    style T fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
-    style G fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
-```
+![Same schema and data, fed through Java, Python, TypeScript, and Go, produce identical output when valid and an identical error set when not](./images/3.png)
 
 That promise is enforced by a shared suite of input/output cases that every implementation runs on every change. Any divergence fails the build — which is how the protocol stays in lock-step across languages instead of drifting over time.
 
