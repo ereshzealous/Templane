@@ -90,62 +90,81 @@ The same schema and the same input produce the same errors in Python, TypeScript
 
 Inside every implementation, data flows through four stages before it reaches the underlying template engine:
 
-![Templane four-stage pipeline: schema and data flow through parse, check, generate, and render to produce output, with a structured-errors branch on validation failure](./images/1.png)
+![Templane four-stage pipeline: schema and data flow through parse, check, generate, and render to produce output, with a structured-errors branch on validation failure](./images/how_it_works.png)
 
 The engine binding — FreeMarker, Jinja2, Handlebars, or Go templates — attaches at the `render` stage. Everything before that is engine-agnostic, so the validation behaviour is identical regardless of which template language you use.
 
 ---
 
-## Cross-language consistency
+## Inside each implementation
 
-Templane is a protocol with five native implementations — no shared runtime, no cross-language bridges. The diagram below shows how the protocol stays in sync across languages: a single specification declares the intended behaviour, a shared suite of acceptance tests pins down inputs and expected outputs, and a cross-language runner exercises every implementation against every test on every change.
+Every implementation ships the same components. The seams are deliberately identical across languages so that conformance is meaningful — not a coincidence.
 
 ```mermaid
 flowchart TB
-    subgraph contract["The contract"]
-        spec["SPEC.md<br/>normative protocol"]
-        fixtures["shared test suite<br/>declared inputs / expected outputs"]
-        spec --> fixtures
+    subgraph lang["templane-{lang}"]
+        direction TB
+        SP[SchemaParser]
+        DL[DataLoader]
+        TC[TypeChecker]
+        IR[IRGenerator]
+        BCD[BreakingChange<br/>Detector]
+
+        subgraph adapters["Output adapters"]
+            HTML[html adapter]
+            YAML[yaml adapter]
+            ENG[engine binding<br/>jinja / handlebars /<br/>freemarker / gotmpl]
+        end
+
+        CONF[conform-adapter<br/>stdio bridge]
     end
 
-    subgraph runner["Cross-language runner"]
-        conform["templane-conform<br/>executes every implementation against every test"]
-    end
+    SP --> TC
+    DL --> TC
+    TC --> IR
+    IR --> HTML
+    IR --> YAML
+    IR --> ENG
+    SP -.schema A.-> BCD
+    SP -.schema B.-> BCD
 
-    subgraph impls["Native implementations"]
-        ref["reference (Python)"]
-        py["templane-python"]
-        ts["templane-ts"]
-        java["templane-java"]
-        go["templane-go"]
-    end
+    IR -.exposed via.-> CONF
 
-    subgraph engines["Engine bindings"]
-        jinja["Jinja2"]
-        hbars["Handlebars"]
-        freemarker["FreeMarker"]
-        gostd["Go text/html templates"]
-    end
-
-    fixtures --> conform
-    conform -.adapter.-> ref
-    conform -.adapter.-> py
-    conform -.adapter.-> ts
-    conform -.adapter.-> java
-    conform -.adapter.-> go
-
-    py --> jinja
-    ts --> hbars
-    java --> freemarker
-    go --> gostd
-
-    style contract fill:#fff7e0,stroke:#d4a017
-    style runner fill:#e8f0ff,stroke:#3367d6
-    style impls fill:#f0f4f8,stroke:#5a6b7d
-    style engines fill:#e9f7ef,stroke:#1e8449
+    style CONF fill:#D9A441,color:#2B2A28,stroke:#2B2A28
+    style BCD fill:#FBF6EB,color:#2B2A28,stroke:#2B2A28
 ```
 
-Each implementation ships a small adapter binary that reads a test case from standard input, runs the four-stage pipeline, and writes the result to standard output. The runner spawns the adapters in parallel, feeds them every test in turn, and diffs the output against the declared expected result. Cross-language parity is therefore proven by behaviour, not by code sharing.
+The `BreakingChangeDetector` is a separate entry point that takes two parsed schemas and reports the diff — it does not sit on the render path. The `conform-adapter` is a small stdio bridge each implementation ships so the cross-language runner can drive it as a subprocess.
+
+---
+
+## Cross-language consistency
+
+Templane is a protocol, not a shared library. Every language ships its own native implementation — no shared runtime, no cross-language bridges. The promise is simple: **the same schema and the same data produce the same result in every language.** Identical output when validation passes; identical error set, with identical codes and field paths, when it fails.
+
+```mermaid
+flowchart LR
+    input["schema.yaml<br/>+ your data"]
+
+    input --> J["Java"]
+    input --> P["Python"]
+    input --> T["TypeScript"]
+    input --> G["Go"]
+
+    J --> out["identical output if valid<br/>identical errors if not"]
+    P --> out
+    T --> out
+    G --> out
+
+    style input fill:#fff7e0,stroke:#d4a017,color:#1e1e1e
+    style out fill:#e9f7ef,stroke:#1e8449,color:#1e1e1e
+    style J fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
+    style P fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
+    style T fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
+    style G fill:#f4f5f7,stroke:#1e1e1e,color:#1e1e1e
+```
+
+That promise is enforced by a shared suite of input/output cases that every implementation runs on every change. Any divergence fails the build — which is how the protocol stays in lock-step across languages instead of drifting over time.
 
 ---
 
@@ -181,6 +200,45 @@ customer:
 ```
 
 Defaults defined by the protocol: a field with no `type` is `string`; a field with no `required` is optional; an `enum` with no `values` rejects every value; a `list` with no `items` is `list<string>`.
+
+---
+
+## Errors surfaced by the checker
+
+Every type-check failure produces a structured error with a code, a field path, a human-readable message, and an optional suggestion. The checker accumulates errors — one `check` call reports every problem at once, never short-circuiting at the first.
+
+```mermaid
+flowchart LR
+    ROOT["check error"] --> C1["unknown_field"]
+    ROOT --> C2["missing_required_field"]
+    ROOT --> C3["type_mismatch"]
+    ROOT --> C4["invalid_enum_value"]
+    ROOT --> C5["schema_syntax_error"]
+
+    C1 -.suggests.-> DYM["did_you_mean<br/>suggestion"]
+
+    C1 --> EX1["data has 'enviornment'<br/>schema has no such field"]
+    C2 --> EX2["schema requires 'email'<br/>data has no 'email'"]
+    C3 --> EX3["schema: cpu is string<br/>data: cpu is number"]
+    C4 --> EX4["schema: enum [A, B, C]<br/>data: 'D'"]
+    C5 --> EX5["malformed YAML<br/>unclosed bracket"]
+
+    style ROOT fill:#C75B3C,color:#F4EDE0,stroke:#2B2A28
+    style DYM fill:#D9A441,color:#2B2A28,stroke:#2B2A28
+```
+
+The wire shape is identical in every implementation:
+
+```json
+{
+  "code": "type_mismatch",
+  "path": "resources.requests.cpu",
+  "message": "Field 'resources.requests.cpu' expected string, got number",
+  "did_you_mean": null
+}
+```
+
+The `did_you_mean` slot only populates for `unknown_field` errors when a similarly-spelled field exists on the schema (Levenshtein distance ≤ 3) — so a typo of `enviornment` for `environment` is reported with a suggestion, while a genuinely unknown field is reported without one.
 
 ---
 
