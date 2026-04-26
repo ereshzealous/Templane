@@ -75,6 +75,10 @@ jobs:
         working-directory: templane-python
         run: uv build
 
+      - name: Validate distributions (twine check)
+        working-directory: templane-python
+        run: uvx twine check --strict dist/*
+
       - name: Create git tag + GitHub release
         run: |
           git config user.name "github-actions[bot]"

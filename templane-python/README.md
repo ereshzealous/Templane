@@ -187,8 +187,6 @@ templates/
 
 Your code switches from `jinja2.Environment` to `jinja_templane.TemplaneEnvironment`. That's the migration.
 
-See the [ADOPTION guide](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md) for per-engine walkthroughs.
-
 ---
 
 ## Examples
@@ -211,10 +209,10 @@ uv sync --extra dev
 ## Links
 
 - **Repo**: https://github.com/ereshzealous/Templane
-- **Full spec (RFC 2119)**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
-- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md) — 12 Mermaid diagrams
-- **Adoption guide**: [docs/ADOPTION.md](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md)
+- **Full spec**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
+- **Architecture & cross-language conformance**: [main README](https://github.com/ereshzealous/Templane#inside-each-implementation)
 - **Issues**: [GitHub Issues](https://github.com/ereshzealous/Templane/issues)
+- **PyPI**: [`templane-python`](https://pypi.org/project/templane-python/)
 
 ## License
 
