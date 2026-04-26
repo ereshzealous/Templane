@@ -211,8 +211,6 @@ templates/
 
 Your code adds three lines: `LoadSchemaFromPath` + `Check` + handle errors. That's the migration.
 
-See the [ADOPTION guide](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md) for per-engine walkthroughs.
-
 ---
 
 ## Examples
@@ -248,10 +246,10 @@ Ideal for CI containers and minimal sidecars where JVM/Node startup cost matters
 ## Links
 
 - **Repo**: https://github.com/ereshzealous/Templane
-- **Full spec (RFC 2119)**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
-- **Architecture**: [docs/ARCHITECTURE.md](https://github.com/ereshzealous/Templane/blob/main/docs/ARCHITECTURE.md) — 12 Mermaid diagrams
-- **Adoption guide**: [docs/ADOPTION.md](https://github.com/ereshzealous/Templane/blob/main/docs/ADOPTION.md)
+- **Full spec**: [SPEC.md](https://github.com/ereshzealous/Templane/blob/main/SPEC.md)
+- **Architecture & cross-language conformance**: [main README](https://github.com/ereshzealous/Templane#inside-each-implementation)
 - **Issues**: [GitHub Issues](https://github.com/ereshzealous/Templane/issues)
+- **Module**: [`github.com/ereshzealous/Templane/templane-go`](https://pkg.go.dev/github.com/ereshzealous/Templane/templane-go)
 
 ## License
 
