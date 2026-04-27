@@ -10,7 +10,7 @@
 <p align="center"><em>Schema-validated templates. Same behavior in Java, Python, TypeScript, and Go.</em></p>
 
 <p align="center">
-  <a href="https://central.sonatype.com/namespace/io.github.ereshzealous"><img src="https://img.shields.io/badge/Maven%20Central-templane--java%200.1.0-blue" alt="Maven Central"/></a>
+  <a href="https://central.sonatype.com/namespace/io.github.ereshzealous"><img src="https://img.shields.io/badge/Maven%20Central-templane--java%200.4.0-blue" alt="Maven Central"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"/></a>
 </p>
 
@@ -213,10 +213,10 @@ Additive changes — adding a new optional field, adding a new enum value, relax
 
 | Language | Module | Engine binding | Availability |
 |---|---|---|---|
-| **Java** | [`templane-java`](templane-java/) | FreeMarker | [Maven Central 0.1.0](https://central.sonatype.com/namespace/io.github.ereshzealous) |
-| **Python** | [`templane-python`](templane-python/) | Jinja2 | source build · PyPI publish in progress |
-| **TypeScript** | [`templane-ts`](templane-ts/) | Handlebars | source build · npm publish in progress |
-| **Go** | [`templane-go`](templane-go/) | `text/html` templates | source build · Go module tag in progress |
+| **Java** | [`templane-java`](templane-java/) | FreeMarker | [Maven Central 0.4.0](https://central.sonatype.com/namespace/io.github.ereshzealous) |
+| **Python** | [`templane-python`](templane-python/) | Jinja2 | [PyPI 0.2.0](https://pypi.org/project/templane-python/) |
+| **TypeScript** | [`templane-ts`](templane-ts/) | Handlebars | [npm 0.2.0](https://www.npmjs.com/package/templane-ts) |
+| **Go** | [`templane-go`](templane-go/) | `text/template` | [pkg.go.dev v0.2.0](https://pkg.go.dev/github.com/ereshzealous/Templane/templane-go) |
 
 A reference implementation lives in [`templane-spec`](templane-spec/) for protocol authors. It is intentionally not published — it exists to define behaviour, not to be depended on in production code.
 
@@ -226,7 +226,7 @@ A reference implementation lives in [`templane-spec`](templane-spec/) for protoc
 
 | You write | Start here |
 |---|---|
-| Java + FreeMarker | [`templane-java/README.md`](templane-java/README.md) — installable from Maven Central today |
+| Java + FreeMarker | [`templane-java/README.md`](templane-java/README.md) |
 | Python + Jinja2 | [`templane-python/README.md`](templane-python/README.md) |
 | TypeScript / JavaScript + Handlebars | [`templane-ts/README.md`](templane-ts/README.md) |
 | Go + `text/template` | [`templane-go/README.md`](templane-go/README.md) |

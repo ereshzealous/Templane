@@ -24,7 +24,7 @@ Templane fixes that at the boundary. You declare what your template expects in a
 repositories { mavenCentral() }
 
 dependencies {
-    implementation("io.github.ereshzealous:freemarker-templane:0.1.0")
+    implementation("io.github.ereshzealous:freemarker-templane:0.4.0")
 }
 ```
 
@@ -34,7 +34,7 @@ dependencies {
 <dependency>
   <groupId>io.github.ereshzealous</groupId>
   <artifactId>freemarker-templane</artifactId>
-  <version>0.1.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
@@ -194,7 +194,7 @@ The HTML and YAML adapters render Templane's intermediate representation to a ta
 ### `templane-adapter-html` — auto-escaped HTML output
 
 ```kotlin
-implementation("io.github.ereshzealous:templane-adapter-html:0.1.0")
+implementation("io.github.ereshzealous:templane-adapter-html:0.4.0")
 ```
 
 ```java
@@ -209,7 +209,7 @@ Use when you're building HTML output and want XSS-safe rendering with schema-val
 ### `templane-adapter-yaml` — deterministic YAML output
 
 ```kotlin
-implementation("io.github.ereshzealous:templane-adapter-yaml:0.1.0")
+implementation("io.github.ereshzealous:templane-adapter-yaml:0.4.0")
 ```
 
 ```java
@@ -258,7 +258,7 @@ All models are immutable Java records: `TypedSchema`, `TemplaneField`, `TypeChec
 | `templane-adapter-html` | TIR → escaped HTML | You need HTML output without FreeMarker |
 | `templane-adapter-yaml` | TIR → YAML | You need YAML output without FreeMarker |
 
-All under group `io.github.ereshzealous`, version `0.1.0`.
+All under group `io.github.ereshzealous`, version `0.4.0`.
 
 ---
 
