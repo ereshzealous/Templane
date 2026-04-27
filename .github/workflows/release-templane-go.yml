@@ -61,7 +61,7 @@ jobs:
           echo "latest tag: ${LATEST:-<none>} → new version: $NEW"
           echo "version=$NEW" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.22'
           cache-dependency-path: templane-go/go.sum
