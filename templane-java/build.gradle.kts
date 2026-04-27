@@ -24,7 +24,7 @@ subprojects {
     apply(plugin = "java-library")
 
     project.group = "io.github.ereshzealous"
-    project.version = "0.1.0"
+    project.version = rootProject.version
 
     extensions.configure<JavaPluginExtension> {
         toolchain {
