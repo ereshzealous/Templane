@@ -1,4 +1,4 @@
 dependencies {
     api(project(":templane-core"))
-    implementation("org.freemarker:freemarker:2.3.32")
+    implementation("org.freemarker:freemarker:2.3.34")
 }
