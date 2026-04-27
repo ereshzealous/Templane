@@ -18,6 +18,58 @@ tags at release time.
 
 ---
 
+## 2026-04-27 — first registry releases
+
+This release ships every implementation to its language's package
+registry. The protocol spec is unchanged at v1.0; the bumps are
+package-level only.
+
+### Published
+
+- **`templane-python` 0.2.0** — [PyPI](https://pypi.org/project/templane-python/).
+  `pip install templane-python` / `uv add templane-python`.
+- **`templane-ts` 0.2.0** — [npm](https://www.npmjs.com/package/templane-ts).
+  `npm install templane-ts`. Includes the `xt` CLI as a `bin` entry.
+- **`templane-go` v0.2.0** — [Go module proxy](https://pkg.go.dev/github.com/ereshzealous/Templane/templane-go).
+  `go get github.com/ereshzealous/Templane/templane-go@v0.2.0`.
+- **`templane-java` 0.4.0** — [Maven Central](https://central.sonatype.com/namespace/io.github.ereshzealous).
+  Coordinates: `io.github.ereshzealous:freemarker-templane:0.4.0`
+  (plus `templane-core`, `templane-adapter-html`, `templane-adapter-yaml`).
+  Java skipped 0.2.0 and 0.3.0 — those tags exist on GitHub from
+  earlier release attempts that failed Maven Central validation
+  (subproject version inheritance bug, see *Fixed* below).
+
+### Added
+
+- Release workflows now take a `bump_type` choice (`patch` | `minor` |
+  `major`) instead of a free-text version string. The next version is
+  computed from the latest matching `<package>/v*` git tag.
+- `twine check --strict` step in the Python release workflow to catch
+  bad PyPI metadata before upload.
+- npm provenance + Trusted Publishing (OIDC) for `templane-ts`.
+
+### Fixed
+
+- **`templane-java`**: subprojects in `templane-java/build.gradle.kts`
+  hard-coded `project.version = "0.1.0"` inside the `subprojects { }`
+  block, overriding the root `gradle.properties`. Bumping the version
+  in CI only affected the root JAR; subproject artifacts (`templane-core`,
+  `templane-adapter-html`, `templane-adapter-yaml`, `freemarker-templane`)
+  kept building at 0.1.0, which Maven Central correctly rejected as
+  duplicates. Subprojects now inherit `rootProject.version`.
+
+### Changed
+
+- Repository-wide pass to remove low-signal source comments — section
+  dividers, restated-code narration, and similar AI-noise patterns.
+  Spec references, doc comments on exported APIs, and non-obvious WHY
+  notes were kept.
+- `examples/README.md` — collapsed duplicate punch-list / difficulty-map
+  tables into one index, dropped the defensive "What you won't find
+  here" list.
+
+---
+
 ## [0.1.0] — 2026-04-24
 
 Initial public release. Every piece below is original work; the project
@@ -107,5 +159,5 @@ package.
 
 ---
 
-[Unreleased]: https://github.com/ereshzealous/Templane/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ereshzealous/Templane/compare/templane-java/v0.4.0...HEAD
 [0.1.0]: https://github.com/ereshzealous/Templane/releases/tag/v0.1.0
