@@ -69,7 +69,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Bump version
         working-directory: templane-java
