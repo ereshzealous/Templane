@@ -13,7 +13,6 @@ func Check(schema *TypedSchema, data map[string]any) []TypeCheckError {
 func checkWithPrefix(schema *TypedSchema, data map[string]any, prefix string) []TypeCheckError {
 	var errors []TypeCheckError
 
-	// Required / type checks
 	for name, field := range schema.Fields {
 		path := name
 		if prefix != "" {
@@ -33,7 +32,6 @@ func checkWithPrefix(schema *TypedSchema, data map[string]any, prefix string) []
 		errors = append(errors, checkType(field.Type, value, path)...)
 	}
 
-	// Unknown field / did-you-mean checks
 	for key := range data {
 		if _, known := schema.Fields[key]; known {
 			continue

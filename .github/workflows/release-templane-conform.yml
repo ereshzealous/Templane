@@ -12,10 +12,12 @@ name: Release templane-conform CLI (manual)
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version (e.g. 0.1.0)'
+      bump_type:
+        description: 'Semver bump from the latest templane-conform/v* tag'
         required: true
-        type: string
+        default: 'patch'
+        type: choice
+        options: [patch, minor, major]
       dist_tag:
         description: 'npm dist-tag'
         required: true
@@ -43,6 +45,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Compute next version
+        id: bump
+        run: |
+          set -euo pipefail
+          PREFIX="templane-conform"
+          LATEST=$(git tag --list "${PREFIX}/v*" --sort=-v:refname | head -1)
+          if [ -z "$LATEST" ]; then
+            MAJOR=0; MINOR=0; PATCH=0
+          else
+            VERSION="${LATEST#${PREFIX}/v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          fi
+          case "${{ inputs.bump_type }}" in
+            major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH+1)) ;;
+          esac
+          NEW="${MAJOR}.${MINOR}.${PATCH}"
+          echo "latest tag: ${LATEST:-<none>} → new version: $NEW"
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -58,7 +81,7 @@ jobs:
 
       - name: Set version
         working-directory: templane-spec/templane-conform
-        run: npm version ${{ inputs.version }} --no-git-tag-version --allow-same-version
+        run: npm version ${{ steps.bump.outputs.version }} --no-git-tag-version --allow-same-version
 
       - name: Pack tarball
         working-directory: templane-spec/templane-conform
@@ -68,16 +91,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "templane-conform/v${{ inputs.version }}"
-          git push origin "templane-conform/v${{ inputs.version }}"
+          git tag "templane-conform/v${{ steps.bump.outputs.version }}"
+          git push origin "templane-conform/v${{ steps.bump.outputs.version }}"
 
       - name: GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: templane-conform/v${{ inputs.version }}
-          name: templane-conform ${{ inputs.version }}
+          tag_name: templane-conform/v${{ steps.bump.outputs.version }}
+          name: templane-conform ${{ steps.bump.outputs.version }}
           generate_release_notes: true
-          files: templane-spec/templane-conform/templane-conform-${{ inputs.version }}.tgz
+          files: templane-spec/templane-conform/templane-conform-${{ steps.bump.outputs.version }}.tgz
 
       - name: Publish to npm
         if: ${{ inputs.publish_to_npm }}

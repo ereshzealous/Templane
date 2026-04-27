@@ -128,9 +128,7 @@ test('schema is exposed on the template object', () => {
   assert.equal(tmpl.schema.fields.name.required, true);
 });
 
-// ---------------------------------------------------------------------------
-// External-body schema (SPEC §4.3) — body: key references native template file
-// ---------------------------------------------------------------------------
+// SPEC §4.3 — sidecar mode (body: key references an external template file).
 
 test('compileFromPath loads sidecar body and renders', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'tplane-hbs-'));

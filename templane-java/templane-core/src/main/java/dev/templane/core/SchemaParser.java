@@ -75,7 +75,6 @@ public class SchemaParser {
             return Result.err("Schema must be a YAML mapping");
         }
 
-        // Extract reserved top-level keys and strip them before building fields
         String bodyPath = null;
         String engine = null;
         Map<Object, Object> remaining = new LinkedHashMap<>();
@@ -90,24 +89,20 @@ public class SchemaParser {
             }
         }
 
-        // Validation: cannot mix body: key with --- separator
         if (bodyPath != null && hasSeparator) {
             return Result.err("cannot use both 'body:' key and '---' separator");
         }
 
-        // Validation: body path must be relative and inside the schema's directory
         if (bodyPath != null) {
             if (bodyPath.startsWith("/") || hasParentTraversal(bodyPath)) {
                 return Result.err("body path must be relative and inside the schema's directory");
             }
         }
 
-        // Validation: engine must be one of the known set
         if (engine != null && !VALID_ENGINES.contains(engine)) {
             return Result.err("unknown engine '" + engine + "'");
         }
 
-        // Infer engine from extension when not explicit
         if (engine == null && bodyPath != null) {
             String ext = extensionOf(bodyPath);
             if (ext != null) {
@@ -147,7 +142,6 @@ public class SchemaParser {
             return r;
         }
 
-        // Sidecar mode: read external body file
         if (r.bodyPath() != null && r.body() == null) {
             Path parent = schemaPath.toAbsolutePath().getParent();
             Path resolved = parent == null

@@ -3,10 +3,6 @@ from dataclasses import dataclass
 from typing import Any
 
 
-# ---------------------------------------------------------------------------
-# TemplaneFieldType hierarchy
-# ---------------------------------------------------------------------------
-
 @dataclass(eq=True)
 class StringType:
     pass
@@ -68,10 +64,6 @@ class TypeCheckError:
         return {"code": self.code, "field": self.field, "message": self.message}
 
 
-# ---------------------------------------------------------------------------
-# AST nodes
-# ---------------------------------------------------------------------------
-
 @dataclass(eq=True)
 class TextNode:
     content: str
@@ -105,10 +97,6 @@ class ForEachNode:
 
 ASTNode = TextNode | ExprNode | IfNode | ForEachNode
 
-
-# ---------------------------------------------------------------------------
-# TIR nodes
-# ---------------------------------------------------------------------------
 
 @dataclass(eq=True)
 class TIRTextNode:
@@ -145,10 +133,6 @@ class TIRResult:
 
 TIRNode = TIRTextNode | TIRExprNode | TIRIfNode | TIRForeachNode
 
-
-# ---------------------------------------------------------------------------
-# Serialization: TemplaneFieldType
-# ---------------------------------------------------------------------------
 
 def templane_field_type_to_dict(t: TemplaneFieldType) -> dict:
     if isinstance(t, StringType):
@@ -191,10 +175,6 @@ def templane_field_type_from_dict(d: dict) -> TemplaneFieldType:
     raise ValueError(f"Unknown kind: {kind}")
 
 
-# ---------------------------------------------------------------------------
-# Serialization: TemplaneField, TypedSchema
-# ---------------------------------------------------------------------------
-
 def templane_field_to_dict(f: TemplaneField) -> dict:
     return {"name": f.name, "type": templane_field_type_to_dict(f.type), "required": f.required}
 
@@ -211,10 +191,6 @@ def typed_schema_from_dict(d: dict) -> TypedSchema:
     fields = {k: templane_field_from_dict(v) for k, v in d["fields"].items()}
     return TypedSchema(id=d["id"], fields=fields)
 
-
-# ---------------------------------------------------------------------------
-# Serialization: AST nodes
-# ---------------------------------------------------------------------------
 
 def ast_node_to_dict(node: ASTNode) -> dict:
     if isinstance(node, TextNode):
@@ -259,10 +235,6 @@ def ast_node_from_dict(d: dict) -> ASTNode:
         )
     raise ValueError(f"Unknown kind: {kind}")
 
-
-# ---------------------------------------------------------------------------
-# Serialization: TIR nodes
-# ---------------------------------------------------------------------------
 
 def tir_node_to_dict(node: TIRNode) -> dict:
     if isinstance(node, TIRTextNode):

@@ -58,7 +58,6 @@ func processLine(line string, out *bufio.Writer) {
 func writeResponse(out *bufio.Writer, resp response) {
 	b, err := json.Marshal(resp)
 	if err != nil {
-		// If we can't marshal the response, fall back to a minimal error.
 		fmt.Fprintf(out, `{"output":null,"error":%q}`+"\n", err.Error())
 		return
 	}

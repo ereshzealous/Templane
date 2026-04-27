@@ -7,10 +7,9 @@ type ParseResult =
   | { schema: TypedSchema; body?: string; bodyPath?: string; engine?: string }
   | { error: string };
 
-// Top-level keys reserved by the protocol (not treated as field names).
 const RESERVED_KEYS = new Set(['body', 'engine']);
 
-// Extension → engine inference (SPEC §4.3).
+// SPEC §4.3 — engine inference by body-path extension.
 const ENGINE_BY_EXT: Record<string, string> = {
   '.jinja':      'jinja',
   '.jinja2':     'jinja',
@@ -58,7 +57,6 @@ export function parse(yamlStr: string, schemaId: string): ParseResult {
 
   const dataMap = data as Record<string, unknown>;
 
-  // Extract reserved keys before building fields.
   let bodyPath: string | undefined;
   if (typeof dataMap.body === 'string') {
     bodyPath = dataMap.body;
@@ -86,7 +84,6 @@ export function parse(yamlStr: string, schemaId: string): ParseResult {
     return { error: `unknown engine '${engine}' — must be one of ${JSON.stringify(valid)}` };
   }
 
-  // Infer engine from body path extension if not explicit.
   if (engine === undefined && bodyPath !== undefined) {
     const ext = path.extname(bodyPath).toLowerCase();
     if (ext in ENGINE_BY_EXT) {
