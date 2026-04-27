@@ -1,4 +1,3 @@
-// TemplaneFieldType — discriminated union
 export type TemplaneFieldType =
   | { kind: 'string' }
   | { kind: 'number' }
@@ -25,7 +24,6 @@ export interface TypeCheckError {
   message: string;
 }
 
-// AST nodes — discriminated union
 export interface Condition {
   op: string;
   left: string;
@@ -38,7 +36,6 @@ export type ASTNode =
   | { kind: 'if'; condition: Condition; then_branch: ASTNode[]; else_branch: ASTNode[] }
   | { kind: 'foreach'; var: string; iterable: string; body: ASTNode[] };
 
-// TIR nodes — discriminated union
 export type TIRNode =
   | { kind: 'text'; content: string }
   | { kind: 'expr'; field: string; resolved: unknown }

@@ -71,9 +71,7 @@ class TemplaneConfigurationTest {
             .isInstanceOf(IllegalArgumentException.class);
     }
 
-    // -----------------------------------------------------------------------
-    // External-body schema (SPEC §4.3) — body: key references native template file
-    // -----------------------------------------------------------------------
+    // SPEC §4.3 — sidecar mode (body: key references an external template file).
 
     @Test
     void sidecarLoadsExternalBody(@TempDir Path tmp) throws Exception {

@@ -11,8 +11,6 @@ import (
 )
 
 // ParseResult is the outcome of parsing a Templane schema document.
-// On success, Schema is populated; optional fields describe body resolution.
-// On failure, Error is populated.
 type ParseResult struct {
 	Schema   *TypedSchema `json:"schema,omitempty"`
 	Body     *string      `json:"body,omitempty"`      // nil if no embedded body / unresolved sidecar
@@ -38,7 +36,6 @@ var validEngines = map[string]struct{}{
 	"yaml-raw":   {},
 }
 
-// engineByExt maps lowercase file extensions to engine identifiers.
 var engineByExt = map[string]string{
 	".jinja":      "jinja",
 	".jinja2":     "jinja",
@@ -118,7 +115,6 @@ func ParseSchema(yamlStr, schemaID string) ParseResult {
 		}
 	}
 
-	// Infer engine from body-path extension when not explicit.
 	if engine == nil && bodyPath != nil {
 		ext := strings.ToLower(filepath.Ext(*bodyPath))
 		if inferred, ok := engineByExt[ext]; ok {
@@ -127,7 +123,6 @@ func ParseSchema(yamlStr, schemaID string) ParseResult {
 		}
 	}
 
-	// Build field set from remaining top-level keys.
 	fields := make(map[string]TemplaneField, len(mapData))
 	for name, fieldDef := range mapData {
 		if _, reserved := reservedSchemaKeys[name]; reserved {
@@ -170,7 +165,6 @@ func validateBodyPath(p string) string {
 	if filepath.IsAbs(p) || strings.HasPrefix(p, "/") {
 		return "body path must be relative and inside the schema's directory"
 	}
-	// Check for ".." path segments (normalize separators for cross-platform safety).
 	normalized := strings.ReplaceAll(p, "\\", "/")
 	for _, seg := range strings.Split(normalized, "/") {
 		if seg == ".." {
@@ -239,7 +233,6 @@ func toString(v any) string {
 	if s, ok := v.(string); ok {
 		return s
 	}
-	// Fall back to %v formatting for numbers/booleans.
 	switch x := v.(type) {
 	case bool:
 		if x {
@@ -279,10 +272,8 @@ func intToString(i int) string {
 }
 
 func floatToString(f float64) string {
-	// Minimal: cast to int if whole number.
 	if f == float64(int(f)) {
 		return intToString(int(f))
 	}
-	// Let fmt handle the rare non-integer case at call sites.
 	return ""
 }

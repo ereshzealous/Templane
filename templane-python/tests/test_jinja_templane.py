@@ -68,9 +68,7 @@ def test_missing_body_raises_on_load(tmp_templates):
         env.get_template("nobody.templane")
 
 
-# ---------------------------------------------------------------------------
-# External-body schema (SPEC §4.3) — body: key references native template file
-# ---------------------------------------------------------------------------
+# SPEC §4.3 — sidecar mode (body: key references an external template file).
 
 def test_sidecar_loads_external_body(tmp_templates):
     _write(tmp_templates, "email.jinja", "Hi {{ name }}!")

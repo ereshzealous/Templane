@@ -8,10 +8,9 @@ from .models import (
     typed_schema_to_dict,
 )
 
-# Top-level keys that are reserved by the protocol (not treated as field names).
 _RESERVED_KEYS = {"body", "engine"}
 
-# Extension → engine inference (SPEC §4.3).
+# SPEC §4.3 — engine inference by body-path extension.
 _ENGINE_BY_EXT = {
     ".jinja":      "jinja",
     ".jinja2":     "jinja",
@@ -61,10 +60,8 @@ def parse(yaml_str: str, schema_id: str) -> dict:
     if not isinstance(data, dict):
         return {"error": "Schema must be a YAML mapping"}
 
-    # Extract reserved keys before building fields.
     body_path = data.pop("body", None) if isinstance(data.get("body", None), str) or data.get("body", None) is None else None
     engine = data.pop("engine", None) if isinstance(data.get("engine", None), str) or data.get("engine", None) is None else None
-    # Re-pop even if type check filtered (keep dict clean).
     data.pop("body", None)
     data.pop("engine", None)
 
@@ -78,13 +75,11 @@ def parse(yaml_str: str, schema_id: str) -> dict:
     if engine is not None and engine not in _VALID_ENGINES:
         return {"error": f"unknown engine '{engine}' — must be one of {sorted(_VALID_ENGINES)}"}
 
-    # Infer engine from body path extension if not explicit.
     if engine is None and body_path is not None:
         inferred = _ENGINE_BY_EXT.get(Path(body_path).suffix.lower())
         if inferred is not None:
             engine = inferred
 
-    # Build fields from remaining top-level keys.
     fields: dict[str, TemplaneField] = {}
     for name, field_def in data.items():
         fields[name] = _parse_field(name, field_def or {})

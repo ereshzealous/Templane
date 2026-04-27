@@ -3,10 +3,6 @@ package core
 
 import "encoding/json"
 
-// ---------------------------------------------------------------------------
-// TemplaneFieldType — discriminated by Kind.
-// ---------------------------------------------------------------------------
-
 type TemplaneFieldType struct {
 	Kind     string
 	Values   []string
@@ -52,8 +48,6 @@ func (t *TemplaneFieldType) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ---------------------------------------------------------------------------
-
 type TemplaneField struct {
 	Name     string       `json:"name"`
 	Type     TemplaneFieldType `json:"type"`
@@ -70,10 +64,6 @@ type TypeCheckError struct {
 	Field   string `json:"field"`
 	Message string `json:"message"`
 }
-
-// ---------------------------------------------------------------------------
-// AST — discriminated by Kind.
-// ---------------------------------------------------------------------------
 
 type Condition struct {
 	Op    string `json:"op"`
@@ -164,10 +154,6 @@ func (n *ASTNode) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ---------------------------------------------------------------------------
-// TIR — discriminated by Kind.
-// ---------------------------------------------------------------------------
-
 type TIRNode struct {
 	Kind      string
 	Content   string
@@ -249,8 +235,6 @@ type TIRResult struct {
 	SchemaID   string    `json:"schema_id"`
 	Nodes      []TIRNode `json:"nodes"`
 }
-
-// ---------------------------------------------------------------------------
 
 type errUnknownKind string
 
